@@ -88,23 +88,26 @@ function Header({ currentLanguage, setCurrentLanguage, translations }) {
         height: 64,
         transform: isHeaderVisible ? 'translateY(0)' : 'translateY(-100%)'
       }}
+      role="banner"
     >
       <div className="w-full max-w-[1440px] mx-auto flex items-center justify-between px-4 lg:px-[144px]">
         <div className="flex items-center gap-6">
           <LegalCityLogo />
-          <button 
-            onClick={() => navigate('/')}
-            className={`hidden md:flex items-center text-sm gap-2 transition-all duration-200 px-3 py-2 relative ${
-              isActive('/') 
-                ? 'text-white' 
-                : 'text-white/90 hover:text-white'
-            }`}
-          >
-            <span>Home</span>
-            {isActive('/') && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-white rounded-full"></div>
-            )}
-          </button>
+          <nav className="hidden md:flex items-center gap-2" role="navigation" aria-label="Main navigation">
+            <button 
+              onClick={() => navigate('/')}
+              className={`flex items-center text-sm gap-2 transition-all duration-200 px-3 py-2 relative ${
+                isActive('/') 
+                  ? 'text-white' 
+                  : 'text-white/90 hover:text-white'
+              }`}
+              aria-current={isActive('/') ? 'page' : undefined}
+            >
+              <span>Home</span>
+              {isActive('/') && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-white rounded-full"></div>
+              )}
+            </button>
           <div 
             className="relative"
             onMouseEnter={() => setShowDirectoryMenu(true)}
@@ -205,19 +208,21 @@ function Header({ currentLanguage, setCurrentLanguage, translations }) {
               <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-white rounded-full"></div>
             )}
           </button>
-          <button 
-            onClick={() => navigate('/contact-us')}
-            className={`hidden md:flex items-center text-sm gap-2 transition-all duration-200 px-3 py-2 relative ${
-              isActive('/contact-us') 
-                ? 'text-white' 
-                : 'text-white/90 hover:text-white'
-            }`}
-          >
-            <span>Contact</span>
-            {isActive('/contact-us') && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-white rounded-full"></div>
-            )}
-          </button>
+            <button 
+              onClick={() => navigate('/contact-us')}
+              className={`flex items-center text-sm gap-2 transition-all duration-200 px-3 py-2 relative ${
+                isActive('/contact-us') 
+                  ? 'text-white' 
+                  : 'text-white/90 hover:text-white'
+              }`}
+              aria-current={isActive('/contact-us') ? 'page' : undefined}
+            >
+              <span>Contact</span>
+              {isActive('/contact-us') && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-white rounded-full"></div>
+              )}
+            </button>
+          </nav>
         </div>
 
         <div className="flex items-center gap-2">

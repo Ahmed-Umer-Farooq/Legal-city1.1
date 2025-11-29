@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import api from '../../utils/api';
 import { useAuth } from '../../context/AuthContext';
 import DashboardHeader from '../../components/layout/DashboardHeader';
+import { updatePageMeta, addStructuredData, seoConfigs, generateLawyerStructuredData } from '../../utils/seo';
 
 // Default fallback data if API fails
 const fallbackLawyers = [];
@@ -153,8 +154,9 @@ function LawyerCard({
         <div className="flex flex-col sm:flex-row gap-4 sm:gap-2">
           <img
             src={imageUrl}
-            alt={name}
+            alt={`${name} - ${category} Attorney`}
             className="w-full sm:w-24 h-48 sm:h-32 object-cover flex-shrink-0"
+            loading="lazy"
           />
 
           <div className="flex-1 sm:pl-2">
@@ -273,6 +275,41 @@ function LawyerDirectory() {
   const cameFromDashboard = user && location.pathname === '/dashboard/lawyers';
 
   useEffect(() => {
+    // SEO optimization
+    const config = seoConfigs.lawyerDirectory;
+    updatePageMeta(
+      config.title,
+      config.description,
+      config.keywords,
+      config.canonical
+    );
+
+    // Add structured data for lawyer directory
+    const structuredData = {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      "name": "Lawyer Directory",
+      "description": "Browse qualified lawyers and attorneys by location and practice area",
+      "url": "https://legalcity.com/lawyers",
+      "numberOfItems": lawyers.length,
+      "itemListElement": lawyers.slice(0, 10).map((lawyer, index) => ({
+        "@type": "ListItem",
+        "position": index + 1,
+        "item": {
+          "@type": "Person",
+          "name": lawyer.name,
+          "jobTitle": "Attorney",
+          "url": `https://legalcity.com/lawyer/${lawyer.id}`,
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": lawyer.city,
+            "addressRegion": lawyer.state
+          }
+        }
+      }))
+    };
+    addStructuredData(structuredData);
+
     fetchLawyers();
   }, []);
 
@@ -382,11 +419,16 @@ function LawyerDirectory() {
           />
         </svg>
 
-        <h1 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center hero-title font-semibold uppercase px-4">
-          Find
-          <br />
-          Lawyers
-        </h1>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center px-4">
+          <h1 className="hero-title font-semibold uppercase">
+            Find
+            <br />
+            Lawyers
+          </h1>
+          <p className="text-white/90 text-sm mt-2 max-w-md">
+            Browse our directory of qualified attorneys. Filter by practice area, experience, and location to find the right legal professional.
+          </p>
+        </div>
       </div>
 
       {/* Main Content */}

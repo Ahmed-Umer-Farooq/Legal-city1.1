@@ -1,0 +1,22 @@
+# humanstxt.org/
+# The humans responsible & technology colophon
+
+# TEAM
+
+    Developer: LegalCity Development Team
+    Contact: info [at] legalcity.com
+    Location: United States
+
+# THANKS
+
+    Legal professionals who provide expert content
+    Users who provide feedback and suggestions
+
+# TECHNOLOGY COLOPHON
+
+    HTML5, CSS3, JavaScript
+    React.js
+    Node.js
+    Tailwind CSS
+    Express.js
+    PostgreSQL

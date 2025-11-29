@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; 
+import React, { useState, useEffect, useMemo, lazy, Suspense } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { updatePageMeta, addStructuredData, seoConfigs } from '../utils/seo';
+import { useIntersectionObserver } from '../hooks/useIntersectionObserver'; 
 
 /**
  * Sub-components (Icons & Logo)
@@ -163,7 +165,7 @@ function Header({ currentLanguage, setCurrentLanguage, translations }) {
   );
 }
 
-function HeroSection({ currentLanguage, translations }) {
+const HeroSection = React.memo(function HeroSection({ currentLanguage, translations }) {
   const navigate = useNavigate();
   const [searchData, setSearchData] = useState({
     lawyer: '',
@@ -171,31 +173,35 @@ function HeroSection({ currentLanguage, translations }) {
     location: ''
   });
 
-  const handleInputChange = (field, value) => {
+  const handleInputChange = React.useCallback((field, value) => {
     setSearchData(prev => ({ ...prev, [field]: value }));
-  };
+  }, []);
 
-  const handleSearch = () => {
+  const handleSearch = React.useCallback(() => {
     const queryParams = new URLSearchParams();
     if (searchData.lawyer) queryParams.append('lawyer', searchData.lawyer);
     if (searchData.specialty) queryParams.append('specialty', searchData.specialty);
     if (searchData.location) queryParams.append('location', searchData.location);
     
     navigate(`/lawyers?${queryParams.toString()}`);
-  };
+  }, [searchData, navigate]);
 
-  const handleKeyPress = (e) => {
+  const handleKeyPress = React.useCallback((e) => {
     if (e.key === 'Enter') {
       handleSearch();
     }
-  };
+  }, [handleSearch]);
 
   return (
     <section className="relative w-full h-[500px] sm:h-[600px] bg-gray-900">
       <img
-        src="https://api.builder.io/api/v1/image/assets/TEMP/d12735386b9fab735739b6b5424336fcff2f69c9?width=2880"
+        src="https://api.builder.io/api/v1/image/assets/TEMP/d12735386b9fab735739b6b5424336fcff2f69c9?width=1440"
+        srcSet="https://api.builder.io/api/v1/image/assets/TEMP/d12735386b9fab735739b6b5424336fcff2f69c9?width=768 768w, https://api.builder.io/api/v1/image/assets/TEMP/d12735386b9fab735739b6b5424336fcff2f69c9?width=1440 1440w, https://api.builder.io/api/v1/image/assets/TEMP/d12735386b9fab735739b6b5424336fcff2f69c9?width=2880 2880w"
+        sizes="(max-width: 768px) 768px, (max-width: 1440px) 1440px, 2880px"
         alt="Lawyer and client shaking hands"
         className="absolute inset-0 w-full h-full object-cover"
+        loading="eager"
+        fetchpriority="high"
       />
       <div className="absolute inset-0 bg-[rgba(90,90,90,0.20)]" />
 
@@ -204,6 +210,9 @@ function HeroSection({ currentLanguage, translations }) {
           <h1 className="text-white text-xl sm:text-2xl font-semibold mb-6 sm:mb-[30px]">
             {translations[currentLanguage].findLawyer}
           </h1>
+          <p className="text-white/90 text-sm mb-4 max-w-md">
+            Connect with qualified attorneys in your area. Search by practice area, location, or lawyer name to find the right legal professional for your needs.
+          </p>
 
           <div className="flex flex-col gap-4 sm:gap-[24px]">
             <div className="h-[41px] rounded-[8px] border border-white/20 bg-gradient-to-r from-white/40 to-white/10 backdrop-blur-md px-4 flex items-center">
@@ -250,9 +259,9 @@ function HeroSection({ currentLanguage, translations }) {
       </div>
     </section>
   );
-}
+});
 
-function LawyerCard({
+const LawyerCard = React.memo(function LawyerCard({
   category,
   name,
   rating,
@@ -282,8 +291,9 @@ function LawyerCard({
             <div className="relative flex-shrink-0">
               <img
                 src={image}
-                alt={name}
+                alt={`${name} - ${category} Attorney`}
                 className="w-16 h-16 object-cover rounded-full border-3 border-gray-200 shadow-sm"
+                loading="lazy"
               />
               <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-white">
                 <div className="w-1.5 h-1.5 bg-white rounded-full mx-auto mt-1"></div>
@@ -356,13 +366,14 @@ function LawyerCard({
       </div>
     </div>
   );
-}
+});
 
-function LawyerCarousel() {
+const LawyerCarousel = React.memo(function LawyerCarousel() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [cardsPerSlide, setCardsPerSlide] = useState(3);
+  const { elementRef, hasIntersected } = useIntersectionObserver();
 
-  const lawyers = [
+  const lawyers = useMemo(() => [
     {
       id: 1,
       category: "Corporate Law",
@@ -428,7 +439,7 @@ function LawyerCarousel() {
       successDate: "Dec 2024",
       successDescription: "Expert handling of complex commercial property transactions. Darlene's attention to detail and market knowledge ensured smooth closings and protected our investment interests.",
     },
-  ];
+  ], []);
 
   useEffect(() => {
     const updateCardsPerSlide = () => {
@@ -446,27 +457,27 @@ function LawyerCarousel() {
     return () => window.removeEventListener('resize', updateCardsPerSlide);
   }, []);
 
-  const totalSlides = Math.ceil(lawyers.length / cardsPerSlide);
+  const totalSlides = useMemo(() => Math.ceil(lawyers.length / cardsPerSlide), [lawyers.length, cardsPerSlide]);
 
-  const nextSlide = () => {
+  const nextSlide = React.useCallback(() => {
     setCurrentSlide((prev) => (prev + 1) % totalSlides);
-  };
+  }, [totalSlides]);
 
-  const prevSlide = () => {
+  const prevSlide = React.useCallback(() => {
     setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides);
-  };
+  }, [totalSlides]);
 
-  const goToSlide = (index) => {
+  const goToSlide = React.useCallback((index) => {
     setCurrentSlide(index);
-  };
+  }, []);
 
   return (
     <section className="w-full bg-gradient-to-b from-gray-50 to-white py-16 relative">
       <div className="w-full max-w-7xl mx-auto px-6">
-        <div className="text-center mb-12">
+        <header className="text-center mb-12">
           <h2 className="text-3xl font-bold text-gray-900 mb-4">Featured Legal Professionals</h2>
           <p className="text-gray-600 max-w-2xl mx-auto">Connect with top-rated lawyers in your area. Our verified professionals are ready to help with your legal needs.</p>
-        </div>
+        </header>
         
         <div className="relative">
           <div className="overflow-hidden">
@@ -522,7 +533,7 @@ function LawyerCarousel() {
       </div>
     </section>
   );
-}
+});
 
 /**
  * Footer Component
@@ -607,6 +618,42 @@ function Footer({ currentLanguage, translations }) {
 export default function UserInterface() {
   const [currentLanguage, setCurrentLanguage] = useState('EN');
 
+  // SEO and performance optimization
+  useEffect(() => {
+    const config = seoConfigs.home;
+    updatePageMeta(
+      config.title,
+      config.description,
+      config.keywords,
+      config.canonical
+    );
+
+    // Preload critical images
+    const heroImage = new Image();
+    heroImage.src = "https://api.builder.io/api/v1/image/assets/TEMP/d12735386b9fab735739b6b5424336fcff2f69c9?width=1440";
+
+    // Add structured data for the homepage
+    const structuredData = {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "LegalCity",
+      "url": "https://legalcity.com",
+      "description": config.description,
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://legalcity.com/lawyers?search={search_term_string}",
+        "query-input": "required name=search_term_string"
+      },
+      "provider": {
+        "@type": "Organization",
+        "name": "LegalCity",
+        "serviceType": "Legal Services Directory",
+        "areaServed": "United States"
+      }
+    };
+    addStructuredData(structuredData);
+  }, []);
+
   const translations = {
     EN: {
       findLawyer: 'Find Lawyer',
@@ -645,7 +692,9 @@ export default function UserInterface() {
   return (
     <>
       <HeroSection currentLanguage={currentLanguage} translations={translations} />
-      <LawyerCarousel />
+      <Suspense fallback={<div className="w-full h-96 bg-gray-50 animate-pulse flex items-center justify-center"><span className="text-gray-500">Loading lawyers...</span></div>}>
+        <LawyerCarousel />
+      </Suspense>
     </>
   );
 }
