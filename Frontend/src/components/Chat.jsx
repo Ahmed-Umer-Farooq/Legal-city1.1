@@ -135,6 +135,22 @@ const Chat = ({ currentUser }) => {
     loadMessages(conversation.partner_id, conversation.partner_type);
   };
 
+  const deleteChat = async (conversation, e) => {
+    e.stopPropagation();
+    if (window.confirm(`Delete conversation with ${conversation.partner_name}?`)) {
+      try {
+        await chatService.deleteConversation(conversation.partner_id, conversation.partner_type);
+        if (activeChat?.partner_id === conversation.partner_id) {
+          setActiveChat(null);
+          setMessages([]);
+        }
+        loadConversations();
+      } catch (error) {
+        console.error('Error deleting conversation:', error);
+      }
+    }
+  };
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -152,12 +168,21 @@ const Chat = ({ currentUser }) => {
           conversations.map((conv) => (
             <div
               key={`${conv.partner_id}-${conv.partner_type}`}
-              className={`p-3 cursor-pointer rounded-lg mb-2 ${activeChat?.partner_id === conv.partner_id ? 'bg-blue-100' : 'hover:bg-gray-100'}`}
+              className={`p-3 cursor-pointer rounded-lg mb-2 relative group ${activeChat?.partner_id === conv.partner_id ? 'bg-blue-100' : 'hover:bg-gray-100'}`}
               onClick={() => selectChat(conv)}
             >
               <div className="flex justify-between items-center">
                 <span className="font-medium">{conv.partner_name}</span>
-                {onlineUsers.has(conv.partner_id) && <span className="text-green-500">●</span>}
+                <div className="flex items-center gap-2">
+                  {onlineUsers.has(conv.partner_id) && <span className="text-green-500">●</span>}
+                  <button
+                    onClick={(e) => deleteChat(conv, e)}
+                    className="text-red-500 hover:text-red-700 hover:bg-red-100 rounded px-1 text-lg font-bold"
+                    title="Delete conversation"
+                  >
+                    🗑️
+                  </button>
+                </div>
               </div>
               <div className="text-sm text-gray-600 truncate">{conv.last_message || 'Tap to start messaging'}</div>
               {conv.unread_count > 0 && (

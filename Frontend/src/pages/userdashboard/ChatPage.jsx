@@ -664,6 +664,22 @@ const ChatPage = () => {
     setIncomingCall(null);
   };
 
+  const deleteConversation = async (conv, e) => {
+    e.stopPropagation();
+    if (window.confirm(`Delete conversation with ${conv.partner_name}?`)) {
+      try {
+        await chatService.deleteConversation(conv.partner_id, conv.partner_type);
+        if (selectedConversation?.partner_id === conv.partner_id) {
+          setSelectedConversation(null);
+          setMessages([]);
+        }
+        loadConversations();
+      } catch (error) {
+        console.error('Error deleting conversation:', error);
+      }
+    }
+  };
+
   const filteredConversations = (conversations || []).filter(conv =>
     conv.partner_name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -696,12 +712,6 @@ const ChatPage = () => {
                 title="Call History"
               >
                 <Phone className="w-5 h-5" />
-              </button>
-              <button className="p-2 hover:bg-white/10 rounded-xl transition-all duration-300 hover:scale-110">
-                <Settings className="w-5 h-5" />
-              </button>
-              <button className="p-2 hover:bg-white/10 rounded-xl transition-all duration-300 hover:scale-110">
-                <Bell className="w-5 h-5" />
               </button>
             </div>
           </div>
@@ -745,56 +755,94 @@ const ChatPage = () => {
               {filteredConversations.map((conv, index) => (
                 <div
                   key={`${conv.partner_id}-${conv.partner_type}`}
-                  onClick={() => setSelectedConversation(conv)}
-                  className={`group relative p-4 mb-2 rounded-2xl cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-lg ${
+                  className={`group relative mb-2 rounded-2xl transition-all duration-300 hover:scale-[1.02] hover:shadow-lg ${
                     selectedConversation?.partner_id === conv.partner_id 
                       ? 'bg-gradient-to-r from-blue-500/10 to-purple-500/10 border-2 border-blue-200 shadow-lg' 
                       : 'bg-white/60 hover:bg-white/80 border border-white/40'
                   }`}
                 >
-                  {/* Conversation Item */}
-                  <div className="flex items-center space-x-4">
-                    <div className="relative">
-                      <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-white font-bold text-lg shadow-lg ${
-                        selectedConversation?.partner_id === conv.partner_id
-                          ? 'bg-gradient-to-br from-blue-500 to-purple-600'
-                          : 'bg-gradient-to-br from-indigo-500 to-purple-600'
-                      }`}>
-                        {conv.partner_name?.charAt(0) || 'U'}
-                      </div>
-                      {isUserOnline(conv.partner_id) && (
-                        <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-400 border-3 border-white rounded-full shadow-sm animate-pulse">
-                          <div className="w-full h-full bg-green-500 rounded-full animate-ping"></div>
-                        </div>
-                      )}
-                      {userType === 'lawyer' && (
-                        <div className="absolute -top-1 -left-1 w-6 h-6 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center shadow-lg">
-                          <Crown className="w-3 h-3 text-white" />
-                        </div>
-                      )}
+                  {/* Three-dots menu */}
+                  <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-all duration-200">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const menu = e.currentTarget.nextElementSibling;
+                        menu.classList.toggle('hidden');
+                      }}
+                      className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-all duration-200"
+                      title="More options"
+                    >
+                      <MoreVertical size={16} />
+                    </button>
+                    {/* Dropdown menu */}
+                    <div className="hidden absolute right-0 top-8 bg-white rounded-lg shadow-lg border py-1 min-w-[120px] z-20">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          e.currentTarget.parentElement.classList.add('hidden');
+                          deleteConversation(conv, e);
+                        }}
+                        className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 transition-colors"
+                      >
+                        Delete chat
+                      </button>
                     </div>
-                    
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-1">
-                        <h3 className="font-bold text-gray-800 truncate group-hover:text-blue-600 transition-colors">
-                          {conv.partner_name}
-                        </h3>
-                        <div className="flex items-center space-x-2">
-                          {conv.last_message_time && (
-                            <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                              {new Date(conv.last_message_time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
-                            </span>
-                          )}
-                          {conv.unread_count > 0 && (
-                            <div className="relative">
-                              <span className="bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold shadow-lg animate-bounce">
-                                {conv.unread_count}
-                              </span>
-                              <div className="absolute inset-0 bg-red-400 rounded-full animate-ping opacity-75"></div>
-                            </div>
-                          )}
+                  </div>
+                  
+                  {/* Clickable Conversation Area */}
+                  <div
+                    onClick={() => setSelectedConversation(conv)}
+                    onContextMenu={(e) => {
+                      e.preventDefault();
+                      if (window.confirm(`Delete conversation with ${conv.partner_name}?`)) {
+                        deleteConversation(conv, e);
+                      }
+                    }}
+                    className="p-4 cursor-pointer"
+                    title="Right-click for options"
+                  >
+                    <div className="flex items-center space-x-4">
+                      <div className="relative">
+                        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-white font-bold text-lg shadow-lg ${
+                          selectedConversation?.partner_id === conv.partner_id
+                            ? 'bg-gradient-to-br from-blue-500 to-purple-600'
+                            : 'bg-gradient-to-br from-indigo-500 to-purple-600'
+                        }`}>
+                          {conv.partner_name?.charAt(0) || 'U'}
                         </div>
+                        {isUserOnline(conv.partner_id) && (
+                          <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-400 border-3 border-white rounded-full shadow-sm animate-pulse">
+                            <div className="w-full h-full bg-green-500 rounded-full animate-ping"></div>
+                          </div>
+                        )}
+                        {userType === 'lawyer' && (
+                          <div className="absolute -top-1 -left-1 w-6 h-6 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center shadow-lg">
+                            <Crown className="w-3 h-3 text-white" />
+                          </div>
+                        )}
                       </div>
+                      
+                      <div className="flex-1 min-w-0 pr-8">
+                        <div className="flex items-center justify-between mb-1">
+                          <h3 className="font-bold text-gray-800 truncate group-hover:text-blue-600 transition-colors">
+                            {conv.partner_name}
+                          </h3>
+                          <div className="flex items-center space-x-2">
+                            {conv.last_message_time && (
+                              <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                                {new Date(conv.last_message_time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                              </span>
+                            )}
+                            {conv.unread_count > 0 && (
+                              <div className="relative">
+                                <span className="bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold shadow-lg animate-bounce">
+                                  {conv.unread_count}
+                                </span>
+                                <div className="absolute inset-0 bg-red-400 rounded-full animate-ping opacity-75"></div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
                       
                       <div className="flex items-center justify-between">
                         <p className="text-sm text-gray-600 truncate flex-1 mr-2">
@@ -811,12 +859,13 @@ const ChatPage = () => {
                           )}
                           <Star className="w-3 h-3 text-yellow-400 opacity-0 group-hover:opacity-100 transition-opacity" />
                         </div>
+                        </div>
                       </div>
                     </div>
                   </div>
                   
                   {/* Hover Effect */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                 </div>
               ))}
             </div>

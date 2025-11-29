@@ -123,6 +123,15 @@ class ChatService {
     }
   }
 
+  async deleteConversation(partnerId, partnerType) {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`http://localhost:5001/api/chat/conversation/${partnerId}/${partnerType}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    return response.json();
+  }
+
   removeAllListeners() {
     if (this.socket) {
       this.socket.removeAllListeners();
