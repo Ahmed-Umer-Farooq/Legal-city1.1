@@ -53,14 +53,28 @@ export default function HeroSection() {
   };
 
   return (
-    <div className="w-full bg-lawyer-gray px-4 sm:px-6 md:px-12 lg:px-[244px] pt-12 md:pt-16 lg:pt-20 pb-8 md:pb-12 lg:pb-[92px]">
+    <div className="w-full bg-lawyer-gray px-4 sm:px-6 md:px-12 lg:px-[244px] pt-12 md:pt-16 lg:pt-20 pb-8 md:pb-12 lg:pb-[92px] relative overflow-hidden">
+      {/* SEO-friendly background image */}
+      <div className="absolute inset-0 z-0">
+        <img 
+          src="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=1920&h=1080&fit=crop&crop=center&auto=format&q=80" 
+          alt="Professional lawyers and attorneys in modern law office - Legal consultation and representation services"
+          className="w-full h-full object-cover opacity-15"
+          loading="eager"
+          fetchpriority="high"
+        />
+      </div>
+      <div className="relative z-10">
       <div className="flex flex-col gap-6">
         <div className="flex flex-col gap-6 lg:gap-[23px]">
           <h1 className="text-lawyer-blue font-inter text-3xl sm:text-4xl lg:text-[45px] font-bold leading-tight lg:leading-[52px]">
-            Experienced lawyers are
+            Find Qualified Lawyers &
             <br />
-            ready to help.
+            Legal Professionals Near You
           </h1>
+          <p className="text-lawyer-gray-text font-inter text-lg md:text-xl leading-relaxed max-w-2xl">
+            Connect with experienced attorneys specializing in your legal needs. Search by practice area, location, and get expert legal representation today.
+          </p>
           
           <div className="flex flex-wrap items-center gap-4 md:gap-[104px]">
             <div className="text-lawyer-gray-text font-inter text-base md:text-[19px] font-normal leading-[26px]">
@@ -85,6 +99,7 @@ export default function HeroSection() {
               value={practiceArea}
               onChange={(e) => setPracticeArea(e.target.value)}
               onKeyPress={handleKeyPress}
+              aria-label="Search by practice area or lawyer name"
               className="w-full h-[38px] pl-[34px] pr-3 py-2.5 border border-[#CCC] bg-white text-base font-inter placeholder:text-lawyer-gray-text placeholder:opacity-40"
             />
           </div>
@@ -99,6 +114,7 @@ export default function HeroSection() {
               value={location}
               onChange={(e) => setLocation(e.target.value)}
               onKeyPress={handleKeyPress}
+              aria-label="Search by city, state, or ZIP code"
               className="w-full h-[38px] pl-[34px] pr-3 py-2.5 border border-[#CCC] bg-white text-base font-inter placeholder:text-lawyer-gray-text placeholder:opacity-40"
             />
           </div>
@@ -143,6 +159,7 @@ export default function HeroSection() {
             </div>
           </div>
         )}
+      </div>
       </div>
     </div>
   );
