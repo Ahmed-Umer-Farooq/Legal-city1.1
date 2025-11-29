@@ -68,9 +68,18 @@ const BlogCard = ({ id, image, category, title, author, authorImage, date, comme
   };
   
   return (
-    <div 
+    <article 
       onClick={handleClick}
-      className="blog-card bg-white rounded-lg border border-[#E8E8EA] p-3 flex flex-col gap-3 hover:shadow-md cursor-pointer"
+      className="blog-card bg-white rounded-xl border border-gray-200 p-4 flex flex-col gap-4 hover:shadow-lg cursor-pointer transition-all duration-300 hover:-translate-y-1"
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handleClick();
+        }
+      }}
+      aria-label={`Read article: ${title}`}
     >
       {getImageSrc(image) ? (
         <img 
@@ -136,7 +145,7 @@ const BlogCard = ({ id, image, category, title, author, authorImage, date, comme
           </div>
         </div>
       </div>
-    </div>
+    </article>
   );
 };
 
@@ -485,6 +494,42 @@ const Blog = () => {
   const isLoggedIn = !!localStorage.getItem('token');
   const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
 
+  // SEO Meta Tags
+  useEffect(() => {
+    document.title = 'Legal Blog - Expert Legal Insights & News | LegalCity';
+    
+    const updateMetaTag = (name, content) => {
+      let meta = document.querySelector(`meta[name="${name}"]`);
+      if (!meta) {
+        meta = document.createElement('meta');
+        meta.setAttribute('name', name);
+        document.head.appendChild(meta);
+      }
+      meta.setAttribute('content', content);
+    };
+
+    const updateOGTag = (property, content) => {
+      let meta = document.querySelector(`meta[property="${property}"]`);
+      if (!meta) {
+        meta = document.createElement('meta');
+        meta.setAttribute('property', property);
+        document.head.appendChild(meta);
+      }
+      meta.setAttribute('content', content);
+    };
+
+    updateMetaTag('description', 'Stay informed with expert legal insights, news, and analysis from qualified attorneys. Read the latest legal blog posts covering various practice areas and legal developments.');
+    updateMetaTag('keywords', 'legal blog, legal news, attorney insights, law articles, legal advice, legal updates, lawyer blog, legal analysis');
+    updateOGTag('og:title', 'Legal Blog - Expert Legal Insights & News | LegalCity');
+    updateOGTag('og:description', 'Stay informed with expert legal insights, news, and analysis from qualified attorneys.');
+    updateOGTag('og:type', 'website');
+    updateOGTag('og:url', 'https://legalcity.com/legal-blog');
+
+    return () => {
+      document.title = 'LegalCity';
+    };
+  }, []);
+
   // Fetch blogs from your backend
   useEffect(() => {
     const fetchBlogs = async () => {
@@ -706,29 +751,54 @@ const Blog = () => {
       )}
       
       {/* Blog Search Section */}
-      <div className="w-full bg-[#E7EFFD] px-4 sm:px-6 md:px-12 lg:px-24 py-4">
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-6 sm:gap-6 max-w-2xl">
-          <div className="relative flex-1">
-            <input
-              type="text"
-              placeholder="Search blogs..."
-              value={searchTerm}
-              onChange={(e) => {
-                console.log('✏️ Search input changed:', e.target.value);
-                setSearchTerm(e.target.value);
-              }}
-              className="w-full h-[38px] pl-4 pr-3 py-2.5 border border-[#CCC] bg-white text-base font-inter placeholder:text-gray-500 rounded-md"
-            />
+      <div className="w-full bg-lawyer-gray px-4 sm:px-6 md:px-12 lg:px-[244px] pt-12 md:pt-16 lg:pt-20 pb-8 md:pb-12 lg:pb-[92px] relative overflow-hidden">
+        {/* SEO-friendly background image */}
+        <div className="absolute inset-0 z-0">
+          <img 
+            src="https://images.unsplash.com/photo-1556075798-4825dfaaf498?w=1920&h=1080&fit=crop&crop=center&auto=format&q=80" 
+            alt="Professional lawyers and legal experts in modern law office discussing legal insights and blog content - Legal consultation and analysis background"
+            className="w-full h-full object-cover opacity-15"
+            loading="eager"
+            fetchpriority="high"
+          />
+        </div>
+        <div className="relative z-10 flex flex-col gap-8">
+          <div className="text-center">
+            <h1 className="text-lawyer-blue font-inter text-3xl sm:text-4xl lg:text-[45px] font-bold leading-tight lg:leading-[52px] mb-4">
+              Legal Blog
+            </h1>
           </div>
-          <button 
-            onClick={() => {
-              console.log('🔍 Search button clicked');
-              handleSearch();
-            }}
-            className="h-[38px] px-6 bg-gradient-to-b from-[#0071BC] to-[#00D2FF] text-white font-inter text-sm font-normal leading-[22.5px] hover:opacity-90 transition-opacity whitespace-nowrap rounded-md"
-          >
-            Search Blogs
-          </button>
+
+          <div className="max-w-2xl mx-auto w-full">
+            <div className="flex flex-col sm:flex-row items-stretch gap-4 bg-white rounded-lg shadow-lg p-2">
+              <div className="relative flex-1">
+                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                  <Search className="w-5 h-5 text-gray-400" />
+                </div>
+                <input
+                  type="text"
+                  placeholder="Search legal articles, topics, or authors..."
+                  value={searchTerm}
+                  onChange={(e) => {
+                    console.log('✏️ Search input changed:', e.target.value);
+                    setSearchTerm(e.target.value);
+                  }}
+                  aria-label="Search legal blog posts"
+                  className="w-full h-12 pl-12 pr-4 py-3 border-0 bg-transparent text-base font-inter placeholder:text-gray-500 focus:outline-none focus:ring-0"
+                />
+              </div>
+
+              <button 
+                onClick={() => {
+                  console.log('🔍 Search button clicked');
+                  handleSearch();
+                }}
+                className="h-12 px-8 bg-gradient-to-r from-[#0071BC] to-[#00D2FF] text-white font-inter text-sm font-semibold hover:opacity-90 transition-all duration-200 rounded-md shadow-md hover:shadow-lg whitespace-nowrap"
+              >
+                Search
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -742,9 +812,9 @@ const Blog = () => {
                 {/* LawyerActions removed - using existing dashboard */}
               </div>
               
-              <div className="blog-grid grid grid-cols-1 gap-4 mb-6">
+              <div className="blog-grid grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
                 {displayPosts.map((post, index) => (
-                  <BlogCard key={index} {...post} onReport={handleReport} />
+                  <BlogCard key={post.id || index} {...post} onReport={handleReport} />
                 ))}
               </div>
               
