@@ -82,8 +82,8 @@ function Header({ currentLanguage, setCurrentLanguage, translations }) {
 
   return (
     <header 
-      className={`w-full bg-gradient-to-b from-[#0071BC] to-[#00D2FF] flex items-center h-16 fixed top-0 z-50 transition-transform duration-300 ${
-        isScrolled ? 'shadow-lg backdrop-blur-sm' : ''
+      className={`w-full bg-gradient-to-r from-[#0071BC]/85 to-[#00D2FF]/85 backdrop-blur-lg flex items-center h-16 fixed top-0 z-50 transition-transform duration-300 shadow-lg border-b border-white/20 ${
+        isScrolled ? 'shadow-xl' : ''
       }`} 
       style={{ 
         height: 64,
