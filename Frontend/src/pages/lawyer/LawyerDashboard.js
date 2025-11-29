@@ -212,10 +212,10 @@ export default function LawyerDashboard() {
           <div className="flex items-center justify-between gap-4 w-full">
             {/* Professional Logo/Brand */}
             <div className="flex items-center gap-2">
-              <div className="bg-[#0284C7] rounded-full px-3 py-1.5 shadow-lg">
-                <span className="text-white font-bold text-lg">Legal</span>
+              <div className="bg-[#0284C7] rounded-full px-4 py-2 shadow-lg">
+                <span className="text-white font-bold text-xl tracking-tight">Legal</span>
               </div>
-              <span className="text-[#0284C7] font-bold text-lg">City</span>
+              <span className="text-[#0284C7] font-bold text-xl tracking-tight">City</span>
             </div>
             
             {/* Navigation Sections */}

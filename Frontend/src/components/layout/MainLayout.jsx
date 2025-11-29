@@ -10,13 +10,14 @@ function LegalCityLogo() {
   
   return (
     <div 
-      className="flex items-center gap-2 cursor-pointer"
+      className="flex items-center gap-2 cursor-pointer hover:opacity-90 transition-opacity"
       onClick={() => navigate('/')}
+      title="Legal City - Legal for the people"
     >
-      <div className="bg-white rounded-lg px-3 py-1.5 shadow-sm">
-        <span className="text-[#0284C7] font-bold text-lg tracking-tight">Legal</span>
+      <div className="bg-white rounded-full px-4 py-2 shadow-lg">
+        <span className="text-[#0284C7] font-bold text-xl tracking-tight">Legal</span>
       </div>
-      <span className="text-white font-bold text-lg tracking-tight">City</span>
+      <span className="text-white font-bold text-xl tracking-tight">City</span>
     </div>
   );
 }
@@ -90,7 +91,7 @@ function Header({ currentLanguage, setCurrentLanguage, translations }) {
       }}
       role="banner"
     >
-      <div className="w-full max-w-[1440px] mx-auto flex items-center justify-between px-4 lg:px-[144px]">
+      <div className="w-full max-w-[1440px] mx-auto flex items-center justify-between px-4 lg:px-8">
         <div className="flex items-center gap-6">
           <LegalCityLogo />
           <nav className="hidden md:flex items-center gap-2" role="navigation" aria-label="Main navigation">
@@ -225,7 +226,33 @@ function Header({ currentLanguage, setCurrentLanguage, translations }) {
           </nav>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <button 
+              onClick={() => setShowLanguageMenu(!showLanguageMenu)}
+              className="w-9 h-9 rounded-full bg-transparent border border-white/30 hover:bg-white/10 transition-colors flex items-center justify-center"
+              title={`Language: ${currentLanguage}`}
+            >
+              <span className="text-white text-xs font-medium">{currentLanguage}</span>
+            </button>
+            
+            {showLanguageMenu && (
+              <div className="absolute top-full right-0 mt-1 bg-white rounded-lg border border-gray-200 shadow-lg z-10 min-w-[120px]">
+                {languages.map((language) => (
+                  <button
+                    key={language.code}
+                    onClick={() => handleLanguageSelect(language)}
+                    className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-50 transition-colors ${
+                      currentLanguage === language.code ? 'bg-blue-50 text-blue-600' : 'text-gray-700'
+                    }`}
+                  >
+                    {language.name}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
           {/* Check if user is logged in */}
           {(() => {
             const token = localStorage.getItem('token');
@@ -261,59 +288,27 @@ function Header({ currentLanguage, setCurrentLanguage, translations }) {
               );
             } else {
               return (
-                <button 
-                  onClick={handleLoginClick}
-                  className="flex items-center gap-2 h-[38px] px-4 rounded-[20px] bg-transparent border border-white/30 hover:bg-white/10 transition-colors"
-                >
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="7" cy="4" r="3" stroke="white" strokeWidth="1.5"/>
-                    <path d="M2 12c0-2.5 2.5-4 5-4s5 1.5 5 4" stroke="white" strokeWidth="1.5"/>
-                  </svg>
-                  <span className="text-white text-sm">{translations[currentLanguage].login}</span>
-                </button>
+                <>
+                  <button 
+                    onClick={handleLoginClick}
+                    className="flex items-center gap-2 h-[38px] px-4 rounded-[20px] bg-transparent border border-white/30 hover:bg-white/10 transition-colors"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <circle cx="7" cy="4" r="3" stroke="white" strokeWidth="1.5"/>
+                      <path d="M2 12c0-2.5 2.5-4 5-4s5 1.5 5 4" stroke="white" strokeWidth="1.5"/>
+                    </svg>
+                    <span className="text-white text-sm">{translations[currentLanguage].login}</span>
+                  </button>
+                  <button 
+                    onClick={handleSignupClick}
+                    className="h-[38px] px-6 rounded-[20px] bg-white text-black text-sm font-medium hover:bg-gray-100 transition-colors"
+                  >
+                    {translations[currentLanguage].signup}
+                  </button>
+                </>
               );
             }
           })()}
-
-          <div className="relative">
-            <button 
-              onClick={() => setShowLanguageMenu(!showLanguageMenu)}
-              className="flex items-center gap-2 h-[38px] px-3 rounded-[20px] bg-transparent border border-white/30 hover:bg-white/10 transition-colors"
-            >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="8" cy="8" r="6" stroke="white" strokeWidth="1.5"/>
-                <path d="M2 8h12M8 2c1.5 0 3 2.5 3 6s-1.5 6-3 6-3-2.5-3-6 1.5-6 3-6z" stroke="white" strokeWidth="1.5"/>
-              </svg>
-              <span className="text-white text-sm">{currentLanguage}</span>
-              <svg className={`w-3 h-3 text-white transition-transform ${showLanguageMenu ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-            
-            {showLanguageMenu && (
-              <div className="absolute top-full right-0 mt-1 bg-white rounded-lg border border-gray-200 shadow-lg z-10 min-w-[120px]">
-                {languages.map((language) => (
-                  <button
-                    key={language.code}
-                    onClick={() => handleLanguageSelect(language)}
-                    className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-50 transition-colors ${
-                      currentLanguage === language.code ? 'bg-blue-50 text-blue-600' : 'text-gray-700'
-                    }`}
-                  >
-                    {language.name}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Signup button - always visible */}
-          <button 
-            onClick={handleSignupClick}
-            className="h-[38px] px-6 rounded-[20px] bg-white text-black text-sm font-medium hover:bg-gray-100 transition-colors"
-          >
-            {translations[currentLanguage].signup}
-          </button>
         </div>
       </div>
     </header>
@@ -329,10 +324,10 @@ function Footer({ currentLanguage, translations }) {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center gap-2 mb-4">
-              <div className="bg-white rounded-lg px-3 py-1.5 shadow-sm">
-                <span className="text-[#0284C7] font-bold text-lg tracking-tight">Legal</span>
+              <div className="bg-white rounded-full px-4 py-2 shadow-lg">
+                <span className="text-[#0284C7] font-bold text-xl tracking-tight">Legal</span>
               </div>
-              <span className="text-white font-bold text-lg tracking-tight">City</span>
+              <span className="text-white font-bold text-xl tracking-tight">City</span>
             </div>
             <p className="text-gray-300 mb-6 max-w-md">
               Connect with qualified legal professionals in your area. Find the right lawyer for your specific legal needs with our comprehensive directory.
