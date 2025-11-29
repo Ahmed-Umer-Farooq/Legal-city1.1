@@ -1,0 +1,5 @@
+- [x] Add "Complete Profile" button to homepage (LawyerDirectory.js) if user.verified is false
+- [x] Make the button round and beautiful, positioned fixed
+- [x] Button redirects to appropriate setup page based on user role (lawyer or user)
+- [x] Ensure button disappears after profile completion (when verified becomes true)
+- [x] Test the flow: Submit Later -> Homepage shows button -> Click button -> Back to setup -> Complete -> Homepage button gone

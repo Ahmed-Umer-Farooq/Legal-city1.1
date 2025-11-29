@@ -1,0 +1,153 @@
+exports.up = function(knex) {
+  return knex('lawyers').insert([
+    {
+      name: 'John Smith',
+      username: 'johnsmith',
+      email: 'john.smith@lawfirm.com',
+      password: '$2a$10$hashedpassword', // Replace with actual hashed password
+      registration_id: 'AB123456',
+      law_firm: 'Smith & Associates',
+      speciality: 'Criminal Law',
+      address: '123 Main St',
+      zip_code: '10001',
+      city: 'New York',
+      state: 'NY',
+      country: 'USA',
+      mobile_number: '+1-555-0123',
+      phone: '+1-555-0123',
+      experience: '15 years',
+      description: 'Experienced criminal defense attorney with a proven track record.',
+      languages: JSON.stringify(['English', 'Spanish']),
+      hourly_rate: 250,
+      lawyer_verified: 1,
+      is_verified: 1,
+      rating: 4.8
+    },
+    {
+      name: 'Sarah Johnson',
+      username: 'sarahjohnson',
+      email: 'sarah.johnson@legal.com',
+      password: '$2a$10$hashedpassword', // Replace with actual hashed password
+      registration_id: 'CD789012',
+      law_firm: 'Johnson Legal Services',
+      speciality: 'Family Law',
+      address: '456 Oak Ave',
+      zip_code: '90210',
+      city: 'Los Angeles',
+      state: 'CA',
+      country: 'USA',
+      mobile_number: '+1-555-0456',
+      phone: '+1-555-0456',
+      experience: '12 years',
+      description: 'Specializing in divorce, child custody, and family mediation.',
+      languages: JSON.stringify(['English']),
+      hourly_rate: 200,
+      lawyer_verified: 1,
+      is_verified: 1,
+      rating: 4.6
+    },
+    {
+      name: 'Michael Brown',
+      username: 'michaelbrown',
+      email: 'michael.brown@brownlaw.com',
+      password: '$2a$10$hashedpassword', // Replace with actual hashed password
+      registration_id: 'EF345678',
+      law_firm: 'Brown Law Firm',
+      speciality: 'Corporate Law',
+      address: '789 Pine St',
+      zip_code: '60601',
+      city: 'Chicago',
+      state: 'IL',
+      country: 'USA',
+      mobile_number: '+1-555-0789',
+      phone: '+1-555-0789',
+      experience: '20 years',
+      description: 'Expert in corporate mergers, acquisitions, and business law.',
+      languages: JSON.stringify(['English', 'French']),
+      hourly_rate: 350,
+      lawyer_verified: 1,
+      is_verified: 1,
+      rating: 4.9
+    },
+    {
+      name: 'Emily Davis',
+      username: 'emilydavis',
+      email: 'emily.davis@davislegal.com',
+      password: '$2a$10$hashedpassword', // Replace with actual hashed password
+      registration_id: 'GH901234',
+      law_firm: 'Davis Legal Group',
+      speciality: 'Immigration Law',
+      address: '321 Elm St',
+      zip_code: '02101',
+      city: 'Boston',
+      state: 'MA',
+      country: 'USA',
+      mobile_number: '+1-555-0321',
+      phone: '+1-555-0321',
+      experience: '10 years',
+      description: 'Helping individuals and families navigate immigration processes.',
+      languages: JSON.stringify(['English', 'Portuguese']),
+      hourly_rate: 180,
+      lawyer_verified: 1,
+      is_verified: 1,
+      rating: 4.7
+    },
+    {
+      name: 'David Wilson',
+      username: 'davidwilson',
+      email: 'david.wilson@wilsonlaw.com',
+      password: '$2a$10$hashedpassword', // Replace with actual hashed password
+      registration_id: 'IJ567890',
+      law_firm: 'Wilson & Partners',
+      speciality: 'Real Estate Law',
+      address: '654 Maple Ave',
+      zip_code: '77001',
+      city: 'Houston',
+      state: 'TX',
+      country: 'USA',
+      mobile_number: '+1-555-0654',
+      phone: '+1-555-0654',
+      experience: '18 years',
+      description: 'Specializing in property transactions, zoning, and real estate disputes.',
+      languages: JSON.stringify(['English']),
+      hourly_rate: 220,
+      lawyer_verified: 1,
+      is_verified: 1,
+      rating: 4.5
+    },
+    {
+      name: 'Lisa Anderson',
+      username: 'lisaanderson',
+      email: 'lisa.anderson@andersonlaw.com',
+      password: '$2a$10$hashedpassword', // Replace with actual hashed password
+      registration_id: 'KL123456',
+      law_firm: 'Anderson Legal',
+      speciality: 'Personal Injury',
+      address: '987 Cedar St',
+      zip_code: '33101',
+      city: 'Miami',
+      state: 'FL',
+      country: 'USA',
+      mobile_number: '+1-555-0987',
+      phone: '+1-555-0987',
+      experience: '14 years',
+      description: 'Dedicated to helping victims of accidents and injuries.',
+      languages: JSON.stringify(['English', 'Spanish']),
+      hourly_rate: 190,
+      lawyer_verified: 1,
+      is_verified: 1,
+      rating: 4.4
+    }
+  ]);
+};
+
+exports.down = function(knex) {
+  return knex('lawyers').whereIn('email', [
+    'john.smith@lawfirm.com',
+    'sarah.johnson@legal.com',
+    'michael.brown@brownlaw.com',
+    'emily.davis@davislegal.com',
+    'david.wilson@wilsonlaw.com',
+    'lisa.anderson@andersonlaw.com'
+  ]).del();
+};

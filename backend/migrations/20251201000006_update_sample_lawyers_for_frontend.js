@@ -1,0 +1,117 @@
+exports.up = function(knex) {
+  return knex.raw('SET FOREIGN_KEY_CHECKS = 0')
+    .then(() => knex('lawyers').del())
+    .then(() => knex.raw('SET FOREIGN_KEY_CHECKS = 1'))
+    .then(() => {
+    return knex('lawyers').insert([
+      {
+        id: 1,
+        name: 'Darlene Robertson',
+        username: 'darlenerobertson',
+        email: 'darlene.robertson@lawfirm.com',
+        password: '$2a$10$hashedpassword',
+        registration_id: 'DR123456',
+        law_firm: 'Robertson & Associates',
+        speciality: 'Business',
+        address: '1 Station Road, London E17 8AA',
+        zip_code: 'E17 8AA',
+        city: 'London',
+        state: 'England',
+        country: 'UK',
+        mobile_number: '+44-20-8520-1234',
+        phone: '+44-20-8520-1234',
+        experience: '12 years',
+        description: 'Amet minim mollit non deserunt ullamco est sit aliqua dolor do amet sint. Velit officia consequat duis enim velit mollit.',
+        languages: JSON.stringify(['English']),
+        hourly_rate: 300,
+        lawyer_verified: 1,
+        is_verified: 1,
+        rating: 5.0,
+        profile_image: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
+        email_verified: 1
+      },
+      {
+        id: 2,
+        name: 'Jerome Bell',
+        username: 'jeromebell',
+        email: 'jerome.bell@legal.com',
+        password: '$2a$10$hashedpassword',
+        registration_id: 'JB789012',
+        law_firm: 'Bell Legal Services',
+        speciality: 'Criminal Defense',
+        address: '45 Baker Street, London W1U 8EW',
+        zip_code: 'W1U 8EW',
+        city: 'London',
+        state: 'England',
+        country: 'UK',
+        mobile_number: '+44-20-7486-1234',
+        phone: '+44-20-7486-1234',
+        experience: '8 years',
+        description: 'Experienced criminal defense attorney with a proven track record in complex cases and client advocacy.',
+        languages: JSON.stringify(['English', 'French']),
+        hourly_rate: 250,
+        lawyer_verified: 1,
+        is_verified: 1,
+        rating: 4.8,
+        profile_image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
+        email_verified: 1
+      },
+      {
+        id: 3,
+        name: 'Kathryn Murphy',
+        username: 'kathrynmurphy',
+        email: 'kathryn.murphy@murphylaw.com',
+        password: '$2a$10$hashedpassword',
+        registration_id: 'KM345678',
+        law_firm: 'Murphy Law Firm',
+        speciality: 'Family Law',
+        address: '78 Oxford Street, London W1D 1BS',
+        zip_code: 'W1D 1BS',
+        city: 'London',
+        state: 'England',
+        country: 'UK',
+        mobile_number: '+44-20-7580-1234',
+        phone: '+44-20-7580-1234',
+        experience: '15 years',
+        description: 'Specializing in family law, divorce proceedings, and child custody matters with compassionate representation.',
+        languages: JSON.stringify(['English', 'Spanish']),
+        hourly_rate: 280,
+        lawyer_verified: 1,
+        is_verified: 1,
+        rating: 4.9,
+        profile_image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
+        email_verified: 1
+      },
+      {
+        id: 4,
+        name: 'Jacob Jones',
+        username: 'jacobjones',
+        email: 'jacob.jones@joneslegal.com',
+        password: '$2a$10$hashedpassword',
+        registration_id: 'JJ901234',
+        law_firm: 'Jones Legal Group',
+        speciality: 'Personal Injury',
+        address: '92 Regent Street, London W1B 5RL',
+        zip_code: 'W1B 5RL',
+        city: 'London',
+        state: 'England',
+        country: 'UK',
+        mobile_number: '+44-20-7734-1234',
+        phone: '+44-20-7734-1234',
+        experience: '10 years',
+        description: 'Dedicated personal injury attorney helping victims of accidents and negligence get the compensation they deserve.',
+        languages: JSON.stringify(['English']),
+        hourly_rate: 220,
+        lawyer_verified: 1,
+        is_verified: 1,
+        rating: 4.7,
+        profile_image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+        email_verified: 1
+      }
+    ]);
+  });
+};
+
+exports.down = function(knex) {
+  return knex('lawyers').whereIn('id', [1, 2, 3, 4]).del();
+};
