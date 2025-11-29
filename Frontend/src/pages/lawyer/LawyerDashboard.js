@@ -71,15 +71,21 @@ export default function LawyerDashboard() {
   }, []);
 
   useEffect(() => {
+    // Set SEO meta tags
+    document.title = 'Lawyer Dashboard - Professional Legal Practice Management | LegalCity';
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute('content', 'Comprehensive lawyer dashboard for managing cases, clients, invoices, and legal practice operations.');
+    }
+    
     fetchDashboardData();
-    // Get current user from localStorage
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    setCurrentUser(user);
+    fetchUserProfile();
     
     // Initialize chat service for notifications
-    if (user?.id) {
+    const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+    if (storedUser?.id) {
       import('../../utils/chatService').then(({ default: chatService }) => {
-        chatService.connect({ userId: user.id, userType: 'lawyer' });
+        chatService.connect({ userId: storedUser.id, userType: 'lawyer' });
         chatService.onUnreadCountUpdate(({ count }) => {
           setUnreadCount(count);
         });
@@ -89,7 +95,10 @@ export default function LawyerDashboard() {
         })
         .then(res => res.json())
         .then(data => setUnreadCount(data.count || 0))
-        .catch(console.error);
+        .catch(err => {
+          console.error('Failed to fetch unread count:', err);
+          setUnreadCount(0);
+        });
         
         // Get blog engagement count
         fetch('/api/blogs/engagement-count', {
@@ -97,7 +106,10 @@ export default function LawyerDashboard() {
         })
         .then(res => res.json())
         .then(data => setBlogEngagementCount(data.count || 0))
-        .catch(console.error);
+        .catch(err => {
+          console.error('Failed to fetch blog engagement count:', err);
+          setBlogEngagementCount(0);
+        });
       });
     }
   }, []);
@@ -118,22 +130,28 @@ export default function LawyerDashboard() {
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
       if (error.response?.status === 401) {
-        alert('Session expired. Please login again.');
         localStorage.removeItem('token');
         window.location.href = '/';
-      } else {
-        alert('Failed to load dashboard data. Please try again.');
       }
     } finally {
       setLoading(false);
     }
   };
 
-  const addCase = async () => {
-    if (!caseTitle.trim()) {
-      alert('Please enter a case title');
-      return;
+  const fetchUserProfile = async () => {
+    try {
+      const response = await api.get('/lawyer-dashboard/profile');
+      setCurrentUser(response.data);
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+      // Fallback to localStorage if API fails
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      setCurrentUser(user);
     }
+  };
+
+  const addCase = async () => {
+    if (!caseTitle.trim()) return;
 
     try {
       const response = await api.post('/cases', {
@@ -144,7 +162,6 @@ export default function LawyerDashboard() {
       });
       
       if (response.data?.success) {
-        alert('Case created successfully!');
         setShowCaseForm(false);
         setCaseTitle('');
         setCaseClient('');
@@ -153,17 +170,14 @@ export default function LawyerDashboard() {
       }
     } catch (error) {
       console.error('Error adding case:', error);
-      alert(error.response?.data?.error || 'Failed to add case. Please try again.');
     }
   };
 
   const handleLogout = () => {
-    if (window.confirm('Are you sure you want to logout?')) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      sessionStorage.clear();
-      window.location.href = '/';
-    }
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    sessionStorage.clear();
+    window.location.href = '/';
   };
 
   const getStatusColors = (status) => {
@@ -191,21 +205,21 @@ export default function LawyerDashboard() {
 
 
   return (
-    <div className="min-h-screen bg-[#EDF4FF]">
+    <div className="min-h-screen bg-[#EDF4FF] w-full overflow-x-hidden">
       {/* HEADER */}
-      <header className="px-4 md:px-8 lg:px-36 py-8">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-6 bg-white rounded-2xl px-6 py-4 w-full md:w-auto shadow-sm border border-[#F8F9FA]">
-            <Search className="w-6 h-6 text-[#737791]" />
-            <input 
-              type="text" 
-              placeholder="Search here..." 
-              className="text-[#737791] text-lg bg-transparent outline-none flex-1"
-            />
-          </div>
-          
-          <div className="flex items-center gap-6">
-            <nav className="flex items-center gap-6 md:gap-8">
+      <header className="w-full bg-white border-b border-[#E5E7EB] shadow-sm sticky top-0 z-50">
+        <div className="max-w-screen-2xl mx-auto px-4 md:px-6 lg:px-8 py-4">
+          <div className="flex items-center justify-between gap-4 w-full">
+            {/* Professional Logo/Brand */}
+            <div className="flex items-center gap-2">
+              <div className="bg-[#0284C7] rounded-full px-3 py-1.5 shadow-lg">
+                <span className="text-white font-bold text-lg">Legal</span>
+              </div>
+              <span className="text-[#0284C7] font-bold text-lg">City</span>
+            </div>
+            
+            {/* Navigation Sections */}
+            <nav className="hidden md:flex items-center gap-6">
               {[
                 { id: 'home', label: 'Home', icon: Home, action: () => { setActiveNavItem('home'); window.scrollTo(0, 0); } },
                 { id: 'messages', label: 'Messages', icon: MessageCircle, action: () => { setActiveNavItem('messages'); }, showNotification: true },
@@ -228,8 +242,7 @@ export default function LawyerDashboard() {
                         : 'text-[#181A2A] hover:text-[#0086CB] hover:bg-[#F8F9FA]'
                     }`}
                   >
-                    <Icon className="w-4 h-4" />
-                    <span className="hidden md:inline">{item.label}</span>
+                    <Icon className="w-5 h-5" />
                     {item.showNotification && (
                       item.id === 'messages' ? (
                         unreadCount > 0 && (
@@ -250,27 +263,77 @@ export default function LawyerDashboard() {
               })}
             </nav>
             
-
-          </div>
-
-          <div className="relative group">
-            <div className="flex flex-col items-center gap-1 cursor-pointer">
-              <div className="w-[30px] h-[30px] bg-gradient-to-br from-[#0076C0] to-[#00C1F4] rounded-2xl flex items-center justify-center text-white font-semibold text-sm">
-                {currentUser?.name?.charAt(0) || 'U'}
-              </div>
-              <span className="text-[#181A2A] text-sm font-medium">{currentUser?.name || 'User'}</span>
+            {/* Enhanced Search Bar */}
+            <div className="flex items-center gap-4 bg-[#F9FAFB] rounded-xl px-4 py-3 w-full lg:w-auto lg:max-w-md border border-[#E5E7EB] focus-within:border-[#3B82F6] focus-within:ring-2 focus-within:ring-[#3B82F6]/20 transition-all">
+              <Search className="w-5 h-5 text-[#6B7280]" />
+              <input 
+                type="text" 
+                placeholder="Search cases, clients, documents..." 
+                className="text-[#374151] text-sm bg-transparent outline-none flex-1 placeholder-[#9CA3AF]"
+              />
             </div>
-            <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-[#F8F9FA] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-              <div className="py-2">
-                <a href="#profile" className="block px-4 py-2 text-sm text-[#181A2A] hover:bg-[#F8F9FA] rounded-lg mx-2">Profile Settings</a>
-                <a href="#account" className="block px-4 py-2 text-sm text-[#181A2A] hover:bg-[#F8F9FA] rounded-lg mx-2">Account</a>
-                <hr className="my-2 border-[#F8F9FA]" />
-                <button 
-                  onClick={handleLogout}
-                  className="block w-full text-left px-4 py-2 text-sm text-[#E6372B] hover:bg-[#FFE3E1] rounded-lg mx-2"
-                >
-                  Logout
-                </button>
+            
+            {/* Professional User Profile */}
+            <div className="relative group">
+              <div className="flex items-center gap-2 cursor-pointer bg-[#F9FAFB] hover:bg-[#F3F4F6] rounded-lg px-2 py-1.5 border border-[#E5E7EB] transition-all">
+                <div className="w-6 h-6 bg-gradient-to-br from-[#1E40AF] to-[#3B82F6] rounded-full flex items-center justify-center text-white font-semibold text-xs shadow-sm">
+                  {currentUser?.name?.charAt(0)?.toUpperCase() || 'U'}
+                </div>
+                <div className="hidden md:block text-left">
+                  <div className="text-[#1F2937] text-xs font-medium">{currentUser?.name || 'User'}</div>
+                  <div className="text-[#6B7280] text-xs">{currentUser?.law_firm || 'Legal Professional'}</div>
+                </div>
+                <svg className="w-3 h-3 text-[#6B7280] transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+              <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-[#E5E7EB] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                <div className="py-2">
+                  <div className="px-4 py-3 border-b border-[#E5E7EB]">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-10 h-10 bg-gradient-to-br from-[#1E40AF] to-[#3B82F6] rounded-full flex items-center justify-center text-white font-semibold text-sm shadow-sm">
+                        {currentUser?.name?.charAt(0)?.toUpperCase() || 'U'}
+                      </div>
+                      <div>
+                        <div className="text-sm font-medium text-[#1F2937]">{currentUser?.name || 'User'}</div>
+                        <div className="text-xs text-[#6B7280]">{currentUser?.email || 'user@example.com'}</div>
+                      </div>
+                    </div>
+                    {currentUser?.law_firm && (
+                      <div className="text-xs text-[#6B7280] mb-1">{currentUser.law_firm}</div>
+                    )}
+                    {currentUser?.speciality && (
+                      <div className="text-xs text-[#6B7280]">{currentUser.speciality}</div>
+                    )}
+                    {currentUser?.verified && (
+                      <div className="flex items-center gap-1 mt-2">
+                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                        <span className="text-xs text-green-600 font-medium">Verified Lawyer</span>
+                      </div>
+                    )}
+                  </div>
+                  <a href="#profile" className="flex items-center gap-2 px-4 py-2 text-sm text-[#374151] hover:bg-[#F9FAFB] transition-colors">
+                    <User className="w-4 h-4" />
+                    Profile Settings
+                  </a>
+                  <a href="#account" className="flex items-center gap-2 px-4 py-2 text-sm text-[#374151] hover:bg-[#F9FAFB] transition-colors">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    Account Settings
+                  </a>
+                  <hr className="my-2 border-[#E5E7EB]" />
+                  <button 
+                    onClick={handleLogout}
+                    className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-[#DC2626] hover:bg-[#FEF2F2] transition-colors"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                    Sign Out
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -278,7 +341,7 @@ export default function LawyerDashboard() {
       </header>
 
       {/* MAIN CONTENT */}
-      <main className="px-4 md:px-8 lg:px-36 pb-16">
+      <main className="w-full px-4 md:px-6 lg:px-8 pb-16 max-w-screen-2xl mx-auto">
         {activeNavItem === 'contacts' && <ContactsPage />}
         {activeNavItem === 'calendar' && <CalendarPage />}
         {activeNavItem === 'reports' && <ReportsPage />}
@@ -289,17 +352,6 @@ export default function LawyerDashboard() {
         
         {activeNavItem === 'home' && (
         <>
-        {/* Dashboard Header */}
-        <div className="flex items-center gap-6 mb-12">
-          <div className="flex items-center gap-6 bg-gradient-to-b from-[#0076C0] to-[#00C1F4] rounded-2xl px-6 py-4 shadow-lg">
-            <div className="w-8 h-8">
-              <svg className="w-full h-full" viewBox="0 0 24 23" fill="none">
-                <path d="M11.0032 1.29736L11.3744 6.81731L11.5587 9.59171C11.5607 9.87704 11.6053 10.1605 11.6916 10.4329C11.9141 10.9617 12.4496 11.2977 13.0321 11.2742L21.9084 10.6936C22.2928 10.6873 22.664 10.831 22.9403 11.0933C23.1705 11.3118 23.3192 11.5977 23.3661 11.9052L23.3819 12.0918C23.0145 17.1781 19.2789 21.4205 14.2032 22.5156C9.1274 23.6106 3.92248 21.2973 1.41428 16.8314C0.691184 15.534 0.239531 14.108 0.0858377 12.6369C0.0216377 12.2014 -0.00662902 11.7616 0.00130431 11.3216C-0.00662902 5.86855 3.87662 1.15419 9.31244 0.0176694C9.96668 -0.0842105 10.608 0.262136 10.8704 0.858949C10.9383 0.997163 10.9831 1.14519 11.0032 1.29736Z" fill="white"/>
-              </svg>
-            </div>
-            <span className="text-white text-lg font-semibold">Lawyer Dashboard</span>
-          </div>
-        </div>
 
         {/* Overview Stats */}
         <div className="bg-white rounded-2xl border border-[#F8F9FA] shadow-md p-7 mb-6">
@@ -670,7 +722,7 @@ export default function LawyerDashboard() {
                         <p className="text-[#737791] text-sm">{client.email}</p>
                       </div>
                     </div>
-                    <button onClick={() => alert(`View client: ${client.name}`)} className="text-[#0086CB] text-sm font-medium hover:underline cursor-pointer">View</button>
+                    <button className="text-[#0086CB] text-sm font-medium hover:underline cursor-pointer">View</button>
                   </div>
                 ))
               )}
@@ -705,8 +757,8 @@ export default function LawyerDashboard() {
       </main>
 
       {/* FOOTER */}
-      <footer className="bg-[#333] px-4 md:px-8 lg:px-36 py-12 mt-12">
-        <div className="max-w-[1158px] mx-auto">
+      <footer className="bg-[#333] w-full px-4 md:px-6 lg:px-8 py-12 mt-12">
+        <div className="max-w-screen-2xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
             <div>
               <h3 className="text-white text-base font-bold mb-6">Browse Our Site</h3>

@@ -11,14 +11,33 @@ const BlogManagement = () => {
   const [blogAnalytics, setBlogAnalytics] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [formData, setFormData] = useState({
-    title: '', content: '', category: '', author_name: '', image: '', imageUrl: ''
+    title: '', content: '', category: '', author_name: '', image: '', imageUrl: '', slug: '',
+    meta_title: '', meta_description: '', focus_keyword: '', alt_text: '', tags: ''
   });
+  const [currentUser, setCurrentUser] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [imageUploadType, setImageUploadType] = useState('file'); // 'file' or 'url'
 
   useEffect(() => {
     fetchBlogs();
   }, []);
+
+  // Generate SEO-friendly slug from title
+  const generateSlug = (title) => {
+    return title
+      .toLowerCase()
+      .replace(/[^a-z0-9 -]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .trim('-');
+  };
+
+  // Update slug when title changes
+  const handleTitleChange = (e) => {
+    const title = e.target.value;
+    const slug = generateSlug(title);
+    setFormData({...formData, title, slug});
+  };
 
   const fetchBlogs = async () => {
     try {
@@ -54,6 +73,12 @@ const BlogManagement = () => {
       submitData.append('content', formData.content);
       submitData.append('category', formData.category);
       submitData.append('author_name', formData.author_name);
+      submitData.append('slug', formData.slug);
+      submitData.append('meta_title', formData.meta_title);
+      submitData.append('meta_description', formData.meta_description);
+      submitData.append('focus_keyword', formData.focus_keyword);
+      submitData.append('alt_text', formData.alt_text);
+      submitData.append('tags', formData.tags);
       
       if (imageUploadType === 'file' && formData.image) {
         submitData.append('image', formData.image);
@@ -67,7 +92,8 @@ const BlogManagement = () => {
       
       alert('Blog created successfully!');
       setShowCreateForm(false);
-      setFormData({ title: '', content: '', category: '', author_name: '', image: '', imageUrl: '' });
+      setFormData({ title: '', content: '', category: '', author_name: currentUser?.name || '', image: '', imageUrl: '', slug: '',
+        meta_title: '', meta_description: '', focus_keyword: '', alt_text: '', tags: '' });
       setImagePreview(null);
       fetchBlogs();
     } catch (error) {
@@ -177,34 +203,45 @@ const BlogManagement = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-3xl font-bold text-slate-900">Blog Management</h2>
-          <p className="text-slate-600 mt-1">Create and manage your legal expertise content</p>
+      <div className="bg-gradient-to-r from-slate-50 to-blue-50 rounded-2xl p-8 border border-slate-200 shadow-sm">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-3xl font-bold text-slate-900 mb-2">My Blogs</h2>
+            <p className="text-slate-600 text-lg">Share your legal expertise and build your professional presence</p>
+            <div className="flex items-center gap-6 mt-4">
+              <div className="flex items-center gap-2 text-slate-500">
+                <span className="text-sm font-medium">{blogs.length} Published</span>
+              </div>
+              <div className="flex items-center gap-2 text-slate-500">
+                <Eye className="w-4 h-4" />
+                <span className="text-sm font-medium">{blogs.reduce((sum, blog) => sum + (blog.views_count || 0), 0)} Total Views</span>
+              </div>
+            </div>
+          </div>
+          <button
+            onClick={() => setShowCreateForm(!showCreateForm)}
+            className="flex items-center gap-3 bg-gradient-to-r from-blue-600 to-indigo-700 text-white px-8 py-4 rounded-2xl hover:from-blue-700 hover:to-indigo-800 transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 font-semibold text-lg"
+          >
+            <Plus className="w-5 h-5" />
+            Create New Blog
+          </button>
         </div>
-        <button
-          onClick={() => setShowCreateForm(!showCreateForm)}
-          className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-3 rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-        >
-          <Plus className="w-5 h-5" />
-          Create Blog
-        </button>
       </div>
 
       {/* Navigation */}
-      <div className="bg-white rounded-xl shadow-sm border">
-        <nav className="flex space-x-1 p-1">
-          <button
-            onClick={() => { setActiveView('overview'); setSelectedBlog(null); }}
-            className={`py-3 px-6 rounded-lg font-medium text-sm transition-all duration-200 ${
-              activeView === 'overview' 
-                ? 'bg-blue-600 text-white shadow-md' 
-                : 'text-slate-600 hover:bg-slate-50'
-            }`}
-          >
-            My Blogs
-          </button>
-          {selectedBlog && (
+      {selectedBlog && (
+        <div className="bg-white rounded-xl shadow-sm border">
+          <nav className="flex space-x-1 p-1">
+            <button
+              onClick={() => { setActiveView('overview'); setSelectedBlog(null); }}
+              className={`py-3 px-6 rounded-lg font-medium text-sm transition-all duration-200 ${
+                activeView === 'overview' 
+                  ? 'bg-blue-600 text-white shadow-md' 
+                  : 'text-slate-600 hover:bg-slate-50'
+              }`}
+            >
+              Back to Blogs
+            </button>
             <button
               onClick={() => setActiveView('analytics')}
               className={`py-3 px-6 rounded-lg font-medium text-sm transition-all duration-200 ${
@@ -215,38 +252,38 @@ const BlogManagement = () => {
             >
               Analytics: {selectedBlog.title ? selectedBlog.title.substring(0, 20) + '...' : 'Blog'}
             </button>
-          )}
-        </nav>
-      </div>
+          </nav>
+        </div>
+      )}
 
       {/* Create Form */}
       {showCreateForm && (
-        <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
-          <div className="bg-gradient-to-r from-slate-50 to-blue-50 px-8 py-6 border-b border-slate-200">
-            <h3 className="text-2xl font-bold text-slate-900">Create New Blog</h3>
-            <p className="text-slate-600 mt-1">Share your legal expertise with the community</p>
+        <div className="bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden">
+          <div className="bg-gradient-to-r from-blue-600 to-indigo-700 px-6 py-5">
+            <h3 className="text-2xl font-bold text-white mb-1">Create New Blog</h3>
+            <p className="text-blue-100 text-base">Share your legal expertise with the community</p>
           </div>
-          <form onSubmit={handleSubmit} className="p-8 space-y-6">
+          <form onSubmit={handleSubmit} className="p-6 space-y-6">
             {/* Author & Title Section */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-2">Author Name *</label>
+              <div className="space-y-2">
+                <label className="block text-sm font-bold text-slate-800 mb-3">Author Name *</label>
                 <input
                   type="text"
                   placeholder="Enter author name"
                   value={formData.author_name}
                   onChange={(e) => setFormData({...formData, author_name: e.target.value})}
                   required
-                  className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                  className="w-full px-5 py-4 border-2 border-slate-200 rounded-2xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-300 text-slate-700 font-medium shadow-sm hover:shadow-md"
                 />
               </div>
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-2">Category *</label>
+              <div className="space-y-2">
+                <label className="block text-sm font-bold text-slate-800 mb-3">Category *</label>
                 <select
                   value={formData.category}
                   onChange={(e) => setFormData({...formData, category: e.target.value})}
                   required
-                  className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                  className="w-full px-5 py-4 border-2 border-slate-200 rounded-2xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-300 text-slate-700 font-medium shadow-sm hover:shadow-md"
                 >
                   <option value="">Select Legal Category</option>
                   <option value="Corporate Law">Corporate Law</option>
@@ -263,37 +300,107 @@ const BlogManagement = () => {
               </div>
             </div>
 
-            {/* Blog Title */}
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">Blog Title *</label>
-              <input
-                type="text"
-                placeholder="Enter an engaging blog title"
-                value={formData.title}
-                onChange={(e) => setFormData({...formData, title: e.target.value})}
-                required
-                className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-              />
-              <p className="text-sm text-slate-500 mt-1">{formData.title.length}/100 characters</p>
+            {/* Blog Title & Slug */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="block text-sm font-bold text-slate-800 mb-3">Blog Title *</label>
+                <input
+                  type="text"
+                  placeholder="Enter an engaging blog title"
+                  value={formData.title}
+                  onChange={handleTitleChange}
+                  required
+                  className="w-full px-5 py-4 border-2 border-slate-200 rounded-2xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-300 text-slate-700 font-medium shadow-sm hover:shadow-md"
+                />
+                <p className="text-sm text-slate-500 mt-2 font-medium">{formData.title.length}/100 characters</p>
+              </div>
+              <div className="space-y-2">
+                <label className="block text-sm font-bold text-slate-800 mb-3">SEO Slug</label>
+                <input
+                  type="text"
+                  placeholder="auto-generated-from-title"
+                  value={formData.slug}
+                  onChange={(e) => setFormData({...formData, slug: e.target.value})}
+                  className="w-full px-5 py-4 border-2 border-slate-200 rounded-2xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-300 text-slate-700 font-medium shadow-sm hover:shadow-md bg-slate-50"
+                  readOnly
+                />
+                <p className="text-sm text-slate-500 mt-2 font-medium">Auto-generated SEO-friendly URL</p>
+              </div>
+            </div>
+
+            {/* SEO Fields */}
+            <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200">
+              <h4 className="text-lg font-bold text-green-800 mb-4 flex items-center gap-2">
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                SEO Optimization
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="block text-sm font-bold text-slate-800 mb-3">Meta Title</label>
+                  <input
+                    type="text"
+                    placeholder="SEO optimized title (50-60 chars)"
+                    value={formData.meta_title}
+                    onChange={(e) => setFormData({...formData, meta_title: e.target.value})}
+                    className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:ring-4 focus:ring-green-100 focus:border-green-500 transition-all duration-300 text-slate-700 font-medium shadow-sm hover:shadow-md"
+                  />
+                  <p className="text-sm text-green-600 font-medium">{formData.meta_title.length}/60 characters</p>
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-sm font-bold text-slate-800 mb-3">Focus Keyword</label>
+                  <input
+                    type="text"
+                    placeholder="Primary SEO keyword"
+                    value={formData.focus_keyword}
+                    onChange={(e) => setFormData({...formData, focus_keyword: e.target.value})}
+                    className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:ring-4 focus:ring-green-100 focus:border-green-500 transition-all duration-300 text-slate-700 font-medium shadow-sm hover:shadow-md"
+                  />
+                </div>
+              </div>
+              <div className="mt-6 space-y-2">
+                <label className="block text-sm font-bold text-slate-800 mb-3">Meta Description</label>
+                <textarea
+                  placeholder="Brief description for search results (150-160 chars)"
+                  value={formData.meta_description}
+                  onChange={(e) => setFormData({...formData, meta_description: e.target.value})}
+                  rows={3}
+                  className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:ring-4 focus:ring-green-100 focus:border-green-500 transition-all duration-300 text-slate-700 font-medium shadow-sm hover:shadow-md resize-none"
+                />
+                <p className="text-sm text-green-600 font-medium">{formData.meta_description.length}/160 characters</p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                <div className="space-y-2">
+                  <label className="block text-sm font-bold text-slate-800 mb-3">Image Alt Text</label>
+                  <input
+                    type="text"
+                    placeholder="Descriptive alt text for image"
+                    value={formData.alt_text}
+                    onChange={(e) => setFormData({...formData, alt_text: e.target.value})}
+                    className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:ring-4 focus:ring-green-100 focus:border-green-500 transition-all duration-300 text-slate-700 font-medium shadow-sm hover:shadow-md"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-sm font-bold text-slate-800 mb-3">Tags/Keywords</label>
+                  <input
+                    type="text"
+                    placeholder="tag1, tag2, tag3"
+                    value={formData.tags}
+                    onChange={(e) => setFormData({...formData, tags: e.target.value})}
+                    className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:ring-4 focus:ring-green-100 focus:border-green-500 transition-all duration-300 text-slate-700 font-medium shadow-sm hover:shadow-md"
+                  />
+                  <p className="text-sm text-green-600 font-medium">Separate with commas</p>
+                </div>
+              </div>
             </div>
 
             {/* Image Upload Section */}
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-3">Blog Image</label>
-              <div className="border-2 border-dashed border-slate-300 rounded-xl p-6 bg-slate-50">
+            <div className="space-y-3">
+              <label className="block text-sm font-bold text-slate-800 mb-4">Blog Image</label>
+              <div className="border-3 border-dashed border-blue-200 rounded-3xl p-8 bg-gradient-to-br from-blue-50 to-indigo-50">
                 {/* Upload Type Toggle */}
                 <div className="flex gap-4 mb-4">
-                  <button
-                    type="button"
-                    onClick={() => setImageUploadType('file')}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                      imageUploadType === 'file' 
-                        ? 'bg-blue-600 text-white' 
-                        : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
-                    }`}
-                  >
-                    Upload File
-                  </button>
                   <button
                     type="button"
                     onClick={() => setImageUploadType('url')}
@@ -374,31 +481,31 @@ const BlogManagement = () => {
             </div>
 
             {/* Blog Content */}
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">Blog Content *</label>
+            <div className="space-y-3">
+              <label className="block text-sm font-bold text-slate-800 mb-3">Blog Content *</label>
               <textarea
                 placeholder="Write your blog content here..."
                 value={formData.content}
                 onChange={(e) => setFormData({...formData, content: e.target.value})}
                 required
-                rows={8}
-                className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 resize-none"
+                rows={10}
+                className="w-full px-5 py-4 border-2 border-slate-200 rounded-2xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-300 text-slate-700 font-medium shadow-sm hover:shadow-md resize-none"
               />
-              <p className="text-sm text-slate-500 mt-1">{formData.content.length} characters</p>
+              <p className="text-sm text-slate-500 mt-2 font-medium">{formData.content.length} characters</p>
             </div>
 
             {/* Action Buttons */}
-            <div className="flex gap-4 pt-4">
+            <div className="flex gap-4 pt-6 border-t border-slate-100">
               <button 
                 type="submit" 
-                className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-3 rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-700 text-white px-10 py-4 rounded-2xl hover:from-blue-700 hover:to-indigo-800 transition-all duration-300 font-bold text-lg shadow-xl hover:shadow-2xl transform hover:-translate-y-1 hover:scale-105"
               >
                 Publish Blog
               </button>
               <button 
                 type="button" 
                 onClick={() => setShowCreateForm(false)} 
-                className="px-8 py-3 bg-slate-100 text-slate-700 rounded-xl hover:bg-slate-200 transition-all duration-200 font-semibold"
+                className="px-10 py-4 bg-slate-200 text-slate-700 rounded-2xl hover:bg-slate-300 transition-all duration-300 font-bold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1"
               >
                 Cancel
               </button>
