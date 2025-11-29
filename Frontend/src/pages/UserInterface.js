@@ -167,30 +167,6 @@ function Header({ currentLanguage, setCurrentLanguage, translations }) {
 
 const HeroSection = React.memo(function HeroSection({ currentLanguage, translations }) {
   const navigate = useNavigate();
-  const [searchData, setSearchData] = useState({
-    lawyer: '',
-    specialty: '',
-    location: ''
-  });
-
-  const handleInputChange = React.useCallback((field, value) => {
-    setSearchData(prev => ({ ...prev, [field]: value }));
-  }, []);
-
-  const handleSearch = React.useCallback(() => {
-    const queryParams = new URLSearchParams();
-    if (searchData.lawyer) queryParams.append('lawyer', searchData.lawyer);
-    if (searchData.specialty) queryParams.append('specialty', searchData.specialty);
-    if (searchData.location) queryParams.append('location', searchData.location);
-    
-    navigate(`/lawyers?${queryParams.toString()}`);
-  }, [searchData, navigate]);
-
-  const handleKeyPress = React.useCallback((e) => {
-    if (e.key === 'Enter') {
-      handleSearch();
-    }
-  }, [handleSearch]);
 
   return (
     <section className="relative w-full h-[500px] sm:h-[600px] bg-gray-900">
@@ -206,53 +182,25 @@ const HeroSection = React.memo(function HeroSection({ currentLanguage, translati
       <div className="absolute inset-0 bg-[rgba(90,90,90,0.20)]" />
 
       <div className="relative h-full flex items-center justify-center px-4 sm:px-6">
-        <div className="w-full max-w-[400px]">
-          <h1 className="text-white text-xl sm:text-2xl font-semibold mb-6 sm:mb-[30px]">
-            {translations[currentLanguage].findLawyer}
+        <div className="w-full max-w-[600px] text-center">
+          <h1 className="text-white text-3xl sm:text-4xl lg:text-5xl font-bold mb-6">
+            Welcome to LegalCity
           </h1>
-          <p className="text-white/90 text-sm mb-4 max-w-md">
-            Connect with qualified attorneys in your area. Search by practice area, location, or lawyer name to find the right legal professional for your needs.
+          <p className="text-white/90 text-lg sm:text-xl mb-8 leading-relaxed">
+            Premier Legal Network Connecting You with Top-Tier Attorneys. Experience Excellence in Legal Representation with Proven Results and Personalized Service.
           </p>
-
-          <div className="flex flex-col gap-4 sm:gap-[24px]">
-            <div className="h-[41px] rounded-[8px] border border-white/20 bg-gradient-to-r from-white/40 to-white/10 backdrop-blur-md px-4 flex items-center">
-              <input
-                type="text"
-                placeholder={translations[currentLanguage].practiceNameLawyer}
-                value={searchData.lawyer}
-                onChange={(e) => handleInputChange('lawyer', e.target.value)}
-                onKeyPress={handleKeyPress}
-                className="w-full bg-transparent placeholder-[#F5F5F5] text-[#F5F5F5] text-sm focus:outline-none"
-              />
-            </div>
-
-            <div className="h-[41px] rounded-[8px] border border-white/20 bg-gradient-to-r from-white/40 to-white/10 backdrop-blur-md px-4 flex items-center">
-              <input
-                type="text"
-                placeholder={translations[currentLanguage].specialty}
-                value={searchData.specialty}
-                onChange={(e) => handleInputChange('specialty', e.target.value)}
-                onKeyPress={handleKeyPress}
-                className="w-full bg-transparent placeholder-[#F5F5F5] text-[#F5F5F5] text-sm focus:outline-none"
-              />
-            </div>
-
-            <div className="h-[41px] rounded-[8px] border border-white/20 bg-gradient-to-r from-white/40 to-white/10 backdrop-blur-md px-4 flex items-center">
-              <input
-                type="text"
-                placeholder={translations[currentLanguage].cityStateZip}
-                value={searchData.location}
-                onChange={(e) => handleInputChange('location', e.target.value)}
-                onKeyPress={handleKeyPress}
-                className="w-full bg-transparent placeholder-[#F5F5F5] text-[#F5F5F5] text-sm focus:outline-none"
-              />
-            </div>
-
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
-              onClick={handleSearch}
-              className="h-[41px] rounded-[8px] bg-gradient-to-r from-[#0071BC] to-[#00D2FF] text-white font-medium hover:opacity-90 transition-opacity"
+              onClick={() => navigate('/lawyers')}
+              className="px-8 py-4 bg-gradient-to-r from-[#0071BC] to-[#00D2FF] text-white font-semibold rounded-lg hover:opacity-90 transition-all duration-200 shadow-lg hover:shadow-xl"
             >
-{translations[currentLanguage].searchLawyers}
+              Find Lawyers
+            </button>
+            <button
+              onClick={() => navigate('/legal-blog')}
+              className="px-8 py-4 bg-white/20 backdrop-blur-md text-white font-semibold rounded-lg hover:bg-white/30 transition-all duration-200 border border-white/30"
+            >
+              Legal Resources
             </button>
           </div>
         </div>
@@ -695,6 +643,283 @@ export default function UserInterface() {
       <Suspense fallback={<div className="w-full h-96 bg-gray-50 animate-pulse flex items-center justify-center"><span className="text-gray-500">Loading lawyers...</span></div>}>
         <LawyerCarousel />
       </Suspense>
+      
+      {/* Stats Section */}
+      <section className="bg-[#0071BC] py-16">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            <div>
+              <div className="text-4xl font-bold text-white mb-2">15,000+</div>
+              <div className="text-white/80">Verified Attorneys</div>
+            </div>
+            <div>
+              <div className="text-4xl font-bold text-white mb-2">98%</div>
+              <div className="text-white/80">Client Satisfaction</div>
+            </div>
+            <div>
+              <div className="text-4xl font-bold text-white mb-2">50+</div>
+              <div className="text-white/80">Practice Areas</div>
+            </div>
+            <div>
+              <div className="text-4xl font-bold text-white mb-2">24/7</div>
+              <div className="text-white/80">Support Available</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* About LegalCity Section */}
+      <section className="bg-white py-16">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <h2 className="text-3xl font-bold text-gray-900 mb-6">Why Choose LegalCity?</h2>
+              <p className="text-gray-600 mb-6 leading-relaxed">
+                LegalCity is the premier legal network connecting individuals and businesses with top-tier attorneys across the United States. Our rigorous vetting process ensures you access only the most qualified legal professionals.
+              </p>
+              <div className="space-y-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                    <svg className="w-3 h-3 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900">Verified Professionals</h3>
+                    <p className="text-gray-600 text-sm">All attorneys undergo comprehensive background checks and credential verification</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                    <svg className="w-3 h-3 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900">Personalized Matching</h3>
+                    <p className="text-gray-600 text-sm">Advanced algorithm matches you with attorneys specialized in your specific legal needs</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                    <svg className="w-3 h-3 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900">Transparent Process</h3>
+                    <p className="text-gray-600 text-sm">Clear pricing, detailed profiles, and client reviews for informed decision-making</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="relative">
+              <img 
+                src="https://images.unsplash.com/photo-1521791136064-7986c2920216?w=600&h=400&fit=crop" 
+                alt="Professional legal consultation" 
+                className="rounded-lg shadow-lg w-full h-80 object-cover"
+                loading="lazy"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-lg"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Services Section */}
+      <section className="bg-gray-50 py-16">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Comprehensive Legal Services</h2>
+            <p className="text-gray-600 max-w-2xl mx-auto">From personal matters to complex business litigation, our network covers all areas of law</p>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+              </div>
+              <h3 className="font-semibold text-gray-900 mb-2">Corporate Law</h3>
+              <p className="text-gray-600 text-sm">Business formation, contracts, mergers, acquisitions, and corporate compliance</p>
+            </div>
+            <div className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+              </div>
+              <h3 className="font-semibold text-gray-900 mb-2">Family Law</h3>
+              <p className="text-gray-600 text-sm">Divorce, child custody, adoption, prenuptials, and domestic relations</p>
+            </div>
+            <div className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+              <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mb-4">
+                <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.268 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+              </div>
+              <h3 className="font-semibold text-gray-900 mb-2">Criminal Defense</h3>
+              <p className="text-gray-600 text-sm">DUI, white-collar crimes, federal charges, and criminal appeals</p>
+            </div>
+            <div className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+                <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+              <h3 className="font-semibold text-gray-900 mb-2">Personal Injury</h3>
+              <p className="text-gray-600 text-sm">Auto accidents, medical malpractice, workplace injuries, and wrongful death</p>
+            </div>
+            <div className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+              <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center mb-4">
+                <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
+                </svg>
+              </div>
+              <h3 className="font-semibold text-gray-900 mb-2">Real Estate</h3>
+              <p className="text-gray-600 text-sm">Property transactions, landlord-tenant disputes, and real estate litigation</p>
+            </div>
+            <div className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+              <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4">
+                <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h3 className="font-semibold text-gray-900 mb-2">Estate Planning</h3>
+              <p className="text-gray-600 text-sm">Wills, trusts, probate, and comprehensive estate planning strategies</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Reviews Section */}
+      <section className="bg-white py-16">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">What Our Clients Say</h2>
+            <div className="flex items-center justify-center gap-2 mb-4">
+              {[...Array(5)].map((_, i) => (
+                <svg key={i} className="w-6 h-6 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+              ))}
+              <span className="text-gray-600 ml-2">4.9/5 from 12,000+ reviews</span>
+            </div>
+          </div>
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="bg-white p-6 rounded-lg shadow-sm">
+              <div className="flex items-center mb-4">
+                <img src="https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face" alt="Client" className="w-12 h-12 rounded-full mr-4" />
+                <div>
+                  <div className="font-semibold">Sarah Johnson</div>
+                  <div className="text-sm text-gray-600">Business Owner</div>
+                </div>
+              </div>
+              <p className="text-gray-700">"LegalCity connected me with an exceptional attorney who resolved my business dispute efficiently. Professional service from start to finish."</p>
+            </div>
+            <div className="bg-white p-6 rounded-lg shadow-sm">
+              <div className="flex items-center mb-4">
+                <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face" alt="Client" className="w-12 h-12 rounded-full mr-4" />
+                <div>
+                  <div className="font-semibold">Michael Chen</div>
+                  <div className="text-sm text-gray-600">Real Estate Investor</div>
+                </div>
+              </div>
+              <p className="text-gray-700">"Outstanding platform with top-quality lawyers. The attorney I found through LegalCity exceeded all expectations in handling my case."</p>
+            </div>
+            <div className="bg-white p-6 rounded-lg shadow-sm">
+              <div className="flex items-center mb-4">
+                <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face" alt="Client" className="w-12 h-12 rounded-full mr-4" />
+                <div>
+                  <div className="font-semibold">Emily Rodriguez</div>
+                  <div className="text-sm text-gray-600">Family Law Client</div>
+                </div>
+              </div>
+              <p className="text-gray-700">"Compassionate and skilled attorney found through LegalCity. They guided me through a difficult time with expertise and care."</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Trust Indicators & Awards */}
+      <section className="bg-gray-50 py-16">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Trusted & Recognized</h2>
+            <p className="text-gray-600">Certified by leading legal organizations and award-winning platform</p>
+          </div>
+          
+          {/* Certifications */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
+            <div className="bg-white p-6 rounded-lg shadow-sm text-center hover:shadow-md transition-shadow">
+              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                <span className="font-bold text-blue-600 text-lg">ABA</span>
+              </div>
+              <div className="font-semibold text-gray-900 text-sm mb-1">American Bar Association</div>
+              <div className="text-xs text-gray-600">Certified Member</div>
+            </div>
+            <div className="bg-white p-6 rounded-lg shadow-sm text-center hover:shadow-md transition-shadow">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                <span className="font-bold text-green-600 text-lg">AVVO</span>
+              </div>
+              <div className="font-semibold text-gray-900 text-sm mb-1">AVVO Legal Directory</div>
+              <div className="text-xs text-gray-600">Verified Partner</div>
+            </div>
+            <div className="bg-white p-6 rounded-lg shadow-sm text-center hover:shadow-md transition-shadow">
+              <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                <span className="font-bold text-yellow-600 text-lg">BBB</span>
+              </div>
+              <div className="font-semibold text-gray-900 text-sm mb-1">Better Business Bureau</div>
+              <div className="text-xs text-gray-600">A+ Rating</div>
+            </div>
+            <div className="bg-white p-6 rounded-lg shadow-sm text-center hover:shadow-md transition-shadow">
+              <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                <svg className="w-8 h-8 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="font-semibold text-gray-900 text-sm mb-1">SSL Secured</div>
+              <div className="text-xs text-gray-600">256-bit Encryption</div>
+            </div>
+          </div>
+
+          {/* Awards */}
+          <div className="border-t border-gray-200 pt-12">
+            <div className="text-center mb-8">
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Industry Awards & Recognition</h3>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="bg-white p-6 rounded-lg shadow-sm text-center">
+                <div className="w-12 h-12 bg-gold-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <svg className="w-6 h-6 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                </div>
+                <div className="font-semibold text-gray-900 text-sm mb-1">Best Legal Platform 2024</div>
+                <div className="text-xs text-gray-600">Legal Tech Awards</div>
+              </div>
+              <div className="bg-white p-6 rounded-lg shadow-sm text-center">
+                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <svg className="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="font-semibold text-gray-900 text-sm mb-1">Excellence in Innovation</div>
+                <div className="text-xs text-gray-600">National Law Journal</div>
+              </div>
+              <div className="bg-white p-6 rounded-lg shadow-sm text-center">
+                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <svg className="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="font-semibold text-gray-900 text-sm mb-1">Top Client Satisfaction</div>
+                <div className="text-xs text-gray-600">Legal Services Review</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     </>
   );
 }
