@@ -321,8 +321,8 @@ function Footer({ currentLanguage, translations }) {
   return (
     <footer className="bg-gray-900 text-white">
       <div className="max-w-7xl mx-auto px-6 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div className="col-span-1 md:col-span-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
+          <div className="col-span-1 md:col-span-2 lg:col-span-2">
             <div className="flex items-center gap-2 mb-4">
               <div className="bg-white rounded-full px-4 py-2 shadow-lg">
                 <span className="text-[#0284C7] font-bold text-xl tracking-tight">Legal</span>
@@ -352,22 +352,36 @@ function Footer({ currentLanguage, translations }) {
           </div>
 
           <div>
-            <h3 className="font-semibold mb-4">Quick Links</h3>
-            <ul className="space-y-2">
+            <h3 className="font-semibold mb-4">Pages</h3>
+            <ul className="space-y-2 text-sm">
+              <li><button onClick={() => navigate('/')} className="text-gray-300 hover:text-white transition-colors">Home</button></li>
               <li><button onClick={() => navigate('/lawyers')} className="text-gray-300 hover:text-white transition-colors">Find Lawyers</button></li>
+              <li><button onClick={() => navigate('/legal-forms')} className="text-gray-300 hover:text-white transition-colors">Legal Forms</button></li>
+              <li><button onClick={() => navigate('/qa')} className="text-gray-300 hover:text-white transition-colors">Q&A</button></li>
+              <li><button onClick={() => navigate('/legal-blog')} className="text-gray-300 hover:text-white transition-colors">Legal Blog</button></li>
+              <li><button onClick={() => navigate('/contact-us')} className="text-gray-300 hover:text-white transition-colors">Contact Us</button></li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="font-semibold mb-4">Account</h3>
+            <ul className="space-y-2 text-sm">
               <li><button onClick={() => navigate('/login')} className="text-gray-300 hover:text-white transition-colors">Login</button></li>
               <li><button onClick={() => navigate('/register')} className="text-gray-300 hover:text-white transition-colors">Sign Up</button></li>
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">About Us</a></li>
             </ul>
           </div>
 
           <div>
             <h3 className="font-semibold mb-4">Legal Areas</h3>
-            <ul className="space-y-2">
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Corporate Law</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Family Law</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Criminal Defense</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Personal Injury</a></li>
+            <ul className="space-y-2 text-sm">
+              <li><button onClick={() => navigate('/lawyers?practice=Corporate Law')} className="text-gray-300 hover:text-white transition-colors">Corporate Law</button></li>
+              <li><button onClick={() => navigate('/lawyers?practice=Family Law')} className="text-gray-300 hover:text-white transition-colors">Family Law</button></li>
+              <li><button onClick={() => navigate('/lawyers?practice=Criminal Defense')} className="text-gray-300 hover:text-white transition-colors">Criminal Defense</button></li>
+              <li><button onClick={() => navigate('/lawyers?practice=Personal Injury')} className="text-gray-300 hover:text-white transition-colors">Personal Injury</button></li>
+              <li><button onClick={() => navigate('/lawyers?practice=Real Estate')} className="text-gray-300 hover:text-white transition-colors">Real Estate</button></li>
+              <li><button onClick={() => navigate('/lawyers?practice=Immigration')} className="text-gray-300 hover:text-white transition-colors">Immigration</button></li>
+              <li><button onClick={() => navigate('/lawyers?practice=Employment Law')} className="text-gray-300 hover:text-white transition-colors">Employment Law</button></li>
+              <li><button onClick={() => navigate('/lawyers?practice=Estate Planning')} className="text-gray-300 hover:text-white transition-colors">Estate Planning</button></li>
             </ul>
           </div>
         </div>
