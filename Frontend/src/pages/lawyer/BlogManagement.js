@@ -44,13 +44,9 @@ const BlogManagement = () => {
       setLoading(true);
       const response = await api.get('/blogs');
       const blogsData = response.data?.data || response.data || [];
-      // Get current user from token
-      const token = localStorage.getItem('token');
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      const currentUserId = payload.id;
-      
-      // Filter blogs by current user
-      const userBlogs = blogsData.filter(blog => blog.author_id === currentUserId);
+      // Use lawyer-specific endpoint that includes secure_id
+      const lawyerResponse = await api.get('/blogs/lawyer-blogs');
+      const userBlogs = lawyerResponse.data?.blogs || [];
       setBlogs(Array.isArray(userBlogs) ? userBlogs : []);
     } catch (error) {
       console.error('Error fetching blogs:', error);

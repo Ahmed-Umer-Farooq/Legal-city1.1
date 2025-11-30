@@ -31,6 +31,9 @@ const upload = multer({
 // GET /api/blogs/analytics - Get lawyer's blog analytics (lawyers only)
 router.get('/analytics', requireAuth, requireLawyer, blogController.getLawyerBlogAnalytics);
 
+// GET /api/blogs/lawyer-blogs - Get lawyer's own blogs with secure_id (lawyers only)
+router.get('/lawyer-blogs', requireAuth, requireLawyer, blogController.getLawyerBlogs);
+
 // GET /api/blogs/engagement-count - Get engagement count for notifications
 router.get('/engagement-count', requireAuth, requireLawyer, blogController.getEngagementCount);
 
@@ -132,12 +135,8 @@ router.post('/:blog_id/report', (req, res, next) => {
 // GET /api/blogs/:identifier - Get single blog by slug or secure_id (must be last)
 router.get('/:identifier', (req, res) => {
   const { identifier } = req.params;
-  // If it's a 32-character hex string, treat as secure_id, otherwise treat as slug
-  if (/^[a-f0-9]{32}$/.test(identifier)) {
-    blogController.getBlogById(req, res);
-  } else {
-    blogController.getBlogBySlug(req, res);
-  }
+  // Always try slug first for SEO-friendly URLs, fallback to secure_id
+  blogController.getBlogBySlug(req, res);
 });
 
 module.exports = router;

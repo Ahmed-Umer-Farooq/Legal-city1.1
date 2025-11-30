@@ -564,7 +564,7 @@ const Blog = () => {
         
         // Transform your database data to match frontend format
         const transformedBlogs = data.map(blog => ({
-          id: blog.secure_id,
+          id: blog.slug,
           title: blog.title,
           excerpt: blog.excerpt,
           image: blog.featured_image,

@@ -292,19 +292,11 @@ const BlogDetail = () => {
       {/* Hero Section */}
       <div className="bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          {/* Category Badge and Report Button */}
-          <div className="flex items-center justify-between mb-6">
+          {/* Category Badge */}
+          <div className="mb-6">
             <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
               {currentBlogPost.category}
             </span>
-            <button
-              onClick={() => setReportModal({ isOpen: true, blogId: id, blogTitle: currentBlogPost.title })}
-              className="flex items-center gap-2 px-3 py-1 text-gray-500 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-              title="Report this blog"
-            >
-              <Flag className="w-4 h-4" />
-              <span className="text-sm">Report</span>
-            </button>
           </div>
 
           {/* Title */}
@@ -318,8 +310,14 @@ const BlogDetail = () => {
           </p>
 
           {/* Meta Information */}
-          <div className="flex flex-wrap items-center gap-6 mb-8">
-            <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center justify-between mb-8">
+            <div 
+              className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors"
+              onClick={() => {
+                // Navigate to author's other blogs
+                navigate(`/blogs?author=${encodeURIComponent(currentBlogPost.author)}`);
+              }}
+            >
               {currentBlogPost.authorImage ? (
                 <img 
                   src={currentBlogPost.authorImage} 
@@ -334,56 +332,63 @@ const BlogDetail = () => {
               <div>
                 <p className="font-semibold text-gray-900">{currentBlogPost.author}</p>
                 <p className="text-sm text-gray-600">Senior Technology Writer</p>
+                <div className="flex items-center gap-4 text-sm text-gray-500 mt-1">
+                  <div className="flex items-center gap-1">
+                    <Calendar size={14} />
+                    {currentBlogPost.date}
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Clock size={14} />
+                    {currentBlogPost.readTime}
+                  </div>
+                </div>
               </div>
             </div>
-            
-            <div className="flex items-center gap-4 text-sm text-gray-600">
-              <div className="flex items-center gap-1">
-                <Calendar size={16} />
-                {currentBlogPost.date}
-              </div>
-              <div className="flex items-center gap-1">
-                <Clock size={16} />
-                {currentBlogPost.readTime}
-              </div>
-            </div>
-          </div>
 
-          {/* Action Buttons */}
-          <div className="flex items-center gap-4 mb-8">
-            <button 
-              onClick={handleLike}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                liked 
-                  ? 'bg-red-100 text-red-600' 
-                  : 'bg-red-50 text-red-600 hover:bg-red-100'
-              }`}
-              title={!isAuthenticated ? 'Like (stored locally)' : 'Like'}
-            >
-              <Heart size={18} fill={liked ? 'currentColor' : 'none'} />
-              <span className="font-medium">{liked ? 'Liked' : 'Like'}</span>
-              {!isAuthenticated && <span className="text-xs opacity-75">(local)</span>}
-            </button>
-            <button 
-              onClick={handleSave}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                saved 
-                  ? 'bg-blue-100 text-blue-600' 
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-              title={!isAuthenticated ? 'Save (stored locally)' : 'Save'}
-            >
-              <Bookmark size={18} fill={saved ? 'currentColor' : 'none'} />
-              <span className="font-medium">{saved ? 'Saved' : 'Save'}</span>
-              {!isAuthenticated && <span className="text-xs opacity-75">(local)</span>}
-            </button>
-            <button 
-              onClick={handleShare}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
-            >
-              <Share2 size={18} />
-              <span className="font-medium">Share</span>
-            </button>
+            {/* Action Buttons */}
+            <div className="flex items-center gap-3">
+              <button 
+                onClick={handleLike}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                  liked 
+                    ? 'bg-red-100 text-red-600' 
+                    : 'bg-red-50 text-red-600 hover:bg-red-100'
+                }`}
+                title={!isAuthenticated ? 'Like (stored locally)' : 'Like'}
+              >
+                <Heart size={18} fill={liked ? 'currentColor' : 'none'} />
+                <span className="font-medium">{liked ? 'Liked' : 'Like'}</span>
+                {!isAuthenticated && <span className="text-xs opacity-75">(local)</span>}
+              </button>
+              <button 
+                onClick={handleSave}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                  saved 
+                    ? 'bg-blue-100 text-blue-600' 
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+                title={!isAuthenticated ? 'Save (stored locally)' : 'Save'}
+              >
+                <Bookmark size={18} fill={saved ? 'currentColor' : 'none'} />
+                <span className="font-medium">{saved ? 'Saved' : 'Save'}</span>
+                {!isAuthenticated && <span className="text-xs opacity-75">(local)</span>}
+              </button>
+              <button 
+                onClick={handleShare}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
+              >
+                <Share2 size={18} />
+                <span className="font-medium">Share</span>
+              </button>
+              <button
+                onClick={() => setReportModal({ isOpen: true, blogId: id, blogTitle: currentBlogPost.title })}
+                className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors"
+                title="Report this blog"
+              >
+                <Flag size={18} />
+                <span className="font-medium">Report</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -420,44 +425,19 @@ const BlogDetail = () => {
         </div>
       </div>
 
-      {/* Author Bio */}
-      <div className="bg-gray-100">
+
+
+
+
+      {/* Comments Section */}
+      <div className="bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="bg-white rounded-xl p-8 shadow-sm">
-            <div className="flex items-start gap-6">
-              {currentBlogPost.authorImage ? (
-                <img 
-                  src={currentBlogPost.authorImage} 
-                  alt={currentBlogPost.author}
-                  className="w-20 h-20 rounded-full object-cover flex-shrink-0"
-                />
-              ) : (
-                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#E7EFFD] to-[#0071BC] flex items-center justify-center flex-shrink-0">
-                  <span className="text-white text-2xl font-bold">{currentBlogPost.author?.charAt(0) || 'A'}</span>
-                </div>
-              )}
-              <div className="flex-1">
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">About {currentBlogPost.author}</h3>
-                <p className="text-gray-600 leading-relaxed mb-4">{currentBlogPost.authorBio}</p>
-                <div className="flex items-center gap-4">
-                  <button className="text-blue-600 hover:text-blue-700 transition-colors">
-                    <Twitter size={20} />
-                  </button>
-                  <button className="text-blue-600 hover:text-blue-700 transition-colors">
-                    <Linkedin size={20} />
-                  </button>
-                  <button className="text-blue-600 hover:text-blue-700 transition-colors">
-                    <Facebook size={20} />
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
+          <CommentSection blogId={id} isDashboardView={isDashboardView} isPublicView={isPublicView} />
         </div>
       </div>
 
       {/* Related Articles */}
-      <div className="bg-white">
+      <div className="bg-gray-100">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <h2 className="text-3xl font-bold text-gray-900 mb-8">Related Articles</h2>
           {relatedArticles.length === 0 && (
@@ -500,13 +480,6 @@ const BlogDetail = () => {
               </div>
             ))}
           </div>
-        </div>
-      </div>
-
-      {/* Comments Section */}
-      <div className="bg-gray-100">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <CommentSection blogId={id} isDashboardView={isDashboardView} isPublicView={isPublicView} />
         </div>
       </div>
 

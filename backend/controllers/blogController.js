@@ -10,7 +10,6 @@ const blogController = {
 
       let query = db('blogs')
         .select(
-          'blogs.secure_id',
           'blogs.title',
           'blogs.slug',
           'blogs.excerpt',
@@ -19,7 +18,6 @@ const blogController = {
           'blogs.views_count',
           'blogs.published_at',
           'blogs.author_name',
-          'blogs.author_id',
           'blogs.meta_title',
           'blogs.focus_keyword',
           'blogs.meta_description',
@@ -186,7 +184,6 @@ const blogController = {
     try {
       const posts = await db('blogs')
         .select(
-          'blogs.secure_id',
           'blogs.title',
           'blogs.slug',
           'blogs.excerpt',
