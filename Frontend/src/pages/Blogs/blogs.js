@@ -6,7 +6,7 @@ import ReportBlogModal from '../../components/modals/ReportBlogModal';
 
 
 // Blog Card Component
-const BlogCard = ({ id, image, category, title, author, authorImage, date, comment_count = 0, onReport }) => {
+const BlogCard = ({ id, secure_id, slug, image, category, title, author, authorImage, date, comment_count = 0, onReport }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [imageError, setImageError] = useState(false);
@@ -14,20 +14,16 @@ const BlogCard = ({ id, image, category, title, author, authorImage, date, comme
   const [imageAttempted, setImageAttempted] = useState(false);
   
   const handleClick = () => {
-    console.log('🔗 BlogCard clicked:', { id, title, category });
+    const blogUrl = `${slug}/${secure_id}`;
+    console.log('🔗 BlogCard clicked:', { slug, secure_id, title });
     
-    // Determine navigation based on current context
     const fromUserDashboard = location.pathname === '/user/legal-blog';
     const isAuthenticated = !!localStorage.getItem('token');
     
     if (fromUserDashboard && isAuthenticated) {
-      // Navigate to dashboard blog view
-      console.log('📍 Navigating to dashboard view:', `/user/legal-blog/${id}`);
-      navigate(`/user/legal-blog/${id}`, { state: { from: 'user-dashboard' } });
+      navigate(`/user/legal-blog/${blogUrl}`, { state: { from: 'user-dashboard' } });
     } else {
-      // Navigate to public blog view
-      console.log('📍 Navigating to public view:', `/legal-blog/${id}`);
-      navigate(`/legal-blog/${id}`);
+      navigate(`/legal-blog/${blogUrl}`);
     }
   };
   
@@ -581,7 +577,9 @@ const Blog = () => {
         
         // Transform your database data to match frontend format
         const transformedBlogs = data.map(blog => ({
-          id: blog.slug,
+          id: blog.id,
+          secure_id: blog.secure_id,
+          slug: blog.slug,
           title: blog.title,
           excerpt: blog.excerpt,
           image: blog.featured_image,
@@ -593,7 +591,6 @@ const Blog = () => {
             month: 'long', 
             day: 'numeric'
           }),
-          slug: blog.slug,
           tags: blog.tags ? JSON.parse(blog.tags) : [],
           views: blog.views_count,
           comment_count: parseInt(blog.comment_count) || 0

@@ -109,6 +109,7 @@ const login = async (req, res) => {
     // Include all required fields in response
     const userResponse = {
       id: userData.id,
+      secure_id: user.secure_id,
       email: userData.email,
       role: userData.role,
       is_admin: userData.is_admin,

@@ -41,9 +41,9 @@ const BlogDetail = () => {
   };
   
   // Determine view context
-  const isDashboardView = isAuthenticated && (location.pathname.startsWith('/user/') || fromUserDashboard);
+  const isDashboardView = isAuthenticated && location.pathname.startsWith('/user/');
   const isAdminView = fromAdminDashboard || location.state?.from === 'admin-dashboard';
-  const isPublicView = !isAuthenticated || (location.pathname.startsWith('/legal-blog/') && !isAdminView);
+  const isPublicView = !isDashboardView && !isAdminView;
   const [blogPost, setBlogPost] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -74,7 +74,11 @@ const BlogDetail = () => {
           throw new Error('Blog ID is missing from URL parameters');
         }
         
-        const response = await fetch(`/api/blogs/${id}`);
+        // Extract secure_id from URL (format: slug/secure_id)
+        const identifier = id.includes('/') ? id.split('/').pop() : id;
+        console.log('🔑 Using identifier:', identifier);
+        
+        const response = await fetch(`/api/blogs/${identifier}`);
         
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -432,7 +436,7 @@ const BlogDetail = () => {
       {/* Comments Section */}
       <div className="bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <CommentSection blogId={id} isDashboardView={isDashboardView} isPublicView={isPublicView} />
+          <CommentSection blogId={blogPost?.id} isDashboardView={isDashboardView} isPublicView={isPublicView} />
         </div>
       </div>
 
@@ -452,7 +456,7 @@ const BlogDetail = () => {
                 onClick={() => {
                   console.log('🔗 Related article clicked:', article.title);
                   const slug = generateSlug(article.title);
-                  navigate(`/legal-blog/${article.id}/${slug}`);
+                  navigate(`/legal-blog/${slug}/${article.id}`);
                 }}
                 className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
               >

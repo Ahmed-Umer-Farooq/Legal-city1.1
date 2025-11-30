@@ -127,12 +127,17 @@ const requireAuth = async (req, res, next) => {
     return res.status(401).json({ message: 'Invalid token' });
   }
 
-  // Only check lawyers table for blog operations
-  const user = await db('lawyers').where('id', decoded.id).first();
+  // Check both lawyers and users tables
+  let user = await db('lawyers').where('id', decoded.id).first();
   if (user) {
     user.role = 'lawyer';
     user.is_verified = user.is_verified || 0;
     user.lawyer_verified = user.lawyer_verified || 0;
+  } else {
+    user = await db('users').where('id', decoded.id).first();
+    if (user) {
+      user.role = user.role || 'user';
+    }
   }
 
   if (!user) {

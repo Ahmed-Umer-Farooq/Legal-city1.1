@@ -81,12 +81,12 @@ const BlogCard = ({ blog, onAnalytics, onDelete, formatTimeAgo }) => {
             <BarChart3 className="w-4 h-4" />
             Analytics
           </button>
-          <button onClick={() => window.open(`/blog/${blog.secure_id}`, '_blank')} className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+          <button onClick={() => window.open(`/blog/${blog.slug}/${blog.secure_id}`, '_blank')} className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
             <Eye className="w-4 h-4" />
           </button>
           <button
             onClick={() => {
-              navigator.clipboard.writeText(`${window.location.origin}/blog/${blog.secure_id}`);
+              navigator.clipboard.writeText(`${window.location.origin}/blog/${blog.slug}/${blog.secure_id}`);
               alert('Link copied!');
             }}
             className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"

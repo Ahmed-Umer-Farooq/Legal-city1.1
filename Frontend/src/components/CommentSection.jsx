@@ -18,13 +18,21 @@ const CommentSection = ({ blogId, isDashboardView, isPublicView }) => {
 
   const fetchComments = async () => {
     try {
+      console.log('Fetching comments for blog:', blogId);
       const response = await fetch(`/api/blogs/${blogId}/comments`);
+      console.log('Comments response status:', response.status);
       if (response.ok) {
         const data = await response.json();
+        console.log('Comments data:', data);
         setComments(data);
+      } else {
+        const errorText = await response.text();
+        console.error('Failed to fetch comments:', response.status, errorText);
+        setComments([]);
       }
     } catch (error) {
       console.error('Error fetching comments:', error);
+      setComments([]);
     } finally {
       setLoading(false);
     }
@@ -35,16 +43,17 @@ const CommentSection = ({ blogId, isDashboardView, isPublicView }) => {
     if (!newComment.trim()) return;
     
     const token = localStorage.getItem('token');
-    const userData = localStorage.getItem('user');
+    console.log('Token exists:', !!token);
+    console.log('isAuthenticated:', isAuthenticated);
+    console.log('user:', user);
     
-    if (!isAuthenticated || !token || !userData) {
+    if (!isAuthenticated || !token) {
       alert('Please login to comment');
       return;
     }
 
     setSubmitting(true);
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch(`/api/blogs/${blogId}/comments`, {
         method: 'POST',
         headers: {
@@ -57,14 +66,19 @@ const CommentSection = ({ blogId, isDashboardView, isPublicView }) => {
         })
       });
 
+      console.log('Comment post response:', response.status);
       if (response.ok) {
-        const newCommentData = await response.json();
-        setComments([...comments, newCommentData]);
         setNewComment('');
         setReplyTo(null);
+        await fetchComments();
+      } else {
+        const errorData = await response.text();
+        console.error('Comment post error:', errorData);
+        alert('Failed to post comment: ' + errorData);
       }
     } catch (error) {
       console.error('Error posting comment:', error);
+      alert('Error posting comment');
     } finally {
       setSubmitting(false);
     }

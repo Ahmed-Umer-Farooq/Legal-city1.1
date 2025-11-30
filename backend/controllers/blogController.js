@@ -8,33 +8,59 @@ const blogController = {
       const { page = 1, limit = 10, category, search } = req.query;
       const offset = (page - 1) * limit;
 
-      let query = db('blogs')
+      let query = db('blogs').where('status', 'published');
+      
+      if (category) query = query.where('category', category);
+      if (search) query = query.where('title', 'like', `%${search}%`);
+
+      const blogs = await query
         .select(
-          'blogs.title',
-          'blogs.slug',
-          'blogs.excerpt',
-          'blogs.featured_image',
-          'blogs.category',
-          'blogs.views_count',
-          'blogs.published_at',
-          'blogs.author_name',
-          'blogs.meta_title',
-          'blogs.focus_keyword',
-          'blogs.meta_description',
-          'blogs.image_alt_text'
+          'id',
+          'secure_id',
+          'title',
+          'slug',
+          'excerpt',
+          'featured_image',
+          'category',
+          'views_count',
+          'published_at',
+          'author_name',
+          'meta_title',
+          'focus_keyword',
+          'meta_description',
+          'image_alt_text'
         )
-        .count('blog_comments.id as comment_count')
-        .count('blog_likes.id as like_count')
-        .leftJoin('blog_comments', 'blogs.id', 'blog_comments.blog_id')
-        .leftJoin('blog_likes', 'blogs.id', 'blog_likes.blog_id')
-        .where('blogs.status', 'published')
-        .groupBy('blogs.id');
+        .orderBy('published_at', 'desc')
+        .limit(limit)
+        .offset(offset);
 
-      if (category) query = query.where('blogs.category', category);
-      if (search) query = query.where('blogs.title', 'like', `%${search}%`);
+      // Add counts separately
+      const blogsWithCounts = await Promise.all(blogs.map(async (blog) => {
+        const [commentCount, likeCount] = await Promise.all([
+          db('blog_comments').where('blog_id', blog.id).count('* as count').first(),
+          db('blog_likes').where('blog_id', blog.id).count('* as count').first()
+        ]);
+        return {
+          id: blog.id,
+          secure_id: blog.secure_id,
+          title: blog.title,
+          slug: blog.slug,
+          excerpt: blog.excerpt,
+          featured_image: blog.featured_image,
+          category: blog.category,
+          views_count: blog.views_count,
+          published_at: blog.published_at,
+          author_name: blog.author_name,
+          meta_title: blog.meta_title,
+          focus_keyword: blog.focus_keyword,
+          meta_description: blog.meta_description,
+          image_alt_text: blog.image_alt_text,
+          comment_count: commentCount.count,
+          like_count: likeCount.count
+        };
+      }));
 
-      const blogs = await query.orderBy('blogs.published_at', 'desc').limit(limit).offset(offset);
-      res.json(blogs);
+      res.json(blogsWithCounts);
     } catch (error) {
       console.error('Error fetching blogs:', error);
       res.status(500).json({ message: 'Failed to fetch blogs' });
@@ -184,21 +210,23 @@ const blogController = {
     try {
       const posts = await db('blogs')
         .select(
-          'blogs.title',
-          'blogs.slug',
-          'blogs.excerpt',
-          'blogs.featured_image',
-          'blogs.category',
-          'blogs.views_count',
-          'blogs.published_at',
-          'blogs.author_name',
-          'blogs.meta_title',
-          'blogs.focus_keyword',
-          'blogs.meta_description',
-          'blogs.image_alt_text'
+          'id',
+          'secure_id',
+          'title',
+          'slug',
+          'excerpt',
+          'featured_image',
+          'category',
+          'views_count',
+          'published_at',
+          'author_name',
+          'meta_title',
+          'focus_keyword',
+          'meta_description',
+          'image_alt_text'
         )
-        .where('blogs.status', 'published')
-        .orderBy('blogs.views_count', 'desc')
+        .where('status', 'published')
+        .orderBy('views_count', 'desc')
         .limit(5);
 
       res.json(posts);

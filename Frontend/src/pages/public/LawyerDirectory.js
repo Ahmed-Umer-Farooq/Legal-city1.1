@@ -105,10 +105,9 @@ function LawyerCard({
 
   const handleViewProfile = () => {
     if (fromDashboard) {
-      navigate(`/dashboard/lawyer/${id}`);
-    } else {
-      navigate(`/lawyer/${id}`);
+      localStorage.setItem('navigatedFromDashboard', 'true');
     }
+    navigate(`/lawyer/${id}`);
   };
 
   return (

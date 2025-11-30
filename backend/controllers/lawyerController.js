@@ -31,8 +31,10 @@ const registerLawyer = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const verificationCode = crypto.randomInt(100000, 999999).toString();
+    const secure_id = crypto.randomBytes(16).toString('hex');
 
     await db('lawyers').insert({
+      secure_id,
       name,
       username,
       email,
