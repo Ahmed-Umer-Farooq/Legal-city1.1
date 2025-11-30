@@ -9,6 +9,7 @@ import GoogleUserSetup from './pages/auth/GoogleUserSetup';
 import GoogleLawyerSetup from './pages/auth/GoogleLawyerSetup';
 import LawyerDirectory from './pages/public/LawyerDirectory';
 import LawyerProfile from './pages/LawyerProfile';
+import AuthorProfile from './pages/AuthorProfile';
 import LawyerDashboard from './pages/lawyer/LawyerDashboard';
 import FindLawyer from './pages/FindLawyer';
 import SearchResults from './pages/SearchResults';
@@ -113,6 +114,7 @@ function App() {
           <Route path="/lawyer-directory" element={<LawyerDirectory />} />
           <Route path="/find-a-lawyer" element={<FindLawyer />} />
           <Route path="/lawyer/:id/:name?" element={<LawyerProfile />} />
+          <Route path="/author/:authorName" element={<AuthorProfile />} />
           <Route path="/legal-blog" element={<BlogPage />} />
           <Route path="/legal-blog/:id/:slug?" element={<BlogDetail />} />
           <Route path="/legal-blog/:id" element={<BlogDetail />} />

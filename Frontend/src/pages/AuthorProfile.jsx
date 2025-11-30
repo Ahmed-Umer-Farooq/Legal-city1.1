@@ -2,28 +2,25 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, MapPin, Phone, Mail, Calendar, Award, BookOpen } from 'lucide-react';
 
-const LawyerProfile = () => {
+const AuthorProfile = () => {
   const { authorName } = useParams();
   const navigate = useNavigate();
-  const [lawyer, setLawyer] = useState(null);
+  const [author, setAuthor] = useState(null);
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchLawyerProfile = async () => {
+    const fetchAuthorProfile = async () => {
       try {
         setLoading(true);
         
-        // Fetch lawyer info and their blogs
-        const [blogsResponse] = await Promise.all([
-          fetch(`/api/blogs?author=${encodeURIComponent(authorName)}`)
-        ]);
-        
+        // Fetch blogs by author
+        const blogsResponse = await fetch(`/api/blogs`);
         const blogsData = await blogsResponse.json();
         const authorBlogs = blogsData.filter(blog => blog.author_name === authorName);
         
-        // Create lawyer profile from blog data
-        const lawyerProfile = {
+        // Create author profile from blog data
+        const authorProfile = {
           name: authorName,
           title: 'Senior Legal Expert',
           bio: 'Professional writer and legal expert with extensive experience in various areas of law.',
@@ -36,17 +33,17 @@ const LawyerProfile = () => {
           totalViews: authorBlogs.reduce((sum, blog) => sum + (blog.views_count || 0), 0)
         };
         
-        setLawyer(lawyerProfile);
+        setAuthor(authorProfile);
         setBlogs(authorBlogs);
       } catch (error) {
-        console.error('Error fetching lawyer profile:', error);
+        console.error('Error fetching author profile:', error);
       } finally {
         setLoading(false);
       }
     };
 
     if (authorName) {
-      fetchLawyerProfile();
+      fetchAuthorProfile();
     }
   }, [authorName]);
 
@@ -61,7 +58,7 @@ const LawyerProfile = () => {
     );
   }
 
-  if (!lawyer) {
+  if (!author) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -96,26 +93,32 @@ const LawyerProfile = () => {
       {/* Profile Section */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <div className="bg-gradient-to-r from-blue-600 to-indigo-700 px-8 py-12">
-            <div className="flex items-start gap-6">
-              <div className="w-24 h-24 rounded-full bg-white/20 flex items-center justify-center">
-                <span className="text-white text-3xl font-bold">{lawyer.name?.charAt(0) || 'L'}</span>
+          <div className="relative bg-gradient-to-r from-slate-900 via-blue-900 to-indigo-900 px-8 py-12 overflow-hidden">
+            {/* Professional background pattern */}
+            <div className="absolute inset-0 opacity-10">
+              <div className="absolute inset-0" style={{
+                backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
+              }}></div>
+            </div>
+            <div className="relative flex items-start gap-6">
+              <div className="w-24 h-24 rounded-full bg-white/10 backdrop-blur-sm border-2 border-white/20 flex items-center justify-center shadow-xl">
+                <span className="text-white text-3xl font-bold">{author.name?.charAt(0) || 'L'}</span>
               </div>
               <div className="flex-1 text-white">
-                <h1 className="text-3xl font-bold mb-2">{lawyer.name}</h1>
-                <p className="text-xl text-blue-100 mb-4">{lawyer.title}</p>
+                <h1 className="text-3xl font-bold mb-2">{author.name}</h1>
+                <p className="text-xl text-blue-100 mb-4">{author.title}</p>
                 <div className="flex flex-wrap gap-6 text-blue-100">
                   <div className="flex items-center gap-2">
                     <MapPin className="w-4 h-4" />
-                    <span>{lawyer.location}</span>
+                    <span>{author.location}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Award className="w-4 h-4" />
-                    <span>{lawyer.experience}</span>
+                    <span>{author.experience}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <BookOpen className="w-4 h-4" />
-                    <span>{lawyer.totalBlogs} Articles</span>
+                    <span>{author.totalBlogs} Articles</span>
                   </div>
                 </div>
               </div>
@@ -127,11 +130,11 @@ const LawyerProfile = () => {
               {/* About */}
               <div className="lg:col-span-2">
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">About</h2>
-                <p className="text-gray-600 leading-relaxed mb-6">{lawyer.bio}</p>
+                <p className="text-gray-600 leading-relaxed mb-6">{author.bio}</p>
                 
                 <h3 className="text-xl font-semibold text-gray-900 mb-4">Specializations</h3>
                 <div className="flex flex-wrap gap-2 mb-6">
-                  {lawyer.specializations.map((spec, index) => (
+                  {author.specializations.map((spec, index) => (
                     <span key={index} className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
                       {spec}
                     </span>
@@ -145,11 +148,11 @@ const LawyerProfile = () => {
                 <div className="space-y-3">
                   <div className="flex items-center gap-3 text-gray-600">
                     <Mail className="w-5 h-5" />
-                    <span>{lawyer.email}</span>
+                    <span>{author.email}</span>
                   </div>
                   <div className="flex items-center gap-3 text-gray-600">
                     <Phone className="w-5 h-5" />
-                    <span>{lawyer.phone}</span>
+                    <span>{author.phone}</span>
                   </div>
                 </div>
 
@@ -158,11 +161,11 @@ const LawyerProfile = () => {
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
                       <span className="text-gray-600">Total Articles:</span>
-                      <span className="font-medium">{lawyer.totalBlogs}</span>
+                      <span className="font-medium">{author.totalBlogs}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Total Views:</span>
-                      <span className="font-medium">{lawyer.totalViews.toLocaleString()}</span>
+                      <span className="font-medium">{author.totalViews.toLocaleString()}</span>
                     </div>
                   </div>
                 </div>
@@ -173,7 +176,7 @@ const LawyerProfile = () => {
 
         {/* Articles Section */}
         <div className="mt-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Articles by {lawyer.name}</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Articles by {author.name}</h2>
           {blogs.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {blogs.map((blog) => (
@@ -219,4 +222,4 @@ const LawyerProfile = () => {
   );
 };
 
-export default LawyerProfile;
+export default AuthorProfile;

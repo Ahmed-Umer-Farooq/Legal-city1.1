@@ -755,7 +755,7 @@ const Blog = () => {
         {/* SEO-friendly background image */}
         <div className="absolute inset-0 z-0">
           <img 
-            src="https://images.unsplash.com/photo-1556075798-4825dfaaf498?w=1920&h=1080&fit=crop&crop=center&auto=format&q=80" 
+            src="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=1920&h=1080&fit=crop&crop=center&auto=format&q=80" 
             alt="Professional lawyers and legal experts in modern law office discussing legal insights and blog content - Legal consultation and analysis background"
             className="w-full h-full object-cover opacity-15"
             loading="eager"

@@ -314,8 +314,8 @@ const BlogDetail = () => {
             <div 
               className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors"
               onClick={() => {
-                // Navigate to author's other blogs
-                navigate(`/blogs?author=${encodeURIComponent(currentBlogPost.author)}`);
+                // Navigate to author profile
+                navigate(`/author/${encodeURIComponent(currentBlogPost.author)}`);
               }}
             >
               {currentBlogPost.authorImage ? (
