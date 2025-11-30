@@ -41,7 +41,7 @@ export default function LawyerProfile() {
     if (!user) {
       // Store lawyer info for after login
       const chatData = {
-        partner_id: parseInt(id),
+        partner_id: id,
         partner_type: 'lawyer',
         partner_name: lawyer.name
       };
@@ -55,7 +55,7 @@ export default function LawyerProfile() {
     
     // Set up chat and navigate
     const chatData = {
-      partner_id: parseInt(id),
+      partner_id: id,
       partner_type: 'lawyer',
       partner_name: lawyer.name
     };

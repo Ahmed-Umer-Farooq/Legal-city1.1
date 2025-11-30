@@ -5,7 +5,7 @@ const router = express.Router();
 
 // Public routes for lawyers directory
 router.get('/', getLawyersDirectory);
-router.get('/:id', getLawyerById);
-router.post('/:id/message', sendMessageToLawyer);
+router.get('/:secureId', getLawyerById);
+router.post('/:secureId/message', sendMessageToLawyer);
 
 module.exports = router;

@@ -323,7 +323,7 @@ const LawyerCarousel = React.memo(function LawyerCarousel() {
 
   const lawyers = useMemo(() => [
     {
-      id: 1,
+      id: "5ffe4a13e0e06fa22e6415467340d577",
       category: "Corporate Law",
       name: "Nedime Acikli",
       rating: 4.9,
@@ -336,7 +336,7 @@ const LawyerCarousel = React.memo(function LawyerCarousel() {
       successDescription: "Exceptional legal expertise in corporate matters. Nedime provided strategic guidance that saved our company significant costs and resolved complex contract disputes efficiently.",
     },
     {
-      id: 2,
+      id: "5f0852c78a0b2934a62701e85369b528",
       category: "Family Law",
       name: "Melek Arican",
       rating: 4.8,
@@ -349,7 +349,7 @@ const LawyerCarousel = React.memo(function LawyerCarousel() {
       successDescription: "Compassionate and professional approach to family law matters. Melek guided us through a difficult divorce process with empathy and achieved the best possible outcome for our children.",
     },
     {
-      id: 3,
+      id: "aa9bd209b2e44b7d2fd4a168ba440ff8",
       category: "Criminal Defense",
       name: "Nika Monhart",
       rating: 4.9,
@@ -362,7 +362,7 @@ const LawyerCarousel = React.memo(function LawyerCarousel() {
       successDescription: "Outstanding criminal defense representation. Nika's thorough preparation and courtroom expertise resulted in a complete dismissal of charges in a complex white-collar case.",
     },
     {
-      id: 4,
+      id: "b8c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7",
       category: "Personal Injury",
       name: "Ronald Richards",
       rating: 4.7,
@@ -375,7 +375,7 @@ const LawyerCarousel = React.memo(function LawyerCarousel() {
       successDescription: "Secured substantial compensation for personal injury case. Ronald's dedication and negotiation skills resulted in a settlement that exceeded our expectations and covered all medical expenses.",
     },
     {
-      id: 5,
+      id: "c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4",
       category: "Real Estate Law",
       name: "Darlene Robertson",
       rating: 4.8,

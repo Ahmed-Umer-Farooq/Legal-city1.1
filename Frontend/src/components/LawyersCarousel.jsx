@@ -12,7 +12,7 @@ export default function LawyersCarousel() {
 
   const lawyers = [
     {
-      id: 1,
+      id: "5ffe4a13e0e06fa22e6415467340d577",
       name: "Nedime Acikli",
       specialty: "Corporate Law",
       rating: 4.9,
@@ -26,7 +26,7 @@ export default function LawyersCarousel() {
       image: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face"
     },
     {
-      id: 2,
+      id: "5f0852c78a0b2934a62701e85369b528",
       name: "Melek Arican",
       specialty: "Family Law",
       rating: 4.8,
@@ -40,7 +40,7 @@ export default function LawyersCarousel() {
       image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face"
     },
     {
-      id: 3,
+      id: "aa9bd209b2e44b7d2fd4a168ba440ff8",
       name: "Nika Monhart",
       specialty: "Criminal Defense",
       rating: 4.9,
@@ -54,7 +54,7 @@ export default function LawyersCarousel() {
       image: "https://images.unsplash.com/photo-1489424731084-a5d8b219a5bb?w=150&h=150&fit=crop&crop=face"
     },
     {
-      id: 4,
+      id: "b8c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7",
       name: "James Wilson",
       specialty: "Personal Injury",
       rating: 4.7,
@@ -68,7 +68,7 @@ export default function LawyersCarousel() {
       image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face"
     },
     {
-      id: 5,
+      id: "c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4",
       name: "Sarah Thompson",
       specialty: "Immigration Law",
       rating: 4.8,
@@ -82,7 +82,7 @@ export default function LawyersCarousel() {
       image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&h=150&fit=crop&crop=face"
     },
     {
-      id: 6,
+      id: "d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5",
       name: "David Chen",
       specialty: "Real Estate Law",
       rating: 4.6,

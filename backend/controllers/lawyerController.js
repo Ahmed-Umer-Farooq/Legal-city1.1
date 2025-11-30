@@ -158,7 +158,7 @@ const getLawyersDirectory = async (req, res) => {
   try {
     const lawyers = await db('lawyers')
       .select(
-        'id', 'name', 'email', 'address', 'rating', 'experience', 'speciality', 
+        'secure_id', 'name', 'email', 'address', 'rating', 'experience', 'speciality', 
         'description', 'profile_image', 'registration_id', 'law_firm', 
         'is_verified', 'lawyer_verified'
       )
@@ -169,7 +169,7 @@ const getLawyersDirectory = async (req, res) => {
       const yearsLicensed = parseInt(lawyer.experience?.replace(/\D/g, '')) || 10;
       
       return {
-        id: lawyer.id,
+        id: lawyer.secure_id,
         name: lawyer.name,
         email: lawyer.email,
         location: lawyer.address,
@@ -203,14 +203,14 @@ const getLawyersDirectory = async (req, res) => {
 
 const getLawyerById = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { secureId } = req.params;
     const lawyer = await db('lawyers')
       .select(
-        'id', 'name', 'email', 'address', 'rating', 'experience', 'speciality',
+        'id', 'secure_id', 'name', 'email', 'address', 'rating', 'experience', 'speciality',
         'description', 'profile_image', 'registration_id', 'law_firm',
         'mobile_number', 'city', 'state', 'zip_code', 'country'
       )
-      .where('id', id)
+      .where('secure_id', secureId)
       .where('is_verified', 1)
       .first();
 
@@ -222,7 +222,7 @@ const getLawyerById = async (req, res) => {
     const yearsLicensed = parseInt(lawyer.experience?.replace(/\D/g, '')) || 10;
 
     const processedLawyer = {
-      id: lawyer.id,
+      id: lawyer.secure_id,
       name: lawyer.name,
       email: lawyer.email,
       location: lawyer.address,
@@ -252,7 +252,7 @@ const getLawyerById = async (req, res) => {
 
 const sendMessageToLawyer = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { secureId } = req.params;
     const { name, email, phone, maritalStatus, children, message, phonePreference, preferredTime } = req.body;
 
     // Basic validation
@@ -260,8 +260,8 @@ const sendMessageToLawyer = async (req, res) => {
       return res.status(400).json({ message: 'Name, email, and message are required' });
     }
 
-    // Check if lawyer exists
-    const lawyer = await db('lawyers').where('id', id).where('is_verified', 1).first();
+    // Check if lawyer exists and get the actual database ID
+    const lawyer = await db('lawyers').where('secure_id', secureId).where('is_verified', 1).first();
     if (!lawyer) {
       return res.status(404).json({ message: 'Lawyer not found' });
     }
@@ -284,9 +284,9 @@ const sendMessageToLawyer = async (req, res) => {
       });
     }
 
-    // Insert message
+    // Insert message using the actual database ID
     await db('messages').insert({
-      lawyer_id: id,
+      lawyer_id: lawyer.id,
       name: name.trim(),
       email: email.trim(),
       phone: phone || null,
