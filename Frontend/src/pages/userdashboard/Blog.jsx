@@ -84,13 +84,7 @@ const Blog = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <Link 
-          to="/user-dashboard"
-          className="text-blue-600 hover:text-blue-800 font-medium"
-        >
-          Back to Dashboard
-        </Link>
+      <div className="flex items-center justify-center mb-6">
         <h1 className="text-2xl font-bold text-blue-800">Legal City</h1>
       </div>
 

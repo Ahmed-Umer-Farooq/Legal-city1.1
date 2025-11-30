@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, Search } from 'lucide-react';
+import { Menu, Search, Grid3x3, Calendar, Folder, CheckSquare, FileText, MessageCircle, HelpCircle, Edit3, Users, UserPlus, DollarSign, Share2, User, Settings, LogOut, BarChart3 } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import MessageNotification from '../../components/MessageNotification';
 import { useAuth } from '../../context/AuthContext';
@@ -20,45 +20,45 @@ const Sidebar = ({ isOpen, onClose, isCollapsed, onToggleCollapse }) => {
     {
       title: "Overview",
       items: [
-        { icon: "📊", label: "Dashboard", path: "/user-dashboard" },
-        { icon: "📅", label: "Calendar", path: "/user/calendar-appointments" },
+        { icon: "grid-3x3", label: "Dashboard", path: "/user-dashboard" },
+        { icon: "calendar", label: "Calendar", path: "/user/calendar-appointments" },
       ]
     },
     {
       title: "Case Management",
       items: [
-        { icon: "📁", label: "Cases", path: "/user/legal-cases" },
-        { icon: "✅", label: "Tasks", path: "/user/legal-tasks" },
-        { icon: "📄", label: "Forms", path: "/user/legal-forms" },
+        { icon: "folder", label: "Cases", path: "/user/legal-cases" },
+        { icon: "check-square", label: "Tasks", path: "/user/legal-tasks" },
+        { icon: "file-text", label: "Forms", path: "/user/legal-forms" },
       ]
     },
     {
       title: "Communication",
       items: [
-        { icon: "💬", label: "Messages", path: "/user/messages" },
-        { icon: "❓", label: "Q&A", path: "/user/legal-questions-answers" },
-        { icon: "📝", label: "Blog", path: "/user/legal-blog" },
+        { icon: "message-circle", label: "Messages", path: "/user/messages" },
+        { icon: "help-circle", label: "Q&A", path: "/user/legal-questions-answers" },
+        { icon: "edit-3", label: "Blog", path: "/user/legal-blog" },
       ]
     },
     {
       title: "Legal Services",
       items: [
-        { icon: "📋", label: "Directory", path: "/user/lawyer-directory" },
-        { icon: "👥", label: "Refer", path: "/user/referral-program" },
+        { icon: "users", label: "Directory", path: "/user/lawyer-directory" },
+        { icon: "user-plus", label: "Refer", path: "/user/referral-program" },
       ]
     },
     {
       title: "Business",
       items: [
-        { icon: "💰", label: "Accounting", path: "/user/accounting-billing" },
-        { icon: "📱", label: "Social Media", path: "/user/social-media-management" },
+        { icon: "dollar-sign", label: "Accounting", path: "/user/accounting-billing" },
+        { icon: "share-2", label: "Social Media", path: "/user/social-media-management" },
       ]
     },
     {
       title: "Account",
       items: [
-        { icon: "👤", label: "Profile", path: "/user/profile-settings" },
-        { icon: "⚙️", label: "Settings", path: "/user/account-settings" },
+        { icon: "user", label: "Profile", path: "/user/profile-settings" },
+        { icon: "settings", label: "Settings", path: "/user/account-settings" },
       ]
     }
   ];
@@ -84,10 +84,10 @@ const Sidebar = ({ isOpen, onClose, isCollapsed, onToggleCollapse }) => {
               onClick={() => navigate('/user-dashboard')}
             >
               <div className="flex items-center gap-2 mb-2">
-                <div className="bg-[#374151] rounded-full px-4 py-2 shadow-lg inline-flex">
+                <div className="bg-[#0284C7] rounded-full px-4 py-2 shadow-lg inline-flex">
                   <span className="text-white font-bold text-xl">Legal</span>
                 </div>
-                <span className="text-[#374151] font-bold text-xl">City</span>
+                <span className="text-[#0284C7] font-bold text-xl">City</span>
               </div>
               <p className="text-[#6B7280] text-xs font-semibold tracking-wider uppercase">
                 " Legal for the people "
@@ -113,39 +113,35 @@ const Sidebar = ({ isOpen, onClose, isCollapsed, onToggleCollapse }) => {
                 </h3>
               )}
               <div className="space-y-1">
-                {group.items.map((item, itemIndex) => (
-                  <Link
-                    key={itemIndex}
-                    to={item.path}
-                    className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
-                      isCollapsed ? 'justify-center' : ''
-                    } ${
-                      location.pathname === item.path || 
-                      (item.path === '/user-dashboard' && location.pathname === '/user-dashboard') ||
-                      (item.path === '/calendar' && location.pathname === '/calendar') ||
-                      (item.path === '/cases' && location.pathname === '/cases') ||
-                      (item.path === '/tasks' && location.pathname === '/tasks') ||
-                      (item.path === '/forms' && location.pathname === '/forms') ||
-                      (item.path === '/messages' && location.pathname === '/messages') ||
-                      (item.path === '/qa' && location.pathname === '/qa') ||
-                      (item.path === '/blog' && location.pathname === '/blog') ||
-                      (item.path === '/directory' && location.pathname === '/directory') ||
-                      (item.path === '/refer' && location.pathname === '/refer') ||
-                      (item.path === '/accounting' && location.pathname === '/accounting') ||
-                      (item.path === '/social-media' && location.pathname === '/social-media') ||
-                      (item.path === '/profile' && location.pathname === '/profile') ||
-                      (item.path === '/settings' && location.pathname === '/settings')
-                        ? 'bg-[#F8F9FA] text-[#374151] border border-[#E5E7EB]' 
-                        : 'text-[#6B7280] hover:bg-[#F8F9FA] hover:text-[#374151]'
-                    }`}
-                    title={isCollapsed ? item.label : ''}
-                  >
-                    <span className="text-lg flex-shrink-0">{item.icon}</span>
-                    {!isCollapsed && (
-                      <span className="font-medium text-sm">{item.label}</span>
-                    )}
-                  </Link>
-                ))}
+                {group.items.map((item, itemIndex) => {
+                  const isActive = location.pathname === item.path;
+                  const IconComponent = {
+                    'grid-3x3': Grid3x3, 'calendar': Calendar, 'folder': Folder, 'check-square': CheckSquare,
+                    'file-text': FileText, 'message-circle': MessageCircle, 'help-circle': HelpCircle,
+                    'edit-3': Edit3, 'users': Users, 'user-plus': UserPlus, 'dollar-sign': DollarSign,
+                    'share-2': Share2, 'user': User, 'settings': Settings
+                  }[item.icon];
+                  
+                  return (
+                    <Link
+                      key={itemIndex}
+                      to={item.path}
+                      className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
+                        isCollapsed ? 'justify-center' : ''
+                      } ${
+                        isActive
+                          ? 'bg-[#0284C7]/10 text-[#0284C7] border border-[#0284C7]/20 shadow-sm backdrop-blur-sm' 
+                          : 'text-[#6B7280] hover:bg-[#0284C7]/5 hover:text-[#0284C7]'
+                      }`}
+                      title={isCollapsed ? item.label : ''}
+                    >
+                      <IconComponent className="w-5 h-5 flex-shrink-0" />
+                      {!isCollapsed && (
+                        <span className="font-medium text-sm">{item.label}</span>
+                      )}
+                    </Link>
+                  );
+                })}
               </div>
             </div>
           ))}
@@ -153,12 +149,12 @@ const Sidebar = ({ isOpen, onClose, isCollapsed, onToggleCollapse }) => {
           <div className="mt-auto pt-4 border-t border-gray-200">
             <button
               onClick={handleLogout}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#6B7280] hover:bg-[#F8F9FA] hover:text-[#374151] transition-all duration-200 ${
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#6B7280] hover:bg-red-50 hover:text-red-600 transition-all duration-200 ${
                 isCollapsed ? 'justify-center' : ''
               }`}
               title={isCollapsed ? 'Log out' : ''}
             >
-              <span className="text-lg flex-shrink-0">🚪</span>
+              <LogOut className="w-5 h-5 flex-shrink-0" />
               {!isCollapsed && (
                 <span className="font-medium text-sm">Log out</span>
               )}
@@ -279,10 +275,10 @@ const Header = ({ onMenuClick, sidebarWidth, currentUser, onChatClick }) => {
 // Dashboard Stats Component
 const DashboardStats = () => {
   const stats = [
-    { label: "Active Cases", value: "12", icon: "📁", bgColor: "bg-[#E2F1FF]", iconBg: "bg-[#007EF4]", textColor: "text-[#03498B]" },
-    { label: "Pending Tasks", value: "8", icon: "✅", bgColor: "bg-[#FFF4E0]", iconBg: "bg-[#F5AB23]", textColor: "text-[#654C1F]" },
-    { label: "Messages", value: "24", icon: "💬", bgColor: "bg-[#DCFCE7]", iconBg: "bg-[#16D959]", textColor: "text-[#1F5632]" },
-    { label: "Appointments", value: "3", icon: "📅", bgColor: "bg-[#FFE3E1]", iconBg: "bg-[#E6372B]", textColor: "text-[#931B12]" },
+    { label: "Active Cases", value: "12", icon: Folder, bgColor: "bg-[#E2F1FF]", iconBg: "bg-[#007EF4]", textColor: "text-[#03498B]" },
+    { label: "Pending Tasks", value: "8", icon: CheckSquare, bgColor: "bg-[#FFF4E0]", iconBg: "bg-[#F5AB23]", textColor: "text-[#654C1F]" },
+    { label: "Messages", value: "24", icon: MessageCircle, bgColor: "bg-[#DCFCE7]", iconBg: "bg-[#16D959]", textColor: "text-[#1F5632]" },
+    { label: "Appointments", value: "3", icon: Calendar, bgColor: "bg-[#FFE3E1]", iconBg: "bg-[#E6372B]", textColor: "text-[#931B12]" },
   ];
 
   return (
@@ -299,7 +295,7 @@ const DashboardStats = () => {
               </div>
             </div>
             <div className={`w-12 h-12 ${stat.iconBg} rounded-full flex items-center justify-center`}>
-              <span className="text-white text-xl">{stat.icon}</span>
+              <stat.icon className="w-6 h-6 text-white" />
             </div>
           </div>
           <div className={`absolute bottom-0 right-0 w-16 h-16 ${stat.iconBg}/10 rounded-full -mr-8 -mb-8`}></div>
@@ -312,14 +308,14 @@ const DashboardStats = () => {
 // Quick Actions Component
 const QuickActions = () => {
   const actions = [
-    { label: "Find a Lawyer", path: "/user/lawyer-directory", icon: "🔍" },
-    { label: "New Case", path: "/user/legal-cases", icon: "📁" },
-    { label: "Schedule Meeting", path: "/user/calendar-appointments", icon: "📅" },
-    { label: "Send Message", path: "/user/messages", icon: "💬" },
-    { label: "Legal Forms", path: "/user/legal-forms", icon: "📄" },
-    { label: "Q&A Forum", path: "/user/legal-questions-answers", icon: "❓" },
-    { label: "Legal Blog", path: "/user/legal-blog", icon: "📝" },
-    { label: "Profile Settings", path: "/user/profile-settings", icon: "👤" },
+    { label: "Find a Lawyer", path: "/user/lawyer-directory", icon: Users },
+    { label: "New Case", path: "/user/legal-cases", icon: Folder },
+    { label: "Schedule Meeting", path: "/user/calendar-appointments", icon: Calendar },
+    { label: "Send Message", path: "/user/messages", icon: MessageCircle },
+    { label: "Legal Forms", path: "/user/legal-forms", icon: FileText },
+    { label: "Q&A Forum", path: "/user/legal-questions-answers", icon: HelpCircle },
+    { label: "Legal Blog", path: "/user/legal-blog", icon: Edit3 },
+    { label: "Profile Settings", path: "/user/profile-settings", icon: User },
   ];
 
   return (
@@ -336,7 +332,7 @@ const QuickActions = () => {
             className="flex flex-col items-center gap-2 p-3 bg-[#F8F9FA] hover:bg-[#E5E7EB] rounded-lg transition-all min-h-[80px]"
           >
             <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm">
-              <span className="text-xl">{action.icon}</span>
+              <action.icon className="w-6 h-6 text-[#6B7280]" />
             </div>
             <span className="text-xs font-medium text-center leading-tight text-[#374151]">{action.label}</span>
           </Link>

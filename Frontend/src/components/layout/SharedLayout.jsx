@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
-import { Menu, Search } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Menu, Search, Grid3x3, Calendar, Folder, CheckSquare, FileText, MessageCircle, HelpCircle, Edit3, Users, UserPlus, DollarSign, Share2, User, Settings, LogOut } from 'lucide-react';
 import { Link, useLocation, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import MessageNotification from '../MessageNotification';
 
 // Sidebar Component
 const Sidebar = ({ isOpen, onClose, isCollapsed, onToggleCollapse }) => {
@@ -19,45 +20,45 @@ const Sidebar = ({ isOpen, onClose, isCollapsed, onToggleCollapse }) => {
     {
       title: "Overview",
       items: [
-        { icon: "📊", label: "Dashboard", path: "/user-dashboard" },
-        { icon: "📅", label: "Calendar", path: "/user/calendar-appointments" },
+        { icon: "grid-3x3", label: "Dashboard", path: "/user-dashboard" },
+        { icon: "calendar", label: "Calendar", path: "/user/calendar-appointments" },
       ]
     },
     {
       title: "Case Management",
       items: [
-        { icon: "📁", label: "Cases", path: "/user/legal-cases" },
-        { icon: "✅", label: "Tasks", path: "/user/legal-tasks" },
-        { icon: "📄", label: "Forms", path: "/user/legal-forms" },
+        { icon: "folder", label: "Cases", path: "/user/legal-cases" },
+        { icon: "check-square", label: "Tasks", path: "/user/legal-tasks" },
+        { icon: "file-text", label: "Forms", path: "/user/legal-forms" },
       ]
     },
     {
       title: "Communication",
       items: [
-        { icon: "💬", label: "Messages", path: "/user/messages" },
-        { icon: "❓", label: "Q&A", path: "/user/legal-questions-answers" },
-        { icon: "📝", label: "Blog", path: "/user/legal-blog" },
+        { icon: "message-circle", label: "Messages", path: "/user/messages" },
+        { icon: "help-circle", label: "Q&A", path: "/user/legal-questions-answers" },
+        { icon: "edit-3", label: "Blog", path: "/user/legal-blog" },
       ]
     },
     {
       title: "Legal Services",
       items: [
-        { icon: "📋", label: "Directory", path: "/user/lawyer-directory" },
-        { icon: "👥", label: "Refer", path: "/user/referral-program" },
+        { icon: "users", label: "Directory", path: "/user/lawyer-directory" },
+        { icon: "user-plus", label: "Refer", path: "/user/referral-program" },
       ]
     },
     {
       title: "Business",
       items: [
-        { icon: "💰", label: "Accounting", path: "/user/accounting-billing" },
-        { icon: "📱", label: "Social Media", path: "/user/social-media-management" },
+        { icon: "dollar-sign", label: "Accounting", path: "/user/accounting-billing" },
+        { icon: "share-2", label: "Social Media", path: "/user/social-media-management" },
       ]
     },
     {
       title: "Account",
       items: [
-        { icon: "👤", label: "Profile", path: "/user/profile-settings" },
-        { icon: "⚙️", label: "Settings", path: "/user/account-settings" },
+        { icon: "user", label: "Profile", path: "/user/profile-settings" },
+        { icon: "settings", label: "Settings", path: "/user/account-settings" },
       ]
     }
   ];
@@ -113,25 +114,35 @@ const Sidebar = ({ isOpen, onClose, isCollapsed, onToggleCollapse }) => {
                 </h3>
               )}
               <div className="space-y-1">
-                {group.items.map((item, itemIndex) => (
-                  <Link
-                    key={itemIndex}
-                    to={item.path}
-                    className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
-                      isCollapsed ? 'justify-center' : ''
-                    } ${
-                      location.pathname === item.path
-                        ? 'bg-blue-600 text-white shadow-md' 
-                        : 'text-gray-700 hover:bg-gray-100 hover:text-blue-600'
-                    }`}
-                    title={isCollapsed ? item.label : ''}
-                  >
-                    <span className="text-lg flex-shrink-0">{item.icon}</span>
-                    {!isCollapsed && (
-                      <span className="font-medium text-sm">{item.label}</span>
-                    )}
-                  </Link>
-                ))}
+                {group.items.map((item, itemIndex) => {
+                  const isActive = location.pathname === item.path;
+                  const IconComponent = {
+                    'grid-3x3': Grid3x3, 'calendar': Calendar, 'folder': Folder, 'check-square': CheckSquare,
+                    'file-text': FileText, 'message-circle': MessageCircle, 'help-circle': HelpCircle,
+                    'edit-3': Edit3, 'users': Users, 'user-plus': UserPlus, 'dollar-sign': DollarSign,
+                    'share-2': Share2, 'user': User, 'settings': Settings
+                  }[item.icon];
+                  
+                  return (
+                    <Link
+                      key={itemIndex}
+                      to={item.path}
+                      className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
+                        isCollapsed ? 'justify-center' : ''
+                      } ${
+                        isActive
+                          ? 'bg-[#0284C7]/10 text-[#0284C7] border border-[#0284C7]/20 shadow-sm backdrop-blur-sm' 
+                          : 'text-[#6B7280] hover:bg-[#0284C7]/5 hover:text-[#0284C7]'
+                      }`}
+                      title={isCollapsed ? item.label : ''}
+                    >
+                      <IconComponent className="w-5 h-5 flex-shrink-0" />
+                      {!isCollapsed && (
+                        <span className="font-medium text-sm">{item.label}</span>
+                      )}
+                    </Link>
+                  );
+                })}
               </div>
             </div>
           ))}
@@ -139,12 +150,12 @@ const Sidebar = ({ isOpen, onClose, isCollapsed, onToggleCollapse }) => {
           <div className="mt-auto pt-4 border-t border-gray-200">
             <button
               onClick={handleLogout}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-700 hover:bg-red-50 hover:text-red-600 transition-all duration-200 ${
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#6B7280] hover:bg-red-50 hover:text-red-600 transition-all duration-200 ${
                 isCollapsed ? 'justify-center' : ''
               }`}
               title={isCollapsed ? 'Log out' : ''}
             >
-              <span className="text-lg flex-shrink-0">🚪</span>
+              <LogOut className="w-5 h-5 flex-shrink-0" />
               {!isCollapsed && (
                 <span className="font-medium text-sm">Log out</span>
               )}
@@ -163,7 +174,17 @@ const Header = ({ onMenuClick, sidebarWidth }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [showResults, setShowResults] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    setCurrentUser(user);
+  }, []);
+
+  const handleChatClick = () => {
+    navigate('/user/messages');
+  };
 
   const searchItems = [
     // Pages
@@ -231,35 +252,43 @@ const Header = ({ onMenuClick, sidebarWidth }) => {
         Welcome Back, {userName}
       </h1>
 
-      <div className="hidden md:flex relative">
-        <div className="flex items-center gap-2 px-5 h-10 rounded-full border border-gray-300 w-full max-w-sm">
-          <Search className="w-5 h-5 text-gray-500" />
-          <input
-            type="text"
-            placeholder="Search pages, actions, content..."
-            value={searchQuery}
-            onChange={(e) => handleSearch(e.target.value)}
-            onFocus={() => searchQuery && setShowResults(true)}
-            onBlur={() => setTimeout(() => setShowResults(false), 200)}
-            className="flex-1 bg-transparent border-none outline-none text-sm text-gray-700 placeholder:text-gray-500"
-          />
-        </div>
-        {showResults && searchResults.length > 0 && (
-          <div className="absolute top-12 right-0 w-full max-w-sm bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-            {searchResults.slice(0, 8).map((item, index) => (
-              <button
-                key={index}
-                onClick={() => handleResultClick(item.path)}
-                className="w-full text-left px-4 py-3 hover:bg-gray-50 border-b border-gray-100 last:border-b-0 first:rounded-t-lg last:rounded-b-lg"
-              >
-                <div className="font-medium text-gray-900">{item.title}</div>
-                {item.description && (
-                  <div className="text-xs text-gray-600 mt-1">{item.description}</div>
-                )}
-                <div className="text-xs text-blue-600 capitalize mt-1">{item.type}</div>
-              </button>
-            ))}
+      <div className="flex items-center gap-4">
+        <div className="hidden md:flex relative">
+          <div className="flex items-center gap-2 px-5 h-10 rounded-full border border-gray-300 w-full max-w-sm">
+            <Search className="w-5 h-5 text-gray-500" />
+            <input
+              type="text"
+              placeholder="Search pages, actions, content..."
+              value={searchQuery}
+              onChange={(e) => handleSearch(e.target.value)}
+              onFocus={() => searchQuery && setShowResults(true)}
+              onBlur={() => setTimeout(() => setShowResults(false), 200)}
+              className="flex-1 bg-transparent border-none outline-none text-sm text-gray-700 placeholder:text-gray-500"
+            />
           </div>
+          {showResults && searchResults.length > 0 && (
+            <div className="absolute top-12 right-0 w-full max-w-sm bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+              {searchResults.slice(0, 8).map((item, index) => (
+                <button
+                  key={index}
+                  onClick={() => handleResultClick(item.path)}
+                  className="w-full text-left px-4 py-3 hover:bg-gray-50 border-b border-gray-100 last:border-b-0 first:rounded-t-lg last:rounded-b-lg"
+                >
+                  <div className="font-medium text-gray-900">{item.title}</div>
+                  {item.description && (
+                    <div className="text-xs text-gray-600 mt-1">{item.description}</div>
+                  )}
+                  <div className="text-xs text-blue-600 capitalize mt-1">{item.type}</div>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+        {currentUser && (
+          <MessageNotification 
+            currentUser={currentUser} 
+            onChatClick={handleChatClick}
+          />
         )}
       </div>
     </header>

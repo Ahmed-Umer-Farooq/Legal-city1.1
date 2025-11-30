@@ -728,35 +728,7 @@ const Blog = () => {
 
   return (
     <div className={`min-h-screen ${fromUserDashboard ? 'bg-[#F1F9FF]' : 'bg-[#E7EFFD]'}`}>
-      {/* Back to Dashboard Header */}
-      {fromUserDashboard && (
-        <div className="w-full bg-white border-b border-gray-200 px-4 sm:px-6 md:px-12 lg:px-[244px] py-4">
-          <div className="flex items-center justify-between">
-            <button
-              onClick={() => navigate('/user/dashboard')}
-              className="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors"
-            >
-              <ArrowLeft className="w-5 h-5" />
-              <span className="font-medium">Back to Dashboard</span>
-            </button>
-            {isLoggedIn && (
-              <div className="flex items-center gap-4">
-                <span className="text-sm text-gray-600">Welcome, {currentUser.name || 'User'}</span>
-                <button
-                  onClick={() => {
-                    localStorage.removeItem('token');
-                    localStorage.removeItem('user');
-                    navigate('/login');
-                  }}
-                  className="text-sm text-red-600 hover:text-red-800"
-                >
-                  Logout
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+
       
       {fromAdminDashboard && (
         <div className="w-full bg-white border-b border-gray-200 px-4 sm:px-6 md:px-12 lg:px-[244px] py-4">
