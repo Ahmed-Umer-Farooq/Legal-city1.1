@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 /**
  * Sub-components (Icons & Logo)
@@ -25,6 +26,7 @@ function LegalCityLogo() {
 function Header({ currentLanguage, setCurrentLanguage, translations }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user, isAuthenticated, logout } = useAuth();
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
   const [showDirectoryMenu, setShowDirectoryMenu] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -253,62 +255,49 @@ function Header({ currentLanguage, setCurrentLanguage, translations }) {
             )}
           </div>
 
-          {/* Check if user is logged in */}
-          {(() => {
-            const token = localStorage.getItem('token');
-            const user = JSON.parse(localStorage.getItem('user') || '{}');
-            
-            if (token && user.name) {
-              return (
-                <div className="flex items-center gap-3">
-                  <span className="text-white text-sm">Welcome, {user.name}</span>
-                  <button
-                    onClick={() => {
-                      if (user.role === 'lawyer') {
-                        navigate('/lawyer-dashboard');
-                      } else {
-                        navigate('/user/dashboard');
-                      }
-                    }}
-                    className="flex items-center gap-2 h-[38px] px-4 rounded-[20px] bg-white/20 hover:bg-white/30 transition-colors"
-                  >
-                    <span className="text-white text-sm">Dashboard</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      localStorage.removeItem('token');
-                      localStorage.removeItem('user');
-                      navigate('/login');
-                    }}
-                    className="flex items-center gap-2 h-[38px] px-4 rounded-[20px] bg-transparent border border-white/30 hover:bg-white/10 transition-colors"
-                  >
-                    <span className="text-white text-sm">Logout</span>
-                  </button>
-                </div>
-              );
-            } else {
-              return (
-                <>
-                  <button 
-                    onClick={handleLoginClick}
-                    className="flex items-center gap-2 h-[38px] px-4 rounded-[20px] bg-transparent border border-white/30 hover:bg-white/10 transition-colors"
-                  >
-                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <circle cx="7" cy="4" r="3" stroke="white" strokeWidth="1.5"/>
-                      <path d="M2 12c0-2.5 2.5-4 5-4s5 1.5 5 4" stroke="white" strokeWidth="1.5"/>
-                    </svg>
-                    <span className="text-white text-sm">{translations[currentLanguage].login}</span>
-                  </button>
-                  <button 
-                    onClick={handleSignupClick}
-                    className="h-[38px] px-6 rounded-[20px] bg-white text-black text-sm font-medium hover:bg-gray-100 transition-colors"
-                  >
-                    {translations[currentLanguage].signup}
-                  </button>
-                </>
-              );
-            }
-          })()}
+          {/* Conditional navigation buttons based on authentication */}
+          {isAuthenticated && user ? (
+            <div className="flex items-center gap-3">
+              <span className="text-white text-sm">Welcome, {user.name}</span>
+              <button
+                onClick={() => {
+                  if (user.role === 'lawyer') {
+                    navigate('/lawyer-dashboard');
+                  } else {
+                    navigate('/user-dashboard');
+                  }
+                }}
+                className="flex items-center gap-2 h-[38px] px-4 rounded-[20px] bg-white/20 hover:bg-white/30 transition-colors"
+              >
+                <span className="text-white text-sm">Dashboard</span>
+              </button>
+              <button
+                onClick={logout}
+                className="flex items-center gap-2 h-[38px] px-4 rounded-[20px] bg-transparent border border-white/30 hover:bg-white/10 transition-colors"
+              >
+                <span className="text-white text-sm">Logout</span>
+              </button>
+            </div>
+          ) : (
+            <>
+              <button 
+                onClick={handleLoginClick}
+                className="flex items-center gap-2 h-[38px] px-4 rounded-[20px] bg-transparent border border-white/30 hover:bg-white/10 transition-colors"
+              >
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="7" cy="4" r="3" stroke="white" strokeWidth="1.5"/>
+                  <path d="M2 12c0-2.5 2.5-4 5-4s5 1.5 5 4" stroke="white" strokeWidth="1.5"/>
+                </svg>
+                <span className="text-white text-sm">{translations[currentLanguage].login}</span>
+              </button>
+              <button 
+                onClick={handleSignupClick}
+                className="h-[38px] px-6 rounded-[20px] bg-white text-black text-sm font-medium hover:bg-gray-100 transition-colors"
+              >
+                {translations[currentLanguage].signup}
+              </button>
+            </>
+          )}
         </div>
       </div>
     </header>
