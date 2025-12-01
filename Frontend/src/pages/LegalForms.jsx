@@ -98,61 +98,168 @@ export default function LegalForms() {
         </div>
       </section>
 
-      {/* Legal Forms - Simplified */}
+      {/* Legal Forms by Practice Area */}
       <section className="bg-[#F9FAFB] py-16">
         <div className="max-w-[1200px] mx-auto px-6">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-[#111827] mb-4">Professional Legal Forms</h2>
-            <p className="text-lg text-[#4B5563]">Attorney-reviewed documents ready for immediate use.</p>
+            <h2 className="text-3xl font-bold text-[#111827] mb-4">Legal Forms by Practice Area</h2>
+            <p className="text-lg text-[#4B5563]">Professional legal documents organized by specialty areas.</p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-white rounded-xl shadow-sm border p-6">
-              <h3 className="text-xl font-semibold mb-4">Business Forms</h3>
-              <ul className="space-y-2 mb-6 text-sm">
-                <li>• LLC operating agreement</li>
-                <li>• Partnership agreement</li>
-                <li>• Independent contractor agreement</li>
-                <li>• Non-disclosure agreement</li>
-              </ul>
-              <button
-                onClick={() => navigate('/forms/business')}
-                className="w-full bg-[#2973FF] hover:bg-[#1F5AD1] text-white font-semibold py-3 rounded-lg transition-colors"
-              >
-                Browse Forms
-              </button>
+          <div className="space-y-12">
+            {/* Business Law Forms */}
+            <div className="bg-white rounded-xl shadow-sm border p-8">
+              <h3 className="text-2xl font-bold text-[#111827] mb-6 border-b border-gray-200 pb-3">Business Law</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <button className="text-left p-4 hover:bg-gray-50 rounded-lg border border-gray-100 transition-colors">
+                  <div className="font-semibold text-[#2973FF]">LLC Operating Agreement</div>
+                  <div className="text-sm text-gray-600 mt-1">Establish business structure and operations</div>
+                </button>
+                <button className="text-left p-4 hover:bg-gray-50 rounded-lg border border-gray-100 transition-colors">
+                  <div className="font-semibold text-[#2973FF]">Partnership Agreement</div>
+                  <div className="text-sm text-gray-600 mt-1">Define partnership terms and responsibilities</div>
+                </button>
+                <button className="text-left p-4 hover:bg-gray-50 rounded-lg border border-gray-100 transition-colors">
+                  <div className="font-semibold text-[#2973FF]">Non-Disclosure Agreement</div>
+                  <div className="text-sm text-gray-600 mt-1">Protect confidential business information</div>
+                </button>
+                <button className="text-left p-4 hover:bg-gray-50 rounded-lg border border-gray-100 transition-colors">
+                  <div className="font-semibold text-[#2973FF]">Employment Contract</div>
+                  <div className="text-sm text-gray-600 mt-1">Standard employee agreement template</div>
+                </button>
+                <button className="text-left p-4 hover:bg-gray-50 rounded-lg border border-gray-100 transition-colors">
+                  <div className="font-semibold text-[#2973FF]">Independent Contractor Agreement</div>
+                  <div className="text-sm text-gray-600 mt-1">Freelancer and contractor terms</div>
+                </button>
+                <button className="text-left p-4 hover:bg-gray-50 rounded-lg border border-gray-100 transition-colors">
+                  <div className="font-semibold text-[#2973FF]">Business Purchase Agreement</div>
+                  <div className="text-sm text-gray-600 mt-1">Buy or sell business assets</div>
+                </button>
+              </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm border p-6">
-              <h3 className="text-xl font-semibold mb-4">Estate Planning</h3>
-              <ul className="space-y-2 mb-6 text-sm">
-                <li>• Last will and testament</li>
-                <li>• Living trust</li>
-                <li>• Power of attorney</li>
-                <li>• Healthcare directive</li>
-              </ul>
-              <button
-                onClick={() => navigate('/forms/estate-planning')}
-                className="w-full bg-[#7C3AED] hover:bg-[#5B21B6] text-white font-semibold py-3 rounded-lg transition-colors"
-              >
-                Browse Forms
-              </button>
+            {/* Family Law Forms */}
+            <div className="bg-white rounded-xl shadow-sm border p-8">
+              <h3 className="text-2xl font-bold text-[#111827] mb-6 border-b border-gray-200 pb-3">Family Law</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <button className="text-left p-4 hover:bg-gray-50 rounded-lg border border-gray-100 transition-colors">
+                  <div className="font-semibold text-[#7C3AED]">Divorce Petition</div>
+                  <div className="text-sm text-gray-600 mt-1">Initiate divorce proceedings</div>
+                </button>
+                <button className="text-left p-4 hover:bg-gray-50 rounded-lg border border-gray-100 transition-colors">
+                  <div className="font-semibold text-[#7C3AED]">Child Custody Agreement</div>
+                  <div className="text-sm text-gray-600 mt-1">Establish custody arrangements</div>
+                </button>
+                <button className="text-left p-4 hover:bg-gray-50 rounded-lg border border-gray-100 transition-colors">
+                  <div className="font-semibold text-[#7C3AED]">Child Support Modification</div>
+                  <div className="text-sm text-gray-600 mt-1">Request support amount changes</div>
+                </button>
+                <button className="text-left p-4 hover:bg-gray-50 rounded-lg border border-gray-100 transition-colors">
+                  <div className="font-semibold text-[#7C3AED]">Prenuptial Agreement</div>
+                  <div className="text-sm text-gray-600 mt-1">Pre-marriage financial protection</div>
+                </button>
+                <button className="text-left p-4 hover:bg-gray-50 rounded-lg border border-gray-100 transition-colors">
+                  <div className="font-semibold text-[#7C3AED]">Adoption Papers</div>
+                  <div className="text-sm text-gray-600 mt-1">Legal adoption documentation</div>
+                </button>
+                <button className="text-left p-4 hover:bg-gray-50 rounded-lg border border-gray-100 transition-colors">
+                  <div className="font-semibold text-[#7C3AED]">Separation Agreement</div>
+                  <div className="text-sm text-gray-600 mt-1">Legal separation terms</div>
+                </button>
+              </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm border p-6">
-              <h3 className="text-xl font-semibold mb-4">Real Estate</h3>
-              <ul className="space-y-2 mb-6 text-sm">
-                <li>• Residential lease agreement</li>
-                <li>• Commercial lease</li>
-                <li>• Purchase agreement</li>
-                <li>• Termination notice</li>
-              </ul>
-              <button
-                onClick={() => navigate('/forms/real-estate')}
-                className="w-full bg-[#10B981] hover:bg-[#059669] text-white font-semibold py-3 rounded-lg transition-colors"
-              >
-                Browse Forms
-              </button>
+            {/* Real Estate Forms */}
+            <div className="bg-white rounded-xl shadow-sm border p-8">
+              <h3 className="text-2xl font-bold text-[#111827] mb-6 border-b border-gray-200 pb-3">Real Estate</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <button className="text-left p-4 hover:bg-gray-50 rounded-lg border border-gray-100 transition-colors">
+                  <div className="font-semibold text-[#10B981]">Residential Lease Agreement</div>
+                  <div className="text-sm text-gray-600 mt-1">Standard rental property lease</div>
+                </button>
+                <button className="text-left p-4 hover:bg-gray-50 rounded-lg border border-gray-100 transition-colors">
+                  <div className="font-semibold text-[#10B981]">Commercial Lease</div>
+                  <div className="text-sm text-gray-600 mt-1">Business property rental agreement</div>
+                </button>
+                <button className="text-left p-4 hover:bg-gray-50 rounded-lg border border-gray-100 transition-colors">
+                  <div className="font-semibold text-[#10B981]">Purchase Agreement</div>
+                  <div className="text-sm text-gray-600 mt-1">Property buying contract</div>
+                </button>
+                <button className="text-left p-4 hover:bg-gray-50 rounded-lg border border-gray-100 transition-colors">
+                  <div className="font-semibold text-[#10B981]">Eviction Notice</div>
+                  <div className="text-sm text-gray-600 mt-1">Tenant removal documentation</div>
+                </button>
+                <button className="text-left p-4 hover:bg-gray-50 rounded-lg border border-gray-100 transition-colors">
+                  <div className="font-semibold text-[#10B981]">Property Deed Transfer</div>
+                  <div className="text-sm text-gray-600 mt-1">Transfer property ownership</div>
+                </button>
+                <button className="text-left p-4 hover:bg-gray-50 rounded-lg border border-gray-100 transition-colors">
+                  <div className="font-semibold text-[#10B981]">Landlord-Tenant Agreement</div>
+                  <div className="text-sm text-gray-600 mt-1">Rental terms and conditions</div>
+                </button>
+              </div>
+            </div>
+
+            {/* Estate Planning Forms */}
+            <div className="bg-white rounded-xl shadow-sm border p-8">
+              <h3 className="text-2xl font-bold text-[#111827] mb-6 border-b border-gray-200 pb-3">Estate Planning</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <button className="text-left p-4 hover:bg-gray-50 rounded-lg border border-gray-100 transition-colors">
+                  <div className="font-semibold text-[#F59E0B]">Last Will and Testament</div>
+                  <div className="text-sm text-gray-600 mt-1">Distribute assets after death</div>
+                </button>
+                <button className="text-left p-4 hover:bg-gray-50 rounded-lg border border-gray-100 transition-colors">
+                  <div className="font-semibold text-[#F59E0B]">Living Trust</div>
+                  <div className="text-sm text-gray-600 mt-1">Manage assets during lifetime</div>
+                </button>
+                <button className="text-left p-4 hover:bg-gray-50 rounded-lg border border-gray-100 transition-colors">
+                  <div className="font-semibold text-[#F59E0B]">Power of Attorney</div>
+                  <div className="text-sm text-gray-600 mt-1">Authorize legal decision-making</div>
+                </button>
+                <button className="text-left p-4 hover:bg-gray-50 rounded-lg border border-gray-100 transition-colors">
+                  <div className="font-semibold text-[#F59E0B]">Healthcare Directive</div>
+                  <div className="text-sm text-gray-600 mt-1">Medical treatment preferences</div>
+                </button>
+                <button className="text-left p-4 hover:bg-gray-50 rounded-lg border border-gray-100 transition-colors">
+                  <div className="font-semibold text-[#F59E0B]">Guardianship Papers</div>
+                  <div className="text-sm text-gray-600 mt-1">Legal guardianship documentation</div>
+                </button>
+                <button className="text-left p-4 hover:bg-gray-50 rounded-lg border border-gray-100 transition-colors">
+                  <div className="font-semibold text-[#F59E0B]">Estate Inventory</div>
+                  <div className="text-sm text-gray-600 mt-1">List and value estate assets</div>
+                </button>
+              </div>
+            </div>
+
+            {/* Personal Injury Forms */}
+            <div className="bg-white rounded-xl shadow-sm border p-8">
+              <h3 className="text-2xl font-bold text-[#111827] mb-6 border-b border-gray-200 pb-3">Personal Injury</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <button className="text-left p-4 hover:bg-gray-50 rounded-lg border border-gray-100 transition-colors">
+                  <div className="font-semibold text-[#EF4444]">Accident Report Form</div>
+                  <div className="text-sm text-gray-600 mt-1">Document incident details</div>
+                </button>
+                <button className="text-left p-4 hover:bg-gray-50 rounded-lg border border-gray-100 transition-colors">
+                  <div className="font-semibold text-[#EF4444]">Medical Records Request</div>
+                  <div className="text-sm text-gray-600 mt-1">Obtain medical documentation</div>
+                </button>
+                <button className="text-left p-4 hover:bg-gray-50 rounded-lg border border-gray-100 transition-colors">
+                  <div className="font-semibold text-[#EF4444]">Insurance Claim Form</div>
+                  <div className="text-sm text-gray-600 mt-1">File insurance compensation claim</div>
+                </button>
+                <button className="text-left p-4 hover:bg-gray-50 rounded-lg border border-gray-100 transition-colors">
+                  <div className="font-semibold text-[#EF4444]">Settlement Agreement</div>
+                  <div className="text-sm text-gray-600 mt-1">Finalize injury compensation</div>
+                </button>
+                <button className="text-left p-4 hover:bg-gray-50 rounded-lg border border-gray-100 transition-colors">
+                  <div className="font-semibold text-[#EF4444]">Witness Statement</div>
+                  <div className="text-sm text-gray-600 mt-1">Record witness testimony</div>
+                </button>
+                <button className="text-left p-4 hover:bg-gray-50 rounded-lg border border-gray-100 transition-colors">
+                  <div className="font-semibold text-[#EF4444]">Demand Letter</div>
+                  <div className="text-sm text-gray-600 mt-1">Request compensation payment</div>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -194,7 +301,7 @@ export default function LegalForms() {
         </div>
       </section>
 
-      {/* Practice Areas - Simplified */}
+      {/* Practice Areas */}
       <section className="py-16">
         <div className="max-w-[1200px] mx-auto px-6">
           <div className="text-center mb-12">
