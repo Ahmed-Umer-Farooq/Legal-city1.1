@@ -387,14 +387,50 @@ const AuthForm = ({ onSwitchToLogin, onRegisterSuccess }) => {
         </form>
       )}
 
-      <div className="text-center pt-4">
+      {/* Divider */}
+      <div className="relative py-4">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-gray-300"></div>
+        </div>
+        <div className="relative flex justify-center text-sm">
+          <span className="px-4 bg-white text-gray-400 font-medium">OR</span>
+        </div>
+      </div>
+
+      {/* Google OAuth Button */}
+      <div className="space-y-3">
         <button
-          onClick={onSwitchToLogin}
           type="button"
-          className="px-8 py-3 border-2 border-gray-300 hover:border-[#0EA5E9] hover:bg-[#0EA5E9] hover:text-white text-gray-700 font-medium rounded-lg transition-all duration-200 text-sm shadow-sm"
+          onClick={() => {
+            const baseUrl = process.env.REACT_APP_API_URL ? process.env.REACT_APP_API_URL.replace('/api', '') : 'http://localhost:5001';
+            window.location.href = `${baseUrl}/api/auth/google?role=${userType}`;
+          }}
+          className="w-full py-3 px-4 border-2 border-gray-300 rounded-md flex items-center justify-center gap-3 hover:bg-gray-50 transition-colors"
         >
-          Already a member? Sign in
+          <svg width="20" height="20" viewBox="0 0 20 20">
+            <path fill="#4285F4" d="M19.6 10.23c0-.82-.1-1.42-.25-2.05H10v3.72h5.5c-.15.96-.74 2.31-2.04 3.22v2.45h3.16c1.89-1.73 2.98-4.3 2.98-7.34z"/>
+            <path fill="#34A853" d="M13.46 15.13c-.83.59-1.96 1-3.46 1-2.64 0-4.88-1.74-5.68-4.15H1.07v2.52C2.72 17.75 6.09 20 10 20c2.7 0 4.96-.89 6.62-2.42l-3.16-2.45z"/>
+            <path fill="#FBBC05" d="M3.99 10c0-.69.12-1.35.32-1.97V5.51H1.07A9.973 9.973 0 000 10c0 1.61.39 3.14 1.07 4.49l3.24-2.52c-.2-.62-.32-1.28-.32-1.97z"/>
+            <path fill="#EA4335" d="M10 3.88c1.88 0 3.13.81 3.85 1.48l2.84-2.76C14.96.99 12.7 0 10 0 6.09 0 2.72 2.25 1.07 5.51l3.24 2.52C5.12 5.62 7.36 3.88 10 3.88z"/>
+          </svg>
+          <span className="font-medium text-gray-700 text-sm">
+            Continue with Google as {userType === 'lawyer' ? 'Lawyer' : 'User'}
+          </span>
         </button>
+      </div>
+
+      {/* Sign In Link */}
+      <div className="text-center pt-4">
+        <p className="text-gray-600 text-sm">
+          Already a member?{' '}
+          <button
+            onClick={onSwitchToLogin}
+            type="button"
+            className="text-[#0EA5E9] font-semibold hover:underline"
+          >
+            Sign in
+          </button>
+        </p>
       </div>
     </div>
   );

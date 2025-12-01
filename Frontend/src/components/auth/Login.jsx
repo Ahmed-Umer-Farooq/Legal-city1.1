@@ -294,7 +294,7 @@ const Login = ({ onSwitchToRegister, onSwitchToForgot, onLoginSuccess }) => {
               type="button"
               className="text-[#0EA5E9] font-semibold hover:underline"
             >
-              sign up now
+              Sign up
             </button>
           </p>
         </div>
