@@ -1,34 +1,58 @@
-import React, { useState } from 'react';
-import { ChevronLeft, ChevronRight, Plus, Clock, User } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ChevronLeft, ChevronRight, Plus, Clock, User, Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
+import api from '../../utils/api';
 
 const Calendar = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [appointments, setAppointments] = useState([
-    {
-      id: 1,
-      date: '2024-12-15',
-      time: '10:00',
-      title: 'Consultation with John Smith',
-      type: 'consultation',
-      lawyer: 'John Smith'
-    },
-    {
-      id: 2,
-      date: '2024-12-18',
-      time: '14:30',
-      title: 'Document Review',
-      type: 'meeting',
-      lawyer: 'Sarah Johnson'
-    }
-  ]);
+  const [appointments, setAppointments] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [newAppointment, setNewAppointment] = useState({
     title: '',
     time: '',
     type: 'consultation',
-    lawyer: ''
+    lawyer_name: '',
+    description: ''
   });
+
+  useEffect(() => {
+    fetchAppointments();
+  }, [currentDate]);
+
+  const fetchAppointments = async () => {
+    try {
+      setLoading(true);
+      const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+      const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+      
+      const response = await api.get('/user/appointments', {
+        params: {
+          start: startOfMonth.toISOString(),
+          end: endOfMonth.toISOString()
+        }
+      });
+      
+      if (response.data.success) {
+        const formattedAppointments = response.data.data.map(apt => ({
+          id: apt.id,
+          date: apt.appointment_date,
+          time: apt.appointment_time,
+          title: apt.title,
+          type: apt.appointment_type,
+          lawyer: apt.lawyer_name || 'TBD',
+          description: apt.description
+        }));
+        setAppointments(formattedAppointments);
+      }
+    } catch (error) {
+      console.error('Error fetching appointments:', error);
+      toast.error('Failed to load appointments');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const monthNames = [
     'January', 'February', 'March', 'April', 'May', 'June',
@@ -83,18 +107,48 @@ const Calendar = () => {
     setShowModal(true);
   };
 
-  const handleAddAppointment = () => {
-    if (!newAppointment.title || !newAppointment.time) return;
+  const handleAddAppointment = async () => {
+    if (!newAppointment.title || !newAppointment.time) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
     
-    const appointment = {
-      id: Date.now(),
-      date: selectedDate,
-      ...newAppointment
-    };
-    
-    setAppointments([...appointments, appointment]);
-    setNewAppointment({ title: '', time: '', type: 'consultation', lawyer: '' });
-    setShowModal(false);
+    try {
+      setLoading(true);
+      const response = await api.post('/user/appointments', {
+        title: newAppointment.title,
+        date: selectedDate,
+        time: newAppointment.time,
+        type: newAppointment.type,
+        lawyer_name: newAppointment.lawyer_name,
+        description: newAppointment.description
+      });
+      
+      if (response.data.success) {
+        toast.success('Appointment scheduled successfully');
+        fetchAppointments();
+        setNewAppointment({ title: '', time: '', type: 'consultation', lawyer_name: '', description: '' });
+        setShowModal(false);
+      }
+    } catch (error) {
+      console.error('Error creating appointment:', error);
+      toast.error('Failed to schedule appointment');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteAppointment = async (appointmentId) => {
+    try {
+      const response = await api.delete(`/user/appointments/${appointmentId}`);
+      if (response.data.success) {
+        toast.success('Appointment deleted successfully');
+        fetchAppointments();
+      }
+    } catch (error) {
+      console.error('Error deleting appointment:', error);
+      toast.error('Failed to delete appointment');
+    }
   };
 
   const isToday = (day) => {
@@ -108,16 +162,14 @@ const Calendar = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Calendar</h1>
-        <button
-          onClick={() => setShowModal(true)}
-          className="flex items-center gap-2 bg-[#F8F9FA] border border-[#E5E7EB] text-[#374151] px-4 py-2 rounded-lg hover:bg-[#E5E7EB] transition-colors"
-        >
-          <Plus className="w-4 h-4" />
-          New Appointment
-        </button>
       </div>
 
-      <div className="bg-white rounded-2xl border border-[#F8F9FA] shadow-md">
+      <div className="relative bg-white rounded-2xl border border-[#F8F9FA] shadow-md">
+        {loading && (
+          <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10 rounded-2xl">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+          </div>
+        )}
         {/* Professional Calendar Header */}
         <div className="flex items-center justify-between p-7 border-b border-[#F8F9FA]">
           <button
@@ -236,9 +288,18 @@ const Calendar = () => {
                     </p>
                   )}
                 </div>
-                <span className="px-2 py-1 text-xs rounded-full bg-[#F8F9FA] text-[#6B7280] border border-[#E5E7EB]">
-                  {apt.type}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="px-2 py-1 text-xs rounded-full bg-[#F8F9FA] text-[#6B7280] border border-[#E5E7EB]">
+                    {apt.type}
+                  </span>
+                  <button
+                    onClick={() => handleDeleteAppointment(apt.id)}
+                    className="p-1 text-red-500 hover:bg-red-50 rounded transition-colors"
+                    title="Delete appointment"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             ))
           }
@@ -290,10 +351,23 @@ const Calendar = () => {
                 </label>
                 <input
                   type="text"
-                  value={newAppointment.lawyer}
-                  onChange={(e) => setNewAppointment({...newAppointment, lawyer: e.target.value})}
+                  value={newAppointment.lawyer_name}
+                  onChange={(e) => setNewAppointment({...newAppointment, lawyer_name: e.target.value})}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="Lawyer's name"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Description (Optional)
+                </label>
+                <textarea
+                  value={newAppointment.description}
+                  onChange={(e) => setNewAppointment({...newAppointment, description: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="Additional details..."
+                  rows="2"
                 />
               </div>
               
@@ -323,9 +397,10 @@ const Calendar = () => {
               </button>
               <button
                 onClick={handleAddAppointment}
-                className="flex-1 px-4 py-2 bg-[#F8F9FA] border border-[#E5E7EB] text-[#374151] rounded-lg hover:bg-[#E5E7EB] transition-colors"
+                disabled={loading}
+                className="flex-1 px-4 py-2 bg-[#F8F9FA] border border-[#E5E7EB] text-[#374151] rounded-lg hover:bg-[#E5E7EB] transition-colors disabled:opacity-50"
               >
-                Schedule
+                {loading ? 'Scheduling...' : 'Schedule'}
               </button>
             </div>
           </div>

@@ -314,6 +314,8 @@ const stripeRoutes = require('./routes/stripe');
 app.use('/api/stripe', stripeRoutes);
 const intakesRoutes = require('./routes/intakes');
 app.use('/api/intakes', intakesRoutes);
+const userAppointmentsRoutes = require('./routes/userAppointments');
+app.use('/api/user/appointments', userAppointmentsRoutes);
 const blogsRoutes = require('./routes/blogs');
 app.use('/api/blogs', blogsRoutes);
 const uploadRoutes = require('./routes/upload');
