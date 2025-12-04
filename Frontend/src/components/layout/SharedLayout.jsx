@@ -54,13 +54,7 @@ const Sidebar = ({ isOpen, onClose, isCollapsed, onToggleCollapse }) => {
         { icon: "share-2", label: "Social Media", path: "/user/social-media-management" },
       ]
     },
-    {
-      title: "Account",
-      items: [
-        { icon: "user", label: "Profile", path: "/user/profile-settings" },
-        { icon: "settings", label: "Settings", path: "/user/account-settings" },
-      ]
-    }
+
   ];
   
   const handleLogout = () => {
@@ -169,20 +163,7 @@ const Sidebar = ({ isOpen, onClose, isCollapsed, onToggleCollapse }) => {
             </div>
           ))}
           
-          <div className="mt-auto pt-4 border-t border-gray-200">
-            <button
-              onClick={handleLogout}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#6B7280] hover:bg-red-50 hover:text-red-600 transition-all duration-200 ${
-                isCollapsed ? 'justify-center' : ''
-              }`}
-              title={isCollapsed ? 'Log out' : ''}
-            >
-              <LogOut className="w-5 h-5 flex-shrink-0" />
-              {!isCollapsed && (
-                <span className="font-medium text-sm">Log out</span>
-              )}
-            </button>
-          </div>
+
         </nav>
       </div>
     </aside>
@@ -191,13 +172,29 @@ const Sidebar = ({ isOpen, onClose, isCollapsed, onToggleCollapse }) => {
 
 // Header Component
 const Header = ({ onMenuClick, sidebarWidth }) => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const userName = user?.first_name || user?.name || 'User';
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [showResults, setShowResults] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const navigate = useNavigate();
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = () => {
+      setShowProfileMenu(false);
+    };
+    
+    if (showProfileMenu) {
+      document.addEventListener('click', handleClickOutside);
+    }
+    
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [showProfileMenu]);
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -312,6 +309,61 @@ const Header = ({ onMenuClick, sidebarWidth }) => {
             onChatClick={handleChatClick}
           />
         )}
+        
+        {/* Profile Dropdown */}
+        <div className="relative">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowProfileMenu(!showProfileMenu);
+            }}
+            className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-semibold hover:bg-blue-700 transition-colors"
+          >
+            {userName.charAt(0).toUpperCase()}
+          </button>
+          {showProfileMenu && (
+            <div 
+              className="absolute top-12 right-0 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate('/user/profile-settings');
+                  setShowProfileMenu(false);
+                }}
+                className="w-full text-left px-4 py-3 hover:bg-gray-50 border-b border-gray-100 flex items-center gap-3"
+              >
+                <User className="w-4 h-4" />
+                Profile
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate('/user/account-settings');
+                  setShowProfileMenu(false);
+                }}
+                className="w-full text-left px-4 py-3 hover:bg-gray-50 border-b border-gray-100 flex items-center gap-3"
+              >
+                <Settings className="w-4 h-4" />
+                Settings
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (window.confirm('Are you sure you want to logout?')) {
+                    logout();
+                  }
+                  setShowProfileMenu(false);
+                }}
+                className="w-full text-left px-4 py-3 hover:bg-gray-50 rounded-b-lg flex items-center gap-3 text-red-600"
+              >
+                <LogOut className="w-4 h-4" />
+                Log out
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </header>
   );
