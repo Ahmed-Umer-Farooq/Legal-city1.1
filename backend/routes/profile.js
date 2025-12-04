@@ -72,8 +72,7 @@ router.post('/upload-image', authenticateToken, upload.single('profileImage'), a
 
     // Update database with new image URL
     await db(tableName).where({ id: req.user.id }).update({
-      profile_image: imageUrl,
-      updated_at: db.fn.now()
+      profile_image: imageUrl
     });
 
     res.json({
@@ -112,8 +111,7 @@ router.delete('/delete-image', authenticateToken, async (req, res) => {
 
     // Update database
     await db(tableName).where({ id: req.user.id }).update({
-      profile_image: null,
-      updated_at: db.fn.now()
+      profile_image: null
     });
 
     res.json({ message: 'Profile image deleted successfully' });

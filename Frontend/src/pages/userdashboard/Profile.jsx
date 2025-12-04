@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User, Mail, Phone, MapPin, Calendar, Edit3, Save, X, Camera, Briefcase, Building, Globe, Heart, Shield, Award, Lock, Eye, EyeOff, CheckCircle, AlertCircle } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Calendar, Edit3, Save, X, Camera, Briefcase, Building, Globe, Lock, CheckCircle, Settings } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'sonner';
 import api from '../../utils/api';
@@ -101,15 +101,27 @@ const Profile = () => {
     }
   }, [user]);
 
-  const handleImageUpload = (e) => {
+  const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (file) {
-      setProfileData({...profileData, profile_image: file});
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result);
-      };
-      reader.readAsDataURL(file);
+      const formData = new FormData();
+      formData.append('profileImage', file);
+      
+      try {
+        setLoading(true);
+        const response = await api.post('/auth/profile/upload-image', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        
+        setImagePreview(`http://localhost:5001${response.data.imageUrl}`);
+        toast.success('Profile image updated successfully!');
+        fetchProfile();
+      } catch (error) {
+        console.error('Error uploading image:', error);
+        toast.error('Failed to upload image');
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -185,36 +197,43 @@ const Profile = () => {
     { id: 'personal', label: 'Personal Info', icon: User },
     { id: 'contact', label: 'Contact', icon: Phone },
     { id: 'professional', label: 'Professional', icon: Briefcase },
-    { id: 'social', label: 'Social Links', icon: Globe },
-    { id: 'privacy', label: 'Privacy', icon: Shield }
+    { id: 'social', label: 'Social Links', icon: Globe }
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-8">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+      <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Profile Settings</h1>
-          <p className="text-gray-600">Manage your account information and preferences</p>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center">
+              <Settings className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Profile Settings</h1>
+              <p className="text-sm text-gray-600">Manage your account information and preferences</p>
+            </div>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
           {/* Sidebar */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 overflow-hidden">
               {/* Profile Summary */}
-              <div className="p-6 bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
-                <div className="text-center">
+              <div className="p-6 bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 text-white relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
+                <div className="relative text-center">
                   <div className="relative inline-block mb-4">
-                    <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center overflow-hidden">
+                    <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center overflow-hidden border border-white/30">
                       {imagePreview ? (
-                        <img src={imagePreview} alt="Profile" className="w-full h-full object-cover" />
+                        <img src={imagePreview} alt="Profile" className="w-full h-full object-cover rounded-2xl" />
                       ) : (
-                        <User className="w-10 h-10 text-blue-600" />
+                        <User className="w-8 h-8 text-white" />
                       )}
                     </div>
-                    <label className="absolute bottom-0 right-0 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors cursor-pointer">
-                      <Camera className="w-3 h-3 text-white" />
+                    <label className="absolute -bottom-1 -right-1 w-6 h-6 bg-white rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors cursor-pointer shadow-lg">
+                      <Camera className="w-3 h-3 text-blue-600" />
                       <input
                         type="file"
                         accept="image/*"
@@ -223,19 +242,19 @@ const Profile = () => {
                       />
                     </label>
                   </div>
-                  <h3 className="font-semibold text-lg">{profileData.name || 'Your Name'}</h3>
-                  <p className="text-blue-100 text-sm">{profileData.email}</p>
+                  <h3 className="font-semibold text-base">{profileData.name || 'Your Name'}</h3>
+                  <p className="text-blue-100 text-xs opacity-90">{profileData.email}</p>
                 </div>
                 
                 {/* Completion Progress */}
-                <div className="mt-4">
-                  <div className="flex items-center justify-between text-sm mb-2">
-                    <span>Profile Completion</span>
-                    <span>{completionPercentage}%</span>
+                <div className="mt-4 relative">
+                  <div className="flex items-center justify-between text-xs mb-2">
+                    <span className="text-white/90">Profile Completion</span>
+                    <span className="font-medium">{completionPercentage}%</span>
                   </div>
-                  <div className="w-full bg-blue-500 rounded-full h-2">
+                  <div className="w-full bg-white/20 rounded-full h-1.5">
                     <div 
-                      className="bg-white rounded-full h-2 transition-all duration-300"
+                      className="bg-white rounded-full h-1.5 transition-all duration-500 shadow-sm"
                       style={{ width: `${completionPercentage}%` }}
                     ></div>
                   </div>
@@ -243,19 +262,21 @@ const Profile = () => {
               </div>
 
               {/* Navigation Tabs */}
-              <nav className="p-2">
+              <nav className="p-3 space-y-1">
                 {tabs.map((tab) => (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors ${
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all duration-200 group ${
                       activeTab === tab.id
-                        ? 'bg-blue-50 text-blue-600 border border-blue-200'
-                        : 'text-gray-600 hover:bg-gray-50'
+                        ? 'bg-blue-50 text-blue-700 shadow-sm border border-blue-100'
+                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                     }`}
                   >
-                    <tab.icon className="w-5 h-5" />
-                    <span className="font-medium">{tab.label}</span>
+                    <tab.icon className={`w-4 h-4 transition-colors ${
+                      activeTab === tab.id ? 'text-blue-600' : 'text-gray-400 group-hover:text-gray-600'
+                    }`} />
+                    <span className="text-sm font-medium">{tab.label}</span>
                   </button>
                 ))}
               </nav>
@@ -263,38 +284,50 @@ const Profile = () => {
           </div>
 
           {/* Main Content */}
-          <div className="lg:col-span-3">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+          <div className="lg:col-span-4">
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20">
               {/* Header */}
-              <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-                <h2 className="text-xl font-semibold text-gray-900">
-                  {tabs.find(tab => tab.id === activeTab)?.label}
-                </h2>
+              <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  {(() => {
+                    const activeTabData = tabs.find(tab => tab.id === activeTab);
+                    return (
+                      <>
+                        <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                          <activeTabData.icon className="w-4 h-4 text-blue-600" />
+                        </div>
+                        <h2 className="text-lg font-semibold text-gray-900">
+                          {activeTabData?.label}
+                        </h2>
+                      </>
+                    );
+                  })()}
+                </div>
                 <div className="flex gap-2">
                   {!isEditing ? (
                     <button
                       onClick={() => setIsEditing(true)}
-                      className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                      className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all duration-200 shadow-sm hover:shadow-md"
                     >
                       <Edit3 className="w-4 h-4" />
-                      Edit
+                      <span className="text-sm font-medium">Edit</span>
                     </button>
                   ) : (
                     <>
                       <button
                         onClick={handleSave}
                         disabled={loading}
-                        className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
+                        className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-all duration-200 disabled:opacity-50 shadow-sm hover:shadow-md"
                       >
                         <Save className="w-4 h-4" />
-                        {loading ? 'Saving...' : 'Save'}
+                        <span className="text-sm font-medium">{loading ? 'Saving...' : 'Save'}</span>
                       </button>
                       <button
                         onClick={handleCancel}
-                        className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                        className="flex items-center gap-2 px-4 py-2 bg-gray-500 text-white rounded-xl hover:bg-gray-600 transition-all duration-200 shadow-sm hover:shadow-md"
                       >
                         <X className="w-4 h-4" />
-                        Cancel
+                        <span className="text-sm font-medium">Cancel</span>
                       </button>
                     </>
                   )}
@@ -306,85 +339,85 @@ const Profile = () => {
                 {activeTab === 'personal' && (
                   <div className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Full Name *</label>
+                      <div className="space-y-2">
+                        <label className="block text-sm font-semibold text-gray-700">Full Name *</label>
                         {isEditing ? (
                           <input
                             type="text"
                             value={profileData.name}
                             onChange={(e) => setProfileData({...profileData, name: e.target.value})}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white/50 backdrop-blur-sm"
                             placeholder="Enter your full name"
                           />
                         ) : (
-                          <div className="flex items-center gap-3 px-4 py-3 bg-gray-50 rounded-lg">
-                            <User className="w-5 h-5 text-gray-400" />
-                            <span className="text-gray-900">{profileData.name || 'Not provided'}</span>
+                          <div className="flex items-center gap-3 px-4 py-3 bg-gray-50/80 rounded-xl border border-gray-100">
+                            <User className="w-4 h-4 text-gray-400" />
+                            <span className="text-gray-900 font-medium">{profileData.name || 'Not provided'}</span>
                           </div>
                         )}
                       </div>
 
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Username *</label>
+                      <div className="space-y-2">
+                        <label className="block text-sm font-semibold text-gray-700">Username *</label>
                         {isEditing ? (
                           <input
                             type="text"
                             value={profileData.username}
                             onChange={(e) => setProfileData({...profileData, username: e.target.value})}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white/50 backdrop-blur-sm"
                             placeholder="Choose a username"
                           />
                         ) : (
-                          <div className="flex items-center gap-3 px-4 py-3 bg-gray-50 rounded-lg">
-                            <User className="w-5 h-5 text-gray-400" />
-                            <span className="text-gray-900">{profileData.username || 'Not provided'}</span>
+                          <div className="flex items-center gap-3 px-4 py-3 bg-gray-50/80 rounded-xl border border-gray-100">
+                            <User className="w-4 h-4 text-gray-400" />
+                            <span className="text-gray-900 font-medium">{profileData.username || 'Not provided'}</span>
                           </div>
                         )}
                       </div>
 
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Date of Birth</label>
+                      <div className="space-y-2">
+                        <label className="block text-sm font-semibold text-gray-700">Date of Birth</label>
                         {isEditing ? (
                           <input
                             type="date"
                             value={profileData.date_of_birth}
                             onChange={(e) => setProfileData({...profileData, date_of_birth: e.target.value})}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white/50 backdrop-blur-sm"
                           />
                         ) : (
-                          <div className="flex items-center gap-3 px-4 py-3 bg-gray-50 rounded-lg">
-                            <Calendar className="w-5 h-5 text-gray-400" />
-                            <span className="text-gray-900">
+                          <div className="flex items-center gap-3 px-4 py-3 bg-gray-50/80 rounded-xl border border-gray-100">
+                            <Calendar className="w-4 h-4 text-gray-400" />
+                            <span className="text-gray-900 font-medium">
                               {profileData.date_of_birth ? new Date(profileData.date_of_birth).toLocaleDateString() : 'Not provided'}
                             </span>
                           </div>
                         )}
                       </div>
 
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
-                        <div className="flex items-center gap-3 px-4 py-3 bg-gray-100 rounded-lg">
-                          <Mail className="w-5 h-5 text-gray-400" />
-                          <span className="text-gray-900">{profileData.email}</span>
-                          <Lock className="w-4 h-4 text-gray-400 ml-auto" />
+                      <div className="space-y-2">
+                        <label className="block text-sm font-semibold text-gray-700">Email Address</label>
+                        <div className="flex items-center gap-3 px-4 py-3 bg-blue-50/80 rounded-xl border border-blue-100">
+                          <Mail className="w-4 h-4 text-blue-500" />
+                          <span className="text-gray-900 font-medium flex-1">{profileData.email}</span>
+                          <Lock className="w-4 h-4 text-gray-400" />
                         </div>
-                        <p className="text-xs text-gray-500 mt-1">Email cannot be changed</p>
+                        <p className="text-xs text-gray-500">Email cannot be changed for security reasons</p>
                       </div>
                     </div>
 
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Bio</label>
+                    <div className="space-y-2">
+                      <label className="block text-sm font-semibold text-gray-700">Bio</label>
                       {isEditing ? (
                         <textarea
                           value={profileData.bio}
                           onChange={(e) => setProfileData({...profileData, bio: e.target.value})}
                           rows={4}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white/50 backdrop-blur-sm resize-none"
                           placeholder="Tell us about yourself..."
                         />
                       ) : (
-                        <div className="px-4 py-3 bg-gray-50 rounded-lg min-h-[100px]">
-                          <p className="text-gray-900">{profileData.bio || 'No bio provided'}</p>
+                        <div className="px-4 py-3 bg-gray-50/80 rounded-xl border border-gray-100 min-h-[100px]">
+                          <p className="text-gray-900 leading-relaxed">{profileData.bio || 'No bio provided'}</p>
                         </div>
                       )}
                     </div>
@@ -394,110 +427,110 @@ const Profile = () => {
                 {activeTab === 'contact' && (
                   <div className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number *</label>
+                      <div className="space-y-2">
+                        <label className="block text-sm font-semibold text-gray-700">Phone Number *</label>
                         {isEditing ? (
                           <input
                             type="tel"
                             value={profileData.mobile_number}
                             onChange={(e) => setProfileData({...profileData, mobile_number: e.target.value})}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white/50 backdrop-blur-sm"
                             placeholder="Enter your phone number"
                           />
                         ) : (
-                          <div className="flex items-center gap-3 px-4 py-3 bg-gray-50 rounded-lg">
-                            <Phone className="w-5 h-5 text-gray-400" />
-                            <span className="text-gray-900">{profileData.mobile_number || 'Not provided'}</span>
+                          <div className="flex items-center gap-3 px-4 py-3 bg-gray-50/80 rounded-xl border border-gray-100">
+                            <Phone className="w-4 h-4 text-gray-400" />
+                            <span className="text-gray-900 font-medium">{profileData.mobile_number || 'Not provided'}</span>
                           </div>
                         )}
                       </div>
 
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
+                      <div className="space-y-2">
+                        <label className="block text-sm font-semibold text-gray-700">Address</label>
                         {isEditing ? (
                           <input
                             type="text"
                             value={profileData.address}
                             onChange={(e) => setProfileData({...profileData, address: e.target.value})}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white/50 backdrop-blur-sm"
                             placeholder="Enter your address"
                           />
                         ) : (
-                          <div className="flex items-center gap-3 px-4 py-3 bg-gray-50 rounded-lg">
-                            <MapPin className="w-5 h-5 text-gray-400" />
-                            <span className="text-gray-900">{profileData.address || 'Not provided'}</span>
+                          <div className="flex items-center gap-3 px-4 py-3 bg-gray-50/80 rounded-xl border border-gray-100">
+                            <MapPin className="w-4 h-4 text-gray-400" />
+                            <span className="text-gray-900 font-medium">{profileData.address || 'Not provided'}</span>
                           </div>
                         )}
                       </div>
 
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
+                      <div className="space-y-2">
+                        <label className="block text-sm font-semibold text-gray-700">City</label>
                         {isEditing ? (
                           <input
                             type="text"
                             value={profileData.city}
                             onChange={(e) => setProfileData({...profileData, city: e.target.value})}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white/50 backdrop-blur-sm"
                             placeholder="Enter your city"
                           />
                         ) : (
-                          <div className="flex items-center gap-3 px-4 py-3 bg-gray-50 rounded-lg">
-                            <MapPin className="w-5 h-5 text-gray-400" />
-                            <span className="text-gray-900">{profileData.city || 'Not provided'}</span>
+                          <div className="flex items-center gap-3 px-4 py-3 bg-gray-50/80 rounded-xl border border-gray-100">
+                            <MapPin className="w-4 h-4 text-gray-400" />
+                            <span className="text-gray-900 font-medium">{profileData.city || 'Not provided'}</span>
                           </div>
                         )}
                       </div>
 
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">State</label>
+                      <div className="space-y-2">
+                        <label className="block text-sm font-semibold text-gray-700">State</label>
                         {isEditing ? (
                           <input
                             type="text"
                             value={profileData.state}
                             onChange={(e) => setProfileData({...profileData, state: e.target.value})}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white/50 backdrop-blur-sm"
                             placeholder="Enter your state"
                           />
                         ) : (
-                          <div className="flex items-center gap-3 px-4 py-3 bg-gray-50 rounded-lg">
-                            <MapPin className="w-5 h-5 text-gray-400" />
-                            <span className="text-gray-900">{profileData.state || 'Not provided'}</span>
+                          <div className="flex items-center gap-3 px-4 py-3 bg-gray-50/80 rounded-xl border border-gray-100">
+                            <MapPin className="w-4 h-4 text-gray-400" />
+                            <span className="text-gray-900 font-medium">{profileData.state || 'Not provided'}</span>
                           </div>
                         )}
                       </div>
 
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">ZIP Code</label>
+                      <div className="space-y-2">
+                        <label className="block text-sm font-semibold text-gray-700">ZIP Code</label>
                         {isEditing ? (
                           <input
                             type="text"
                             value={profileData.zip_code}
                             onChange={(e) => setProfileData({...profileData, zip_code: e.target.value})}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white/50 backdrop-blur-sm"
                             placeholder="Enter your ZIP code"
                           />
                         ) : (
-                          <div className="flex items-center gap-3 px-4 py-3 bg-gray-50 rounded-lg">
-                            <MapPin className="w-5 h-5 text-gray-400" />
-                            <span className="text-gray-900">{profileData.zip_code || 'Not provided'}</span>
+                          <div className="flex items-center gap-3 px-4 py-3 bg-gray-50/80 rounded-xl border border-gray-100">
+                            <MapPin className="w-4 h-4 text-gray-400" />
+                            <span className="text-gray-900 font-medium">{profileData.zip_code || 'Not provided'}</span>
                           </div>
                         )}
                       </div>
 
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Country</label>
+                      <div className="space-y-2">
+                        <label className="block text-sm font-semibold text-gray-700">Country</label>
                         {isEditing ? (
                           <input
                             type="text"
                             value={profileData.country}
                             onChange={(e) => setProfileData({...profileData, country: e.target.value})}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white/50 backdrop-blur-sm"
                             placeholder="Enter your country"
                           />
                         ) : (
-                          <div className="flex items-center gap-3 px-4 py-3 bg-gray-50 rounded-lg">
-                            <Globe className="w-5 h-5 text-gray-400" />
-                            <span className="text-gray-900">{profileData.country || 'Not provided'}</span>
+                          <div className="flex items-center gap-3 px-4 py-3 bg-gray-50/80 rounded-xl border border-gray-100">
+                            <Globe className="w-4 h-4 text-gray-400" />
+                            <span className="text-gray-900 font-medium">{profileData.country || 'Not provided'}</span>
                           </div>
                         )}
                       </div>
@@ -508,38 +541,38 @@ const Profile = () => {
                 {activeTab === 'professional' && (
                   <div className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Job Title</label>
+                      <div className="space-y-2">
+                        <label className="block text-sm font-semibold text-gray-700">Job Title</label>
                         {isEditing ? (
                           <input
                             type="text"
                             value={profileData.job_title}
                             onChange={(e) => setProfileData({...profileData, job_title: e.target.value})}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white/50 backdrop-blur-sm"
                             placeholder="Enter your job title"
                           />
                         ) : (
-                          <div className="flex items-center gap-3 px-4 py-3 bg-gray-50 rounded-lg">
-                            <Briefcase className="w-5 h-5 text-gray-400" />
-                            <span className="text-gray-900">{profileData.job_title || 'Not provided'}</span>
+                          <div className="flex items-center gap-3 px-4 py-3 bg-gray-50/80 rounded-xl border border-gray-100">
+                            <Briefcase className="w-4 h-4 text-gray-400" />
+                            <span className="text-gray-900 font-medium">{profileData.job_title || 'Not provided'}</span>
                           </div>
                         )}
                       </div>
 
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Company</label>
+                      <div className="space-y-2">
+                        <label className="block text-sm font-semibold text-gray-700">Company</label>
                         {isEditing ? (
                           <input
                             type="text"
                             value={profileData.company}
                             onChange={(e) => setProfileData({...profileData, company: e.target.value})}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white/50 backdrop-blur-sm"
                             placeholder="Enter your company"
                           />
                         ) : (
-                          <div className="flex items-center gap-3 px-4 py-3 bg-gray-50 rounded-lg">
-                            <Building className="w-5 h-5 text-gray-400" />
-                            <span className="text-gray-900">{profileData.company || 'Not provided'}</span>
+                          <div className="flex items-center gap-3 px-4 py-3 bg-gray-50/80 rounded-xl border border-gray-100">
+                            <Building className="w-4 h-4 text-gray-400" />
+                            <span className="text-gray-900 font-medium">{profileData.company || 'Not provided'}</span>
                           </div>
                         )}
                       </div>
@@ -550,8 +583,8 @@ const Profile = () => {
                 {activeTab === 'social' && (
                   <div className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">LinkedIn</label>
+                      <div className="space-y-2">
+                        <label className="block text-sm font-semibold text-gray-700">LinkedIn</label>
                         {isEditing ? (
                           <input
                             type="url"
@@ -560,19 +593,19 @@ const Profile = () => {
                               ...profileData, 
                               social_links: {...profileData.social_links, linkedin: e.target.value}
                             })}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white/50 backdrop-blur-sm"
                             placeholder="https://linkedin.com/in/username"
                           />
                         ) : (
-                          <div className="flex items-center gap-3 px-4 py-3 bg-gray-50 rounded-lg">
-                            <Globe className="w-5 h-5 text-gray-400" />
-                            <span className="text-gray-900">{profileData.social_links.linkedin || 'Not provided'}</span>
+                          <div className="flex items-center gap-3 px-4 py-3 bg-gray-50/80 rounded-xl border border-gray-100">
+                            <Globe className="w-4 h-4 text-gray-400" />
+                            <span className="text-gray-900 font-medium">{profileData.social_links.linkedin || 'Not provided'}</span>
                           </div>
                         )}
                       </div>
 
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Twitter</label>
+                      <div className="space-y-2">
+                        <label className="block text-sm font-semibold text-gray-700">Twitter</label>
                         {isEditing ? (
                           <input
                             type="url"
@@ -581,19 +614,19 @@ const Profile = () => {
                               ...profileData, 
                               social_links: {...profileData.social_links, twitter: e.target.value}
                             })}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white/50 backdrop-blur-sm"
                             placeholder="https://twitter.com/username"
                           />
                         ) : (
-                          <div className="flex items-center gap-3 px-4 py-3 bg-gray-50 rounded-lg">
-                            <Globe className="w-5 h-5 text-gray-400" />
-                            <span className="text-gray-900">{profileData.social_links.twitter || 'Not provided'}</span>
+                          <div className="flex items-center gap-3 px-4 py-3 bg-gray-50/80 rounded-xl border border-gray-100">
+                            <Globe className="w-4 h-4 text-gray-400" />
+                            <span className="text-gray-900 font-medium">{profileData.social_links.twitter || 'Not provided'}</span>
                           </div>
                         )}
                       </div>
 
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Facebook</label>
+                      <div className="space-y-2">
+                        <label className="block text-sm font-semibold text-gray-700">Facebook</label>
                         {isEditing ? (
                           <input
                             type="url"
@@ -602,19 +635,19 @@ const Profile = () => {
                               ...profileData, 
                               social_links: {...profileData.social_links, facebook: e.target.value}
                             })}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white/50 backdrop-blur-sm"
                             placeholder="https://facebook.com/username"
                           />
                         ) : (
-                          <div className="flex items-center gap-3 px-4 py-3 bg-gray-50 rounded-lg">
-                            <Globe className="w-5 h-5 text-gray-400" />
-                            <span className="text-gray-900">{profileData.social_links.facebook || 'Not provided'}</span>
+                          <div className="flex items-center gap-3 px-4 py-3 bg-gray-50/80 rounded-xl border border-gray-100">
+                            <Globe className="w-4 h-4 text-gray-400" />
+                            <span className="text-gray-900 font-medium">{profileData.social_links.facebook || 'Not provided'}</span>
                           </div>
                         )}
                       </div>
 
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Website</label>
+                      <div className="space-y-2">
+                        <label className="block text-sm font-semibold text-gray-700">Website</label>
                         {isEditing ? (
                           <input
                             type="url"
@@ -623,13 +656,13 @@ const Profile = () => {
                               ...profileData, 
                               social_links: {...profileData.social_links, website: e.target.value}
                             })}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white/50 backdrop-blur-sm"
                             placeholder="https://yourwebsite.com"
                           />
                         ) : (
-                          <div className="flex items-center gap-3 px-4 py-3 bg-gray-50 rounded-lg">
-                            <Globe className="w-5 h-5 text-gray-400" />
-                            <span className="text-gray-900">{profileData.social_links.website || 'Not provided'}</span>
+                          <div className="flex items-center gap-3 px-4 py-3 bg-gray-50/80 rounded-xl border border-gray-100">
+                            <Globe className="w-4 h-4 text-gray-400" />
+                            <span className="text-gray-900 font-medium">{profileData.social_links.website || 'Not provided'}</span>
                           </div>
                         )}
                       </div>
@@ -637,81 +670,7 @@ const Profile = () => {
                   </div>
                 )}
 
-                {activeTab === 'privacy' && (
-                  <div className="space-y-6">
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                      <div className="flex items-start gap-3">
-                        <Shield className="w-5 h-5 text-blue-600 mt-0.5" />
-                        <div>
-                          <h3 className="font-medium text-blue-900">Privacy Settings</h3>
-                          <p className="text-sm text-blue-700 mt-1">Control what information is visible to other users</p>
-                        </div>
-                      </div>
-                    </div>
 
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                        <div>
-                          <h4 className="font-medium text-gray-900">Show Email Address</h4>
-                          <p className="text-sm text-gray-600">Allow other users to see your email address</p>
-                        </div>
-                        <label className="relative inline-flex items-center cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={profileData.privacy_settings.show_email}
-                            onChange={(e) => setProfileData({
-                              ...profileData,
-                              privacy_settings: {...profileData.privacy_settings, show_email: e.target.checked}
-                            })}
-                            className="sr-only peer"
-                            disabled={!isEditing}
-                          />
-                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                        </label>
-                      </div>
-
-                      <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                        <div>
-                          <h4 className="font-medium text-gray-900">Show Phone Number</h4>
-                          <p className="text-sm text-gray-600">Allow other users to see your phone number</p>
-                        </div>
-                        <label className="relative inline-flex items-center cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={profileData.privacy_settings.show_phone}
-                            onChange={(e) => setProfileData({
-                              ...profileData,
-                              privacy_settings: {...profileData.privacy_settings, show_phone: e.target.checked}
-                            })}
-                            className="sr-only peer"
-                            disabled={!isEditing}
-                          />
-                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                        </label>
-                      </div>
-
-                      <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                        <div>
-                          <h4 className="font-medium text-gray-900">Show Address</h4>
-                          <p className="text-sm text-gray-600">Allow other users to see your address</p>
-                        </div>
-                        <label className="relative inline-flex items-center cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={profileData.privacy_settings.show_address}
-                            onChange={(e) => setProfileData({
-                              ...profileData,
-                              privacy_settings: {...profileData.privacy_settings, show_address: e.target.checked}
-                            })}
-                            className="sr-only peer"
-                            disabled={!isEditing}
-                          />
-                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                        </label>
-                      </div>
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
           </div>
