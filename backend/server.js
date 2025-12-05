@@ -329,6 +329,10 @@ app.use('/api/upload', uploadRoutes);
 const chatRoutes = require('./routes/chatRoutes');
 app.use('/api/chat', chatRoutes);
 
+// Q&A routes
+const qaRoutes = require('./routes/qa');
+app.use('/api/qa', qaRoutes);
+
 // Store active users
 const activeUsers = new Map();
 

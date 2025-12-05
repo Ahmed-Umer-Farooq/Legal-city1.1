@@ -23,6 +23,7 @@ const TasksPage = React.lazy(() => import('./TasksPage').catch(() => ({ default:
 const DocumentsPage = React.lazy(() => import('./DocumentsPage').catch(() => ({ default: () => <div>Documents coming soon...</div> })));
 const BlogManagement = React.lazy(() => import('./BlogManagement').catch(() => ({ default: () => <div>Blog Management coming soon...</div> })));
 const ChatPage = React.lazy(() => import('../../pages/userdashboard/ChatPage').catch(() => ({ default: () => <div>Chat coming soon...</div> })));
+const QAAnswers = React.lazy(() => import('./QAAnswers').catch(() => ({ default: () => <div>Q&A coming soon...</div> })));
 
 export default function LawyerDashboard() {
   const [showCaseForm, setShowCaseForm] = useState(false);
@@ -356,6 +357,7 @@ export default function LawyerDashboard() {
         {activeNavItem === 'documents' && <DocumentsPage />}
         {activeNavItem === 'blogs' && <BlogManagement />}
         {activeNavItem === 'messages' && <ChatPage key="lawyer-chat" />}
+        {activeNavItem === 'qa' && <QAAnswers />}
         
         {activeNavItem === 'home' && (
         <>
@@ -536,6 +538,10 @@ export default function LawyerDashboard() {
               <button onClick={() => setShowPaymentModal(true)} className="flex flex-col items-center gap-2 p-3 bg-[#F8F9FA] hover:bg-[#E5E7EB] rounded-lg transition-all min-h-[80px] cursor-pointer">
                 <CreditCard className="w-5 h-5 text-[#6B7280]" />
                 <span className="text-xs font-medium text-center leading-tight text-[#374151]">Record Payment</span>
+              </button>
+              <button onClick={() => setActiveNavItem('qa')} className="flex flex-col items-center gap-2 p-3 bg-[#F8F9FA] hover:bg-[#E5E7EB] rounded-lg transition-all min-h-[80px] cursor-pointer">
+                <MessageCircle className="w-5 h-5 text-[#6B7280]" />
+                <span className="text-xs font-medium text-center leading-tight text-[#374151]">Answer Q&A</span>
               </button>
               <button onClick={() => window.location.href = '/lawyer-dashboard/subscription'} className="flex flex-col items-center gap-2 p-3 bg-gradient-to-br from-[#1e3a8a] to-[#1e40af] hover:from-[#1e40af] hover:to-[#1d4ed8] rounded-lg transition-all min-h-[80px] cursor-pointer">
                 <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">

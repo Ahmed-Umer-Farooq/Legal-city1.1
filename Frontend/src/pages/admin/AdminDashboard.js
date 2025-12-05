@@ -9,8 +9,9 @@ import {
   FileText, Eye, Edit, MessageCircle, Flag, AlertTriangle, Phone
 } from 'lucide-react';
 
-// Lazy load BlogReports component
+// Lazy load components
 const BlogReports = React.lazy(() => import('./BlogReports'));
+const QAManagement = React.lazy(() => import('./QAManagement'));
 
 // Loading component
 const LoadingSpinner = () => (
@@ -1841,6 +1842,19 @@ const AdminDashboard = () => {
               </div>
             </button>
             <button
+              onClick={() => setActiveTab('qa')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'qa'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <div className="flex items-center space-x-2">
+                <AlertTriangle className="w-4 h-4" />
+                <span>Q&A</span>
+              </div>
+            </button>
+            <button
               onClick={() => {
                 setActiveTab('reports');
                 // Refresh count when clicking reports tab
@@ -1875,6 +1889,11 @@ const AdminDashboard = () => {
         {activeTab === 'messages' && renderMessages()}
         {activeTab === 'activity' && renderActivityLogs()}
         {activeTab === 'calls' && renderCallTracking()}
+        {activeTab === 'qa' && (
+          <Suspense fallback={<LoadingSpinner />}>
+            <QAManagement />
+          </Suspense>
+        )}
         {activeTab === 'reports' && (
           <Suspense fallback={<LoadingSpinner />}>
             <BlogReports />

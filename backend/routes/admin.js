@@ -57,6 +57,161 @@ router.get('/chat-messages', getAllChatMessages);
 // Activity logs
 router.get('/activity-logs', getActivityLogs);
 
+// Q&A Management
+router.get('/qa/questions', async (req, res) => {
+  try {
+    const { page = 1, limit = 20, status = 'all', search = '' } = req.query;
+    const offset = (page - 1) * limit;
+    const db = require('../db');
+
+    let query = db('qa_questions')
+      .leftJoin('users', 'qa_questions.user_id', 'users.id')
+      .select(
+        'qa_questions.*',
+        'users.name as user_display_name',
+        db.raw('(SELECT COUNT(*) FROM qa_answers WHERE qa_answers.question_id = qa_questions.id) as answer_count')
+      );
+
+    if (status !== 'all') {
+      query = query.where('qa_questions.status', status);
+    }
+
+    if (search) {
+      query = query.where(function() {
+        this.where('qa_questions.question', 'like', `%${search}%`)
+            .orWhere('qa_questions.situation', 'like', `%${search}%`)
+            .orWhere('qa_questions.city_state', 'like', `%${search}%`)
+            .orWhere('users.name', 'like', `%${search}%`)
+            .orWhere('qa_questions.user_email', 'like', `%${search}%`);
+      });
+    }
+
+    const questions = await query
+      .orderBy('qa_questions.created_at', 'desc')
+      .limit(limit)
+      .offset(offset);
+
+    const totalCount = await db('qa_questions')
+      .leftJoin('users', 'qa_questions.user_id', 'users.id')
+      .modify(function(queryBuilder) {
+        if (status !== 'all') {
+          queryBuilder.where('qa_questions.status', status);
+        }
+        if (search) {
+          queryBuilder.where(function() {
+            this.where('qa_questions.question', 'like', `%${search}%`)
+                .orWhere('qa_questions.situation', 'like', `%${search}%`)
+                .orWhere('qa_questions.city_state', 'like', `%${search}%`)
+                .orWhere('users.name', 'like', `%${search}%`)
+                .orWhere('qa_questions.user_email', 'like', `%${search}%`);
+          });
+        }
+      })
+      .count('qa_questions.id as count')
+      .first();
+
+    res.json({
+      questions,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total: totalCount.count,
+        totalPages: Math.ceil(totalCount.count / limit)
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching admin Q&A questions:', error);
+    res.status(500).json({ error: 'Failed to fetch Q&A questions' });
+  }
+});
+
+router.get('/qa/stats', async (req, res) => {
+  try {
+    const db = require('../db');
+    const [totalQuestions, pendingQuestions, answeredQuestions, closedQuestions, totalAnswers] = await Promise.all([
+      db('qa_questions').count('id as count').first(),
+      db('qa_questions').where('status', 'pending').count('id as count').first(),
+      db('qa_questions').where('status', 'answered').count('id as count').first(),
+      db('qa_questions').where('status', 'closed').count('id as count').first(),
+      db('qa_answers').count('id as count').first()
+    ]);
+
+    const recentQuestions = await db('qa_questions')
+      .leftJoin('users', 'qa_questions.user_id', 'users.id')
+      .select(
+        'qa_questions.id',
+        'qa_questions.question',
+        'qa_questions.status',
+        'qa_questions.created_at',
+        'users.name as user_name'
+      )
+      .orderBy('qa_questions.created_at', 'desc')
+      .limit(5);
+
+    res.json({
+      stats: {
+        totalQuestions: totalQuestions.count,
+        pendingQuestions: pendingQuestions.count,
+        answeredQuestions: answeredQuestions.count,
+        closedQuestions: closedQuestions.count,
+        totalAnswers: totalAnswers.count
+      },
+      recentQuestions
+    });
+  } catch (error) {
+    console.error('Error fetching Q&A stats:', error);
+    res.status(500).json({ error: 'Failed to fetch Q&A statistics' });
+  }
+});
+
+router.put('/qa/questions/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status, is_public } = req.body;
+    const db = require('../db');
+
+    const validStatuses = ['pending', 'answered', 'closed'];
+    if (status && !validStatuses.includes(status)) {
+      return res.status(400).json({ error: 'Invalid status' });
+    }
+
+    const updateData = {};
+    if (status) updateData.status = status;
+    if (typeof is_public === 'boolean') updateData.is_public = is_public;
+
+    await db('qa_questions').where('id', id).update(updateData);
+
+    const updatedQuestion = await db('qa_questions').where('id', id).first();
+    
+    res.json({
+      message: 'Question updated successfully',
+      question: updatedQuestion
+    });
+  } catch (error) {
+    console.error('Error updating Q&A question:', error);
+    res.status(500).json({ error: 'Failed to update question' });
+  }
+});
+
+router.delete('/qa/questions/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const db = require('../db');
+
+    await db('qa_answers').where('question_id', id).del();
+    const deleted = await db('qa_questions').where('id', id).del();
+
+    if (!deleted) {
+      return res.status(404).json({ error: 'Question not found' });
+    }
+
+    res.json({ message: 'Question deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting Q&A question:', error);
+    res.status(500).json({ error: 'Failed to delete question' });
+  }
+});
+
 // Call history for admin - get all calls
 router.get('/call-history', async (req, res) => {
   try {

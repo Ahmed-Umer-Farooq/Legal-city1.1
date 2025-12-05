@@ -1,9 +1,16 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../../context/AuthContext';
 
 const QA = () => {
-  const navigate = useNavigate();
-
+  const { user } = useAuth();
+  const [questions, setQuestions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [activeView, setActiveView] = useState('browse'); // 'browse' or 'ask'
+  const [selectedQuestion, setSelectedQuestion] = useState(null);
+  const [questionAnswers, setQuestionAnswers] = useState([]);
+  const [showQuestionModal, setShowQuestionModal] = useState(false);
+  
+  // Form state
   const [formData, setFormData] = useState({
     question: '',
     situation: '',
@@ -13,6 +20,40 @@ const QA = () => {
   const [errors, setErrors] = useState({});
   const [showPreview, setShowPreview] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    fetchQuestions();
+  }, []);
+
+  const fetchQuestions = async () => {
+    try {
+      const response = await fetch('http://localhost:5001/api/qa/questions');
+      const data = await response.json();
+      
+      if (response.ok) {
+        setQuestions(data.questions || []);
+      }
+    } catch (error) {
+      console.error('Error fetching questions:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchQuestionDetails = async (questionId) => {
+    try {
+      const response = await fetch(`http://localhost:5001/api/qa/questions/${questionId}`);
+      const data = await response.json();
+      
+      if (response.ok) {
+        setSelectedQuestion(data.question);
+        setQuestionAnswers(data.answers || []);
+        setShowQuestionModal(true);
+      }
+    } catch (error) {
+      console.error('Error fetching question details:', error);
+    }
+  };
 
   const validateField = (field, value) => {
     const constraints = {
@@ -51,7 +92,6 @@ const QA = () => {
   const handleInputChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     
-    // Clear error when user starts typing
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
     }
@@ -76,32 +116,73 @@ const QA = () => {
   const handleSubmit = async () => {
     setIsSubmitting(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      alert('Question submitted successfully! Attorneys will respond soon.');
-      setFormData({
-        question: '',
-        situation: '',
-        city_state: '',
-        plan_hire_attorney: ''
+      const response = await fetch('http://localhost:5001/api/qa/questions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...formData,
+          user_email: user?.email,
+          user_name: user?.name
+        })
       });
-      setShowPreview(false);
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert('Question submitted successfully! Attorneys will respond soon.');
+        setFormData({
+          question: '',
+          situation: '',
+          city_state: '',
+          plan_hire_attorney: ''
+        });
+        setShowPreview(false);
+        setActiveView('browse');
+        fetchQuestions();
+      } else {
+        alert(data.error || 'Error submitting question. Please try again.');
+      }
     } catch (error) {
+      console.error('Error submitting question:', error);
       alert('Error submitting question. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  const getStatusBadge = (status) => {
+    const statusColors = {
+      pending: 'bg-yellow-100 text-yellow-800',
+      answered: 'bg-green-100 text-green-800',
+      closed: 'bg-gray-100 text-gray-800'
+    };
+
+    return (
+      <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[status]}`}>
+        {status.charAt(0).toUpperCase() + status.slice(1)}
+      </span>
+    );
+  };
+
   const isFormValid = Object.values(formData).every(value => value.trim()) && Object.keys(errors).length === 0;
 
   if (showPreview) {
     return (
-      <div className="min-h-screen bg-gray-50 py-12">
-        <div className="max-w-4xl mx-auto px-4">
-          <div className="bg-white rounded-2xl shadow-xl p-8">
+      <div className="p-6">
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-white rounded-lg shadow-lg p-8">
             <div className="flex items-center justify-between mb-8">
-              <h1 className="text-3xl font-bold text-gray-900">Preview Your Question</h1>
+              <h1 className="text-2xl font-bold text-gray-900">Preview Your Question</h1>
               <button
                 onClick={() => setShowPreview(false)}
                 className="text-gray-500 hover:text-gray-700"
@@ -155,36 +236,125 @@ const QA = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
-      <section className="relative w-full h-[500px] sm:h-[600px] bg-gradient-to-br from-blue-50 via-white to-gray-50">
-        <img
-          src="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=1440&h=600&fit=crop&auto=format&q=80"
-          srcSet="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=768&h=400&fit=crop&auto=format&q=80 768w, https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=1440&h=600&fit=crop&auto=format&q=80 1440w"
-          sizes="(max-width: 768px) 768px, 1440px"
-          alt="Professional legal consultation - Free Q&A with attorneys"
-          className="absolute inset-0 w-full h-full object-cover opacity-60"
-          loading="eager"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-white/80 via-blue-50/60 to-white/80" />
+    <div className="p-6">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">Legal Q&A</h1>
+        <p className="text-gray-600">Ask questions and get expert legal advice from qualified attorneys</p>
+      </div>
 
-        <div className="relative h-full flex items-center justify-center px-4 sm:px-6">
-          <div className="w-full max-w-[700px] text-center">
-            <h1 className="text-gray-900 text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
-              Free <span className="bg-gradient-to-r from-[#0071BC] to-[#00D2FF] bg-clip-text text-transparent">Legal Q&A</span>
-            </h1>
-            <p className="text-gray-700 text-xl sm:text-2xl mb-8 leading-relaxed font-medium">
-              Submit Your Legal Question to Get Expert Attorney Insights. Free, Confidential, and Professional.
-            </p>
+      {/* Navigation Tabs */}
+      <div className="border-b border-gray-200 mb-6">
+        <nav className="flex space-x-8">
+          <button
+            onClick={() => setActiveView('browse')}
+            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              activeView === 'browse'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            Browse Questions
+          </button>
+          <button
+            onClick={() => setActiveView('ask')}
+            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              activeView === 'ask'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            Ask a Question
+          </button>
+        </nav>
+      </div>
+
+      {/* Content */}
+      {activeView === 'browse' ? (
+        <div>
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-xl font-semibold text-gray-900">Community Questions</h2>
+            <button
+              onClick={() => setActiveView('ask')}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Ask a Question
+            </button>
           </div>
-        </div>
-      </section>
 
-      {/* Form Section */}
-      <div className="py-12">
-        <div className="max-w-4xl mx-auto px-4">
-          <div className="bg-white rounded-2xl shadow-xl p-8">
-            <form className="space-y-8">
+          {loading ? (
+            <div className="flex justify-center items-center h-64">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {questions.length === 0 ? (
+                <div className="text-center py-12 bg-gray-50 rounded-lg">
+                  <p className="text-gray-500 text-lg mb-4">No questions found. Be the first to ask!</p>
+                  <button
+                    onClick={() => setActiveView('ask')}
+                    className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  >
+                    Ask the First Question
+                  </button>
+                </div>
+              ) : (
+                questions.map((question) => (
+                  <div key={question.id} className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="flex-1">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                          {question.question}
+                        </h3>
+                        <p className="text-gray-600 mb-3 line-clamp-2">
+                          {question.situation.substring(0, 200)}...
+                        </p>
+                        <div className="flex items-center space-x-4 text-sm text-gray-500">
+                          <span>📍 {question.city_state}</span>
+                          <span>👤 {question.user_display_name || 'Anonymous'}</span>
+                          <span>📅 {formatDate(question.created_at)}</span>
+                          <span>👁️ {question.views} views</span>
+                        </div>
+                      </div>
+                      <div className="flex flex-col items-end space-y-2">
+                        {getStatusBadge(question.status)}
+                        {question.answer_count > 0 && (
+                          <span className="text-sm text-gray-500">
+                            {question.answer_count} {question.answer_count === 1 ? 'answer' : 'answers'}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <div className="text-sm text-gray-500">
+                        Plans to hire attorney: <span className="capitalize">{question.plan_hire_attorney.replace('_', ' ')}</span>
+                      </div>
+                      <button
+                        onClick={() => fetchQuestionDetails(question.secure_id || question.id)}
+                        className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors"
+                      >
+                        View Details
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
+        </div>
+      ) : (
+        /* Ask Question Form */
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-white rounded-lg shadow-lg p-8">
+            <div className="mb-6">
+              <button
+                onClick={() => setActiveView('browse')}
+                className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+              >
+                ← Back to Questions
+              </button>
+            </div>
+            
+            <form className="space-y-6">
               {/* Question Field */}
               <div>
                 <label className="block text-sm font-semibold text-gray-900 mb-2">
@@ -195,7 +365,7 @@ const QA = () => {
                   value={formData.question}
                   onChange={(e) => handleInputChange('question', e.target.value)}
                   placeholder="Summarize your legal question in one sentence"
-                  className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
+                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
                     errors.question ? 'border-red-500' : 'border-gray-300'
                   }`}
                   maxLength={200}
@@ -222,7 +392,7 @@ const QA = () => {
                   onChange={(e) => handleInputChange('situation', e.target.value)}
                   placeholder="Include facts, timelines, and what you've already tried"
                   rows={6}
-                  className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors resize-none ${
+                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors resize-none ${
                     errors.situation ? 'border-red-500' : 'border-gray-300'
                   }`}
                   maxLength={1200}
@@ -249,7 +419,7 @@ const QA = () => {
                   value={formData.city_state}
                   onChange={(e) => handleInputChange('city_state', e.target.value)}
                   placeholder="Example: Seattle, WA"
-                  className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
+                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
                     errors.city_state ? 'border-red-500' : 'border-gray-300'
                   }`}
                   maxLength={64}
@@ -298,7 +468,7 @@ const QA = () => {
                   type="button"
                   onClick={handlePreview}
                   disabled={!isFormValid}
-                  className="w-full py-4 px-6 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full py-3 px-6 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Preview Question
                 </button>
@@ -306,7 +476,83 @@ const QA = () => {
             </form>
           </div>
         </div>
-      </div>
+      )}
+
+      {/* Question Detail Modal */}
+      {showQuestionModal && selectedQuestion && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-2/3 shadow-lg rounded-md bg-white max-h-[80vh] overflow-y-auto">
+            <div className="mt-3">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-2xl font-bold text-gray-900">Question Details</h3>
+                <button
+                  onClick={() => setShowQuestionModal(false)}
+                  className="text-gray-400 hover:text-gray-600 text-2xl"
+                >
+                  ✕
+                </button>
+              </div>
+              
+              <div className="space-y-6">
+                {/* Question */}
+                <div className="bg-blue-50 p-6 rounded-xl">
+                  <div className="flex justify-between items-start mb-4">
+                    <h4 className="text-xl font-semibold text-blue-900">{selectedQuestion.question}</h4>
+                    {getStatusBadge(selectedQuestion.status)}
+                  </div>
+                  <p className="text-blue-800 mb-4 whitespace-pre-wrap">{selectedQuestion.situation}</p>
+                  <div className="flex items-center space-x-4 text-sm text-blue-700">
+                    <span>📍 {selectedQuestion.city_state}</span>
+                    <span>👤 {selectedQuestion.user_display_name || 'Anonymous'}</span>
+                    <span>📅 {formatDate(selectedQuestion.created_at)}</span>
+                    <span>👁️ {selectedQuestion.views} views</span>
+                  </div>
+                </div>
+
+                {/* Answers */}
+                <div>
+                  <h4 className="text-lg font-semibold text-gray-900 mb-4">
+                    Answers ({questionAnswers.length})
+                  </h4>
+                  {questionAnswers.length === 0 ? (
+                    <div className="text-center py-8 bg-gray-50 rounded-lg">
+                      <p className="text-gray-500">No answers yet. Be the first lawyer to answer!</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {questionAnswers.map((answer) => (
+                        <div key={answer.id} className="bg-white border border-gray-200 rounded-lg p-6">
+                          <div className="flex items-start justify-between mb-4">
+                            <div className="flex items-center space-x-3">
+                              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                <span className="text-blue-600 font-semibold">⚖️</span>
+                              </div>
+                              <div>
+                                <h5 className="font-semibold text-gray-900">{answer.lawyer_name}</h5>
+                                <p className="text-sm text-gray-500">{answer.speciality}</p>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <div className="text-sm text-gray-500">{formatDate(answer.created_at)}</div>
+                              {answer.is_best_answer && (
+                                <span className="inline-block mt-1 px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
+                                  ✓ Best Answer
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <p className="text-gray-800 whitespace-pre-wrap">{answer.answer}</p>
+
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -33,7 +33,9 @@ export const SocketProvider = ({ children }) => {
       console.log('Socket connected:', newSocket.id);
       setIsConnected(true);
       // Notify server of user connection
-      newSocket.emit('user_connected', user.id);
+      if (user && user.id) {
+        newSocket.emit('user_connected', user.id);
+      }
     });
 
     newSocket.on('disconnect', () => {

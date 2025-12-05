@@ -18,6 +18,9 @@ const authenticateToken = async (req, res, next) => {
   let user = await db('users').where({ id: decoded.id }).first();
   if (!user) {
     user = await db('lawyers').where({ id: decoded.id }).first();
+    if (user) {
+      user.role = 'lawyer';
+    }
   }
 
   if (!user) {
@@ -153,6 +156,23 @@ const requireLawyer = (req, res, next) => {
     return res.status(401).json({ message: 'Authentication required' });
   }
 
+  console.log('🔍 RequireLawyer Debug:', {
+    user_id: req.user.id,
+    role: req.user.role
+  });
+
+  if (req.user.role !== 'lawyer') {
+    return res.status(403).json({ message: 'Only lawyers can access this resource' });
+  }
+
+  next();
+};
+
+const requireVerifiedLawyer = (req, res, next) => {
+  if (!req.user) {
+    return res.status(401).json({ message: 'Authentication required' });
+  }
+
   if (req.user.role !== 'lawyer') {
     return res.status(403).json({ message: 'Only lawyers can access this resource' });
   }
@@ -255,6 +275,7 @@ module.exports = {
   authenticateLawyer,
   requireAuth,
   requireLawyer,
+  requireVerifiedLawyer,
   requireAdmin,
   checkBlogOwnership
 };

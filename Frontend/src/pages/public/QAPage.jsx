@@ -1,9 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SEOHead from '../../components/SEOHead';
 
 const QAPage = () => {
   const navigate = useNavigate();
+  const [questions, setQuestions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedQuestion, setSelectedQuestion] = useState(null);
+  const [questionAnswers, setQuestionAnswers] = useState([]);
+  const [showQuestionModal, setShowQuestionModal] = useState(false);
+  const [activeTab, setActiveTab] = useState('ask'); // 'ask' or 'browse'
 
   const structuredData = {
     "@context": "https://schema.org",
@@ -29,6 +35,40 @@ const QAPage = () => {
   const [errors, setErrors] = useState({});
   const [showPreview, setShowPreview] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    fetchQuestions();
+  }, []);
+
+  const fetchQuestions = async () => {
+    try {
+      const response = await fetch('http://localhost:5001/api/qa/questions');
+      const data = await response.json();
+      
+      if (response.ok) {
+        setQuestions(data.questions || []);
+      }
+    } catch (error) {
+      console.error('Error fetching questions:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchQuestionDetails = async (questionId) => {
+    try {
+      const response = await fetch(`http://localhost:5001/api/qa/questions/${questionId}`);
+      const data = await response.json();
+      
+      if (response.ok) {
+        setSelectedQuestion(data.question);
+        setQuestionAnswers(data.answers || []);
+        setShowQuestionModal(true);
+      }
+    } catch (error) {
+      console.error('Error fetching question details:', error);
+    }
+  };
 
   const validateField = (field, value) => {
     const constraints = {
@@ -92,17 +132,30 @@ const QAPage = () => {
   const handleSubmit = async () => {
     setIsSubmitting(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      alert('Question submitted successfully! Attorneys will respond soon.');
-      setFormData({
-        question: '',
-        situation: '',
-        city_state: '',
-        plan_hire_attorney: ''
+      const response = await fetch('http://localhost:5001/api/qa/questions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
       });
-      setShowPreview(false);
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert('Question submitted successfully! Attorneys will respond soon.');
+        setFormData({
+          question: '',
+          situation: '',
+          city_state: '',
+          plan_hire_attorney: ''
+        });
+        setShowPreview(false);
+      } else {
+        alert(data.error || 'Error submitting question. Please try again.');
+      }
     } catch (error) {
+      console.error('Error submitting question:', error);
       alert('Error submitting question. Please try again.');
     } finally {
       setIsSubmitting(false);
@@ -220,10 +273,36 @@ const QAPage = () => {
           </div>
         </section>
 
-        {/* Form Section */}
-        <div className="py-12">
+        {/* Navigation Tabs */}
+        <div className="py-8">
           <div className="max-w-4xl mx-auto px-4">
-            <div className="bg-white rounded-2xl shadow-xl p-8">
+            <div className="border-b border-gray-200 mb-8">
+              <nav className="flex space-x-8 justify-center">
+                <button
+                  onClick={() => setActiveTab('ask')}
+                  className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                    activeTab === 'ask'
+                      ? 'border-blue-500 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  Ask a Question
+                </button>
+                <button
+                  onClick={() => setActiveTab('browse')}
+                  className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                    activeTab === 'browse'
+                      ? 'border-blue-500 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  Browse Questions & Answers
+                </button>
+              </nav>
+            </div>
+
+            {activeTab === 'ask' ? (
+              <div className="bg-white rounded-2xl shadow-xl p-8">
               <form className="space-y-8">
                 {/* Question Field */}
                 <div>
@@ -345,8 +424,150 @@ const QAPage = () => {
                 </div>
               </form>
             </div>
+            ) : (
+              <div className="bg-white rounded-2xl shadow-xl p-8">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Community Questions & Answers</h2>
+                
+                {loading ? (
+                  <div className="flex justify-center items-center h-64">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {questions.length === 0 ? (
+                      <div className="text-center py-12 bg-gray-50 rounded-lg">
+                        <p className="text-gray-500 text-lg mb-4">No questions found yet.</p>
+                        <button
+                          onClick={() => setActiveTab('ask')}
+                          className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                        >
+                          Ask the First Question
+                        </button>
+                      </div>
+                    ) : (
+                      questions.map((question) => (
+                        <div key={question.id} className="bg-gray-50 rounded-lg p-6 hover:bg-gray-100 transition-colors">
+                          <div className="flex justify-between items-start mb-4">
+                            <div className="flex-1">
+                              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                                {question.question}
+                              </h3>
+                              <p className="text-gray-600 mb-3 line-clamp-2">
+                                {question.situation.substring(0, 200)}...
+                              </p>
+                              <div className="flex items-center space-x-4 text-sm text-gray-500">
+                                <span>📍 {question.city_state}</span>
+                                <span>👤 {question.user_display_name || 'Anonymous'}</span>
+                                <span>📅 {new Date(question.created_at).toLocaleDateString()}</span>
+                                <span>👁️ {question.views} views</span>
+                              </div>
+                            </div>
+                            <div className="flex flex-col items-end space-y-2">
+                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                question.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                                question.status === 'answered' ? 'bg-green-100 text-green-800' :
+                                'bg-gray-100 text-gray-800'
+                              }`}>
+                                {question.status.charAt(0).toUpperCase() + question.status.slice(1)}
+                              </span>
+                              {question.answer_count > 0 && (
+                                <span className="text-sm text-gray-500">
+                                  {question.answer_count} {question.answer_count === 1 ? 'answer' : 'answers'}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <div className="text-sm text-gray-500">
+                              Plans to hire attorney: <span className="capitalize">{question.plan_hire_attorney.replace('_', ' ')}</span>
+                            </div>
+                            <button
+                              onClick={() => fetchQuestionDetails(question.secure_id || question.id)}
+                              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                            >
+                              View Answers
+                            </button>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
+
+        {/* Question Detail Modal */}
+        {showQuestionModal && selectedQuestion && (
+          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+            <div className="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-2/3 shadow-lg rounded-md bg-white max-h-[80vh] overflow-y-auto">
+              <div className="mt-3">
+                <div className="flex justify-between items-center mb-6">
+                  <h3 className="text-2xl font-bold text-gray-900">Question & Answers</h3>
+                  <button
+                    onClick={() => setShowQuestionModal(false)}
+                    className="text-gray-400 hover:text-gray-600 text-2xl"
+                  >
+                    ✕
+                  </button>
+                </div>
+                
+                <div className="space-y-6">
+                  {/* Question */}
+                  <div className="bg-blue-50 p-6 rounded-xl">
+                    <h4 className="text-xl font-semibold text-blue-900 mb-4">{selectedQuestion.question}</h4>
+                    <p className="text-blue-800 mb-4 whitespace-pre-wrap">{selectedQuestion.situation}</p>
+                    <div className="flex items-center space-x-4 text-sm text-blue-700">
+                      <span>📍 {selectedQuestion.city_state}</span>
+                      <span>👤 {selectedQuestion.user_display_name || 'Anonymous'}</span>
+                      <span>📅 {new Date(selectedQuestion.created_at).toLocaleDateString()}</span>
+                    </div>
+                  </div>
+
+                  {/* Answers */}
+                  <div>
+                    <h4 className="text-lg font-semibold text-gray-900 mb-4">
+                      Professional Answers ({questionAnswers.length})
+                    </h4>
+                    {questionAnswers.length === 0 ? (
+                      <div className="text-center py-8 bg-gray-50 rounded-lg">
+                        <p className="text-gray-500">No answers yet. Lawyers will respond soon!</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {questionAnswers.map((answer) => (
+                          <div key={answer.id} className="bg-white border border-gray-200 rounded-lg p-6">
+                            <div className="flex items-start justify-between mb-4">
+                              <div className="flex items-center space-x-3">
+                                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                  <span className="text-blue-600 font-semibold">⚖️</span>
+                                </div>
+                                <div>
+                                  <h5 className="font-semibold text-gray-900">{answer.lawyer_name}</h5>
+                                  <p className="text-sm text-gray-500">{answer.speciality}</p>
+                                </div>
+                              </div>
+                              <div className="text-right">
+                                <div className="text-sm text-gray-500">{new Date(answer.created_at).toLocaleDateString()}</div>
+                                {answer.is_best_answer && (
+                                  <span className="inline-block mt-1 px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
+                                    ✓ Best Answer
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            <p className="text-gray-800 whitespace-pre-wrap">{answer.answer}</p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );
