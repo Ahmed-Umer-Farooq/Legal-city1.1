@@ -370,18 +370,41 @@ function LawyerDirectory() {
     try {
       const response = await api.get('/lawyers');
       console.log('Fetched lawyers:', response.data);
-      const lawyersData = response.data.map(lawyer => ({
-        ...lawyer,
-        practiceAreas: lawyer.speciality ? [lawyer.speciality] : ['General Practice'],
-        yearsLicensed: Math.floor(Math.random() * 15) + 5, // Placeholder
-        rating: parseFloat(lawyer.rating) || 0,
-        reviewCount: lawyer.reviews || lawyer.reviewCount || 0,
-        reviewScore: parseFloat(lawyer.rating) || 0,
-        location: `${lawyer.city || 'Unknown'}, ${lawyer.state || 'Unknown'}`,
-        description: `Experienced ${lawyer.speciality || 'legal'} attorney with expertise in various legal matters.`,
-        imageUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(lawyer.name)}&background=0284c7&color=fff&size=200`,
-        category: lawyer.speciality || 'General Practice'
-      }));
+      const getPlaceholderImage = (speciality, lawyerId) => {
+        const seeds = {
+          'Corporate Law': 'lawyer-corporate',
+          'Family Law': 'lawyer-family',
+          'Criminal Law': 'lawyer-criminal',
+          'Real Estate Law': 'lawyer-realestate',
+          'Immigration Law': 'lawyer-immigration',
+          'Tax Law': 'lawyer-tax',
+          'Employment Law': 'lawyer-employment',
+          'Intellectual Property': 'lawyer-ip',
+          'Personal Injury': 'lawyer-injury',
+          'Estate Planning': 'lawyer-estate'
+        };
+        const seed = seeds[speciality] || 'lawyer-professional';
+        return `https://picsum.photos/200/200?seed=${seed}${lawyerId}`;
+      };
+      
+      const lawyersData = response.data.map(lawyer => {
+        const imageUrl = lawyer.profile_image && lawyer.profile_image !== 'null' && lawyer.profile_image.trim() !== ''
+          ? (lawyer.profile_image.startsWith('http') ? lawyer.profile_image : `http://localhost:5001${lawyer.profile_image}`)
+          : getPlaceholderImage(lawyer.speciality, lawyer.id);
+        
+        return {
+          ...lawyer,
+          practiceAreas: lawyer.speciality ? [lawyer.speciality] : ['General Practice'],
+          yearsLicensed: Math.floor(Math.random() * 15) + 5,
+          rating: parseFloat(lawyer.rating) || 0,
+          reviewCount: lawyer.reviews || lawyer.reviewCount || 0,
+          reviewScore: parseFloat(lawyer.rating) || 0,
+          location: `${lawyer.city || 'Unknown'}, ${lawyer.state || 'Unknown'}`,
+          description: `Experienced ${lawyer.speciality || 'legal'} attorney with expertise in various legal matters.`,
+          imageUrl: imageUrl,
+          category: lawyer.speciality || 'General Practice'
+        };
+      });
       setLawyers(lawyersData);
     } catch (error) {
       console.error('Error fetching lawyers:', error);

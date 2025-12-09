@@ -33,20 +33,43 @@ export default function LawyersCarousel() {
         ? lawyersWithProfiles.slice(0, 6)
         : allLawyers.slice(0, 6);
       
-      const lawyersData = selectedLawyers.map(lawyer => ({
-        id: lawyer.secure_id || lawyer.id,
-        name: lawyer.name,
-        specialty: lawyer.speciality || 'General Practice',
-        rating: parseFloat(lawyer.rating) || 4.5,
-        reviews: lawyer.reviews || Math.floor(Math.random() * 100) + 20,
-        location: `${lawyer.city || 'Unknown'}, ${lawyer.state || 'Unknown'}`,
-        practiceAreas: lawyer.speciality ? [lawyer.speciality] : ['General Practice'],
-        successTitle: "Client Testimonial",
-        successAuthor: "Verified Client",
-        successDate: "Recent",
-        successDescription: `Experienced ${lawyer.speciality || 'legal'} attorney providing professional legal services with proven track record.`,
-        image: `https://ui-avatars.com/api/?name=${encodeURIComponent(lawyer.name)}&background=0284c7&color=fff&size=200`
-      }));
+      const getPlaceholderImage = (speciality, lawyerId) => {
+        const seeds = {
+          'Corporate Law': 'lawyer-corporate',
+          'Family Law': 'lawyer-family',
+          'Criminal Law': 'lawyer-criminal',
+          'Real Estate Law': 'lawyer-realestate',
+          'Immigration Law': 'lawyer-immigration',
+          'Tax Law': 'lawyer-tax',
+          'Employment Law': 'lawyer-employment',
+          'Intellectual Property': 'lawyer-ip',
+          'Personal Injury': 'lawyer-injury',
+          'Estate Planning': 'lawyer-estate'
+        };
+        const seed = seeds[speciality] || 'lawyer-professional';
+        return `https://picsum.photos/200/200?seed=${seed}${lawyerId}`;
+      };
+      
+      const lawyersData = selectedLawyers.map(lawyer => {
+        const imageUrl = lawyer.profile_image && lawyer.profile_image !== 'null' && lawyer.profile_image.trim() !== ''
+          ? (lawyer.profile_image.startsWith('http') ? lawyer.profile_image : `http://localhost:5001${lawyer.profile_image}`)
+          : getPlaceholderImage(lawyer.speciality, lawyer.id);
+        
+        return {
+          id: lawyer.secure_id || lawyer.id,
+          name: lawyer.name,
+          specialty: lawyer.speciality || 'General Practice',
+          rating: parseFloat(lawyer.rating) || 4.5,
+          reviews: lawyer.reviews || Math.floor(Math.random() * 100) + 20,
+          location: `${lawyer.city || 'Unknown'}, ${lawyer.state || 'Unknown'}`,
+          practiceAreas: lawyer.speciality ? [lawyer.speciality] : ['General Practice'],
+          successTitle: "Client Testimonial",
+          successAuthor: "Verified Client",
+          successDate: "Recent",
+          successDescription: `Experienced ${lawyer.speciality || 'legal'} attorney providing professional legal services with proven track record.`,
+          image: imageUrl
+        };
+      });
       
       console.log('Featured lawyers to display:', lawyersData.length);
       setLawyers(lawyersData);
@@ -101,113 +124,65 @@ export default function LawyersCarousel() {
   }
 
   return (
-    <div className="w-full bg-white py-16">
+    <div className="w-full bg-gray-50 py-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">Featured Lawyers</h2>
-          <p className="text-lg text-gray-600">Connect with experienced legal professionals</p>
-        </div>
-
-        <div className="relative">
-          <div className="overflow-hidden">
-            <div 
-              className="flex transition-transform duration-300 ease-in-out"
-              style={{ transform: `translateX(-${currentIndex * 33.333}%)` }}
-            >
-              {lawyers.map((lawyer) => (
-                <div key={lawyer.id} className="w-1/3 flex-shrink-0 px-3">
-                  <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1 h-[480px] flex flex-col">
-                    <div className="bg-gradient-to-r from-[#0071BC] to-[#00D2FF] px-6 py-3">
-                      <span className="text-white font-semibold text-sm uppercase tracking-wide">{lawyer.specialty}</span>
-                    </div>
-                    
-                    <div className="p-5 flex-1 flex flex-col">
-                      <div className="flex items-start mb-4">
-                        <img
-                          src={lawyer.image}
-                          alt={`${lawyer.name} - ${lawyer.specialty} Attorney`}
-                          className="w-16 h-16 rounded-lg object-cover border-2 border-gray-100 shadow-sm mr-3 flex-shrink-0"
-                        />
-                        <div className="flex-1 min-w-0">
-                          <h3 className="text-lg font-bold text-gray-900 mb-1 leading-tight">{lawyer.name}</h3>
-                          <div className="flex items-center gap-2 mb-2">
-                            <div className="flex gap-0.5">
-                              {[...Array(5)].map((_, i) => (
-                                <Star
-                                  key={i}
-                                  className={`w-4 h-4 ${getStarClass(i, lawyer.rating)}`}
-                                />
-                              ))}
-                            </div>
-                            <span className="text-sm font-bold text-gray-800">{lawyer.rating}</span>
-                          </div>
-                          <div className="flex items-center text-gray-600">
-                            <MapPin className="w-4 h-4 mr-1 flex-shrink-0" />
-                            <span className="text-sm">{lawyer.location}</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-                        <h4 className="text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">Practice Areas</h4>
-                        <div className="flex flex-wrap gap-1">
-                          {lawyer.practiceAreas.slice(0, 2).map((area, index) => (
-                            <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-md font-medium">
-                              {area}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div className="mb-4 flex-1">
-                        <h4 className="text-sm font-bold text-gray-900 mb-2">{lawyer.successTitle}</h4>
-                        <div className="flex items-center gap-1 mb-2">
-                          <div className="flex gap-0.5">
-                            {[...Array(5)].map((_, i) => (
-                              <Star key={i} className="w-3 h-3 text-yellow-400 fill-current" />
-                            ))}
-                          </div>
-                        </div>
-                        <div className="text-xs text-gray-500 mb-2">
-                          {lawyer.successAuthor} • {lawyer.successDate}
-                        </div>
-                        <p className="text-xs text-gray-600 leading-relaxed">
-                          {truncateText(lawyer.successDescription, 80)}
-                        </p>
-                      </div>
-
-                      <div className="mt-auto">
-                        <Link 
-                          to={fromDashboard ? `/dashboard/lawyer/${lawyer.id}` : `/lawyer/${lawyer.id}`}
-                          className="w-full py-3 bg-gradient-to-r from-[#0071BC] to-[#00D2FF] text-white font-semibold rounded-lg hover:from-[#005a9a] hover:to-[#00b8e6] transition-all duration-300 shadow-md hover:shadow-lg text-center block text-sm"
-                        >
-                          View Profile
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">Featured Lawyers</h2>
+            <p className="text-sm text-gray-600 mt-1">Top-rated legal professionals</p>
           </div>
-
-          <button
-            onClick={prevSlide}
-            className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-white shadow-lg rounded-full p-2 hover:bg-gray-50"
+          <Link 
+            to="/lawyers" 
+            className="text-sm text-[#0071BC] hover:text-[#005A94] font-semibold flex items-center gap-1"
           >
-            <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-
-          <button
-            onClick={nextSlide}
-            className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white shadow-lg rounded-full p-2 hover:bg-gray-50"
-          >
-            <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            View All
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
-          </button>
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {lawyers.map((lawyer) => (
+            <Link
+              key={lawyer.id}
+              to={fromDashboard ? `/dashboard/lawyer/${lawyer.id}` : `/lawyer/${lawyer.id}`}
+              className="bg-white rounded-lg p-4 border border-gray-200 hover:shadow-xl hover:border-[#0071BC] transition-all group cursor-pointer"
+            >
+              <div className="flex items-start gap-3">
+                <div className="relative flex-shrink-0">
+                  <img
+                    src={lawyer.image}
+                    alt={lawyer.name}
+                    className="w-16 h-16 rounded-full object-cover border-2 border-gray-200 group-hover:border-[#0071BC] transition-colors"
+                  />
+                  <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-white"></div>
+                </div>
+                
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-base font-bold text-gray-900 mb-1 truncate">{lawyer.name}</h3>
+                  
+                  <span className="inline-block px-2 py-0.5 bg-blue-50 text-[#0071BC] text-xs font-medium rounded mb-2">
+                    {lawyer.specialty}
+                  </span>
+                  
+                  <div className="flex items-center gap-1 mb-1">
+                    <div className="flex">
+                      {[...Array(5)].map((_, i) => (
+                        <Star key={i} className={`w-3.5 h-3.5 ${getStarClass(i, lawyer.rating)}`} />
+                      ))}
+                    </div>
+                    <span className="text-xs font-semibold text-gray-700">{lawyer.rating}</span>
+                  </div>
+                  
+                  <div className="flex items-center gap-1 text-gray-600">
+                    <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
+                    <span className="text-xs truncate">{lawyer.location}</span>
+                  </div>
+                </div>
+              </div>
+            </Link>
+          ))}
         </div>
       </div>
     </div>

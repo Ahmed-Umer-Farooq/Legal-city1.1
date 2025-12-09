@@ -216,266 +216,138 @@ const LawyerCard = React.memo(function LawyerCard({
   location,
   image,
   practiceAreas,
-  successTitle,
-  successAuthor,
-  successDate,
-  successDescription,
   id = 1,
 }) {
   const navigate = useNavigate();
   return (
-    <div className="w-full max-w-[380px] bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-gray-100">
-      <div className="flex flex-col h-[520px]">
-        {/* Header with Category */}
-        <div className="px-6 pt-6 pb-3">
-          <span className="inline-block px-3 py-1 bg-gradient-to-r from-[#0071BC] to-[#00D2FF] text-white text-sm font-medium rounded-full">
-            {category}
-          </span>
+    <div className="bg-white rounded-xl shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 group cursor-pointer" onClick={() => navigate(`/lawyer/${id}`)}>
+      <div className="relative h-48 bg-gradient-to-br from-blue-50 to-cyan-50 overflow-hidden">
+        <div className="absolute inset-0 flex items-center justify-center">
+          <img
+            src={image}
+            alt={name}
+            className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg group-hover:scale-110 transition-transform duration-300"
+            loading="lazy"
+          />
         </div>
-
-        {/* Lawyer Info Section */}
-        <div className="px-6 pb-4">
-          <div className="flex gap-4">
-            <div className="relative flex-shrink-0">
-              <img
-                src={image}
-                alt={`${name} - ${category} Attorney`}
-                className="w-16 h-16 object-cover rounded-full border-3 border-gray-200 shadow-sm"
-                loading="lazy"
-              />
-              <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-white">
-                <div className="w-1.5 h-1.5 bg-white rounded-full mx-auto mt-1"></div>
-              </div>
-            </div>
-
-            <div className="flex-1 min-w-0">
-              <h3 className="text-lg font-bold text-gray-900 mb-1 truncate">
-                {name}
-              </h3>
-
-              <div className="flex items-center gap-2 mb-2">
-                <div className="flex gap-0.5">
-                  {[...Array(5)].map((_, i) => (
-                    <StarIcon key={i} />
-                  ))}
-                </div>
-                <span className="text-sm font-semibold text-gray-700">
-                  {rating.toFixed(1)}
-                </span>
-              </div>
-
-              <div className="flex items-start gap-1 text-gray-600">
-                <LocationIcon />
-                <span className="text-xs leading-tight">{location}</span>
-              </div>
-            </div>
-          </div>
+        <div className="absolute top-3 right-3 px-3 py-1 bg-white/90 backdrop-blur-sm text-[#0071BC] text-xs font-semibold rounded-full shadow">
+          {category}
         </div>
+        <div className="absolute bottom-3 left-3 w-4 h-4 bg-green-500 rounded-full border-2 border-white shadow"></div>
+      </div>
 
-        {/* Practice Areas */}
-        <div className="px-6 py-3 bg-gray-50 border-y border-gray-100">
-          <h4 className="text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide">Practice Areas</h4>
-          <div className="flex flex-wrap gap-1">
-            {practiceAreas.split(', ').slice(0, 3).map((area, index) => (
-              <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-md font-medium">
-                {area}
-              </span>
+      <div className="p-5 text-center">
+        <h3 className="text-xl font-bold text-gray-900 mb-2">{name}</h3>
+        
+        <div className="flex items-center justify-center gap-1 mb-3">
+          <div className="flex">
+            {[...Array(5)].map((_, i) => (
+              <svg key={i} className="w-4 h-4" viewBox="0 0 20 19" fill="none">
+                <path d="M10 15.27L16.18 19L14.54 11.97L20 7.24L12.81 6.63L10 0L7.19 6.63L0 7.24L5.46 11.97L3.82 19L10 15.27Z" fill="#FCD34D"/>
+              </svg>
             ))}
           </div>
+          <span className="text-sm font-bold text-gray-700 ml-1">{rating.toFixed(1)}</span>
         </div>
 
-        {/* Success Story - Flexible Height */}
-        <div className="px-6 py-4 flex-1 flex flex-col">
-          <h4 className="text-sm font-semibold text-gray-900 mb-2">{successTitle}</h4>
-          <div className="flex items-center gap-1 mb-2">
-            <div className="flex gap-0.5">
-              {[...Array(5)].map((_, i) => (
-                <StarIcon key={i} />
-              ))}
-            </div>
-          </div>
-          <div className="text-xs text-gray-500 mb-2">
-            {successAuthor} • {successDate}
-          </div>
-          <p className="text-xs text-gray-600 leading-relaxed flex-1 overflow-hidden">
-            {successDescription.length > 120 ? successDescription.substring(0, 120) + '...' : successDescription}
-          </p>
+        <div className="flex items-center justify-center gap-1 text-gray-600 mb-4">
+          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+          </svg>
+          <span className="text-sm">{location}</span>
         </div>
 
-        {/* View Profile Button - Fixed at Bottom */}
-        <div className="px-6 pb-6 mt-auto">
-          <button 
-            onClick={() => navigate(`/lawyer/${id}`)}
-            className="w-full py-3 bg-gradient-to-r from-[#0071BC] to-[#00D2FF] text-white font-semibold rounded-lg hover:opacity-90 transition-all duration-200 shadow-md hover:shadow-lg"
-          >
-            View Profile
-          </button>
-        </div>
+        <button className="w-full py-3 bg-gradient-to-r from-[#0071BC] to-[#00D2FF] text-white font-semibold rounded-lg hover:shadow-lg transition-all">
+          View Profile
+        </button>
       </div>
     </div>
   );
 });
 
 const LawyerCarousel = React.memo(function LawyerCarousel() {
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const [cardsPerSlide, setCardsPerSlide] = useState(3);
-  const { elementRef, hasIntersected } = useIntersectionObserver();
-
-  const lawyers = useMemo(() => [
-    {
-      id: "5ffe4a13e0e06fa22e6415467340d577",
-      category: "Corporate Law",
-      name: "Nedime Acikli",
-      rating: 4.9,
-      location: "London, UK",
-      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
-      practiceAreas: "Corporate Law, Business Litigation, Contract Law",
-      successTitle: "Recent Success",
-      successAuthor: "Client Review",
-      successDate: "Oct 2024",
-      successDescription: "Exceptional legal expertise in corporate matters. Nedime provided strategic guidance that saved our company significant costs and resolved complex contract disputes efficiently.",
-    },
-    {
-      id: "5f0852c78a0b2934a62701e85369b528",
-      category: "Family Law",
-      name: "Melek Arican",
-      rating: 4.8,
-      location: "Birmingham, UK",
-      image: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face",
-      practiceAreas: "Family Law, Divorce, Child Custody",
-      successTitle: "Client Testimonial",
-      successAuthor: "Verified Client",
-      successDate: "Sep 2024",
-      successDescription: "Compassionate and professional approach to family law matters. Melek guided us through a difficult divorce process with empathy and achieved the best possible outcome for our children.",
-    },
-    {
-      id: "aa9bd209b2e44b7d2fd4a168ba440ff8",
-      category: "Criminal Defense",
-      name: "Nika Monhart",
-      rating: 4.9,
-      location: "Manchester, UK",
-      image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
-      practiceAreas: "Criminal Defense, White Collar Crime, Appeals",
-      successTitle: "Case Victory",
-      successAuthor: "Court Record",
-      successDate: "Nov 2024",
-      successDescription: "Outstanding criminal defense representation. Nika's thorough preparation and courtroom expertise resulted in a complete dismissal of charges in a complex white-collar case.",
-    },
-    {
-      id: "b8c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7",
-      category: "Personal Injury",
-      name: "Ronald Richards",
-      rating: 4.7,
-      location: "Leeds, UK",
-      image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-      practiceAreas: "Personal Injury, Medical Malpractice, Insurance Claims",
-      successTitle: "Settlement Success",
-      successAuthor: "Client Feedback",
-      successDate: "Oct 2024",
-      successDescription: "Secured substantial compensation for personal injury case. Ronald's dedication and negotiation skills resulted in a settlement that exceeded our expectations and covered all medical expenses.",
-    },
-    {
-      id: "c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4",
-      category: "Real Estate Law",
-      name: "Darlene Robertson",
-      rating: 4.8,
-      location: "Bristol, UK",
-      image: "https://images.unsplash.com/photo-1489424731084-a5d8b219a5bb?w=150&h=150&fit=crop&crop=face",
-      practiceAreas: "Real Estate, Property Law, Commercial Leasing",
-      successTitle: "Property Deal",
-      successAuthor: "Business Client",
-      successDate: "Dec 2024",
-      successDescription: "Expert handling of complex commercial property transactions. Darlene's attention to detail and market knowledge ensured smooth closings and protected our investment interests.",
-    },
-  ], []);
+  const [lawyers, setLawyers] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const updateCardsPerSlide = () => {
-      if (window.innerWidth < 768) {
-        setCardsPerSlide(1);
-      } else if (window.innerWidth < 1024) {
-        setCardsPerSlide(2);
-      } else {
-        setCardsPerSlide(3);
+    const fetchLawyers = async () => {
+      try {
+        const response = await fetch('http://localhost:5001/api/lawyers');
+        const data = await response.json();
+        
+        const formattedLawyers = data.slice(0, 3).map(lawyer => {
+          const city = lawyer.city || '';
+          const state = lawyer.state || '';
+          const location = [city, state].filter(Boolean).join(', ') || 'Location not specified';
+          
+          const getPlaceholderImage = (speciality, lawyerId) => {
+            const seeds = {
+              'Corporate Law': 'lawyer-corporate',
+              'Family Law': 'lawyer-family',
+              'Criminal Law': 'lawyer-criminal',
+              'Real Estate Law': 'lawyer-realestate',
+              'Immigration Law': 'lawyer-immigration',
+              'Tax Law': 'lawyer-tax',
+              'Employment Law': 'lawyer-employment',
+              'Intellectual Property': 'lawyer-ip',
+              'Personal Injury': 'lawyer-injury',
+              'Estate Planning': 'lawyer-estate'
+            };
+            const seed = seeds[speciality] || 'lawyer-professional';
+            return `https://picsum.photos/200/200?seed=${seed}${lawyerId}`;
+          };
+          
+          const imageUrl = lawyer.profile_image && lawyer.profile_image !== 'null' && lawyer.profile_image.trim() !== ''
+            ? (lawyer.profile_image.startsWith('http') ? lawyer.profile_image : `http://localhost:5001${lawyer.profile_image}`)
+            : getPlaceholderImage(lawyer.speciality, lawyer.id);
+          
+          return {
+            id: lawyer.secure_id || lawyer.id,
+            category: lawyer.speciality || 'General Practice',
+            name: lawyer.name,
+            rating: parseFloat(lawyer.rating) || 4.5,
+            location: location,
+            image: imageUrl,
+            practiceAreas: lawyer.speciality || 'General Practice',
+          };
+        });
+        
+        setLawyers(formattedLawyers);
+      } catch (error) {
+        console.error('Error fetching lawyers:', error);
+      } finally {
+        setLoading(false);
       }
     };
-
-    updateCardsPerSlide();
-    window.addEventListener('resize', updateCardsPerSlide);
-    return () => window.removeEventListener('resize', updateCardsPerSlide);
+    
+    fetchLawyers();
   }, []);
 
-  const totalSlides = useMemo(() => Math.ceil(lawyers.length / cardsPerSlide), [lawyers.length, cardsPerSlide]);
+  if (loading) {
+    return (
+      <section className="w-full bg-gray-50 py-12">
+        <div className="w-full max-w-7xl mx-auto px-6 text-center">
+          <p className="text-gray-600">Loading featured lawyers...</p>
+        </div>
+      </section>
+    );
+  }
 
-  const nextSlide = React.useCallback(() => {
-    setCurrentSlide((prev) => (prev + 1) % totalSlides);
-  }, [totalSlides]);
-
-  const prevSlide = React.useCallback(() => {
-    setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides);
-  }, [totalSlides]);
-
-  const goToSlide = React.useCallback((index) => {
-    setCurrentSlide(index);
-  }, []);
+  if (lawyers.length === 0) {
+    return null;
+  }
 
   return (
-    <section className="w-full bg-gradient-to-b from-gray-50 to-white py-16 relative">
+    <section className="w-full bg-gray-50 py-12">
       <div className="w-full max-w-7xl mx-auto px-6">
-        <header className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">Featured Legal Professionals</h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">Connect with top-rated lawyers in your area. Our verified professionals are ready to help with your legal needs.</p>
-        </header>
-        
-        <div className="relative">
-          <div className="overflow-hidden">
-            <div
-              className="flex transition-transform duration-500 ease-in-out gap-6"
-              style={{ transform: `translateX(-${currentSlide * 100}%)` }}
-            >
-              {Array.from({ length: totalSlides }).map((_, slideIndex) => (
-                <div key={slideIndex} className="min-w-full flex justify-center items-stretch gap-6">
-                  {lawyers.slice(slideIndex * cardsPerSlide, slideIndex * cardsPerSlide + cardsPerSlide).map((lawyer, index) => (
-                    <LawyerCard key={index} {...lawyer} />
-                  ))}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <button
-            onClick={prevSlide}
-            className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center group border border-gray-200"
-            aria-label="Previous slide"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="group-hover:-translate-x-0.5 transition-transform">
-              <path d="M15 18L9 12L15 6" stroke="#374151" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </button>
-
-          <button
-            onClick={nextSlide}
-            className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center group border border-gray-200"
-            aria-label="Next slide"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="group-hover:translate-x-0.5 transition-transform">
-              <path d="M9 18L15 12L9 6" stroke="#374151" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </button>
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-bold text-gray-900 mb-3">Featured Legal Professionals</h2>
+          <p className="text-gray-600">Connect with top-rated lawyers in your area</p>
         </div>
-
-        <div className="flex justify-center mt-8 gap-2">
-          {Array.from({ length: totalSlides }).map((_, index) => (
-            <button
-              key={index}
-              onClick={() => goToSlide(index)}
-              className={`w-3 h-3 rounded-full transition-all duration-200 ${
-                index === currentSlide 
-                  ? "bg-gradient-to-r from-[#0071BC] to-[#00D2FF] scale-110" 
-                  : "bg-gray-300 hover:bg-gray-400"
-              }`}
-              aria-label={`Go to slide ${index + 1}`}
-            />
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {lawyers.map((lawyer, index) => (
+            <LawyerCard key={index} {...lawyer} />
           ))}
         </div>
       </div>

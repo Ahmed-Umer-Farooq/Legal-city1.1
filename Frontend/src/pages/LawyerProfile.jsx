@@ -200,6 +200,27 @@ export default function LawyerProfile() {
     );
   }
   
+  const getPlaceholderImage = (speciality, lawyerId) => {
+    const seeds = {
+      'Corporate Law': 'lawyer-corporate',
+      'Family Law': 'lawyer-family',
+      'Criminal Law': 'lawyer-criminal',
+      'Real Estate Law': 'lawyer-realestate',
+      'Immigration Law': 'lawyer-immigration',
+      'Tax Law': 'lawyer-tax',
+      'Employment Law': 'lawyer-employment',
+      'Intellectual Property': 'lawyer-ip',
+      'Personal Injury': 'lawyer-injury',
+      'Estate Planning': 'lawyer-estate'
+    };
+    const seed = seeds[speciality] || 'lawyer-professional';
+    return `https://picsum.photos/200/200?seed=${seed}${lawyerId}`;
+  };
+  
+  const imageUrl = lawyer.profile_image && lawyer.profile_image !== 'null' && lawyer.profile_image.trim() !== ''
+    ? (lawyer.profile_image.startsWith('http') ? lawyer.profile_image : `http://localhost:5001${lawyer.profile_image}`)
+    : getPlaceholderImage(lawyer.speciality, lawyer.id);
+  
   // Format lawyer data for display
   const displayLawyer = {
     ...lawyer,
@@ -208,7 +229,7 @@ export default function LawyerProfile() {
     rating: parseFloat(lawyer.rating) || 0,
     reviews: lawyer.reviews || 0,
     phone: lawyer.mobile_number || 'Contact for phone',
-    image: `https://ui-avatars.com/api/?name=${encodeURIComponent(lawyer.name)}&background=0284c7&color=fff&size=200`,
+    image: imageUrl,
     yearsLicensed: Math.floor(Math.random() * 15) + 5,
     freeConsultation: true,
     virtualConsultation: true,
