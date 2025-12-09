@@ -208,6 +208,17 @@ export default function AdminFormsManagement() {
               <div><strong>Price:</strong> {selectedForm.is_free ? 'Free' : `$${selectedForm.price}`}</div>
               <div><strong>Status:</strong> {getStatusBadge(selectedForm.status)}</div>
               <div><strong>Created By:</strong> {selectedForm.created_by_type}</div>
+              {selectedForm.file_url && (
+                <div className="mt-4">
+                  <button
+                    onClick={() => window.open(`http://localhost:5001${selectedForm.file_url}`, '_blank')}
+                    className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-2"
+                  >
+                    <Eye className="w-4 h-4" />
+                    View/Download Document
+                  </button>
+                </div>
+              )}
               {selectedForm.rejection_reason && (
                 <div className="bg-red-50 border border-red-200 rounded p-3">
                   <strong>Rejection Reason:</strong> {selectedForm.rejection_reason}
