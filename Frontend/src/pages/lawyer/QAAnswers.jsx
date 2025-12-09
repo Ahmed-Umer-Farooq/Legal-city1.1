@@ -15,25 +15,32 @@ const QAAnswers = () => {
   }, []);
 
   const fetchQuestions = async () => {
+    setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      console.log('🔑 Token:', token ? 'Present' : 'Missing');
-      
-      // Try public questions first for debugging
-      const response = await fetch('http://localhost:5001/api/qa/questions');
-      const data = await response.json();
-      
-      console.log('📡 API Response:', { status: response.status, data });
-      
-      if (response.ok) {
-        setQuestions(data.questions || []);
-      } else {
-        console.error('API Error:', data);
-        alert(`Error: ${data.message || 'Failed to fetch questions'}`);
+      if (!token) {
+        alert('Please login first');
+        return;
       }
+      
+      const response = await fetch('http://localhost:5001/api/qa/lawyer/questions?status=pending', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || data.error || 'Failed to fetch');
+      }
+      
+      const data = await response.json();
+      setQuestions(data.questions || []);
     } catch (error) {
-      console.error('Error fetching questions:', error);
-      alert('Network error: Unable to fetch questions');
+      console.error('Error:', error);
+      alert(error.message);
     } finally {
       setLoading(false);
     }

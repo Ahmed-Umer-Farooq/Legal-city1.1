@@ -345,6 +345,10 @@ app.use('/api/forms', formsRoutes);
 const contactSubmissionsRoutes = require('./routes/contactSubmissions');
 app.use('/api/contact-submissions', contactSubmissionsRoutes);
 
+// Platform Reviews routes
+const platformReviewsRoutes = require('./routes/platformReviews');
+app.use('/api/platform-reviews', platformReviewsRoutes);
+
 // Store active users
 const activeUsers = new Map();
 

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Plus, Users, FileText, Calendar, CheckSquare, StickyNote, Phone, MessageSquare, Clock, DollarSign, Receipt, CreditCard, UserPlus } from 'lucide-react';
+import { Plus, Users, FileText, Calendar, CheckSquare, StickyNote, Phone, MessageSquare, Clock, DollarSign, Receipt, CreditCard, UserPlus, Star, HelpCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 // Import all modal components
 import CreateClientModal from './modals/CreateClientModal';
@@ -15,9 +16,11 @@ import AddExpenseModal from './modals/AddExpenseModal';
 import CreateInvoiceModal from './modals/CreateInvoiceModal';
 import CreatePaymentModal from './modals/CreatePaymentModal';
 import CreateIntakeModal from './modals/CreateIntakeModal';
+import ReviewLegalCityModal from './modals/ReviewLegalCityModal';
 
 export default function QuickActions({ onSuccess }) {
   const [activeModal, setActiveModal] = useState(null);
+  const navigate = useNavigate();
 
   const quickActions = [
     { id: 'client', label: 'New Client', icon: Users, color: 'bg-blue-500' },
@@ -32,11 +35,17 @@ export default function QuickActions({ onSuccess }) {
     { id: 'expense', label: 'Add Expense', icon: DollarSign, color: 'bg-emerald-500' },
     { id: 'invoice', label: 'New Invoice', icon: Receipt, color: 'bg-cyan-500' },
     { id: 'payment', label: 'Record Payment', icon: CreditCard, color: 'bg-violet-500' },
-    { id: 'intake', label: 'New Intake', icon: Plus, color: 'bg-rose-500' }
+    { id: 'intake', label: 'New Intake', icon: Plus, color: 'bg-rose-500' },
+    { id: 'review', label: 'Review LegalCity', icon: Star, color: 'bg-amber-500' },
+    { id: 'qa', label: 'Answer Q&A', icon: HelpCircle, color: 'bg-blue-600' }
   ];
 
   const handleActionClick = (actionId) => {
-    setActiveModal(actionId);
+    if (actionId === 'qa') {
+      navigate('/lawyer/qa-answers');
+    } else {
+      setActiveModal(actionId);
+    }
   };
 
   const handleModalClose = () => {
@@ -131,6 +140,11 @@ export default function QuickActions({ onSuccess }) {
       />
       <CreateIntakeModal 
         isOpen={activeModal === 'intake'} 
+        onClose={handleModalClose} 
+        onSuccess={handleModalSuccess}
+      />
+      <ReviewLegalCityModal 
+        isOpen={activeModal === 'review'} 
         onClose={handleModalClose} 
         onSuccess={handleModalSuccess}
       />

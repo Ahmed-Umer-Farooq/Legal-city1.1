@@ -41,6 +41,8 @@ import QAPage from './pages/public/QAPage';
 import ContactUs from './pages/ContactUs';
 import PaymentSuccess from './pages/PaymentSuccess';
 import SubscriptionManagement from './pages/lawyer/SubscriptionManagement';
+import AdminPlatformReviews from './pages/AdminPlatformReviews';
+import QAAnswers from './pages/lawyer/QAAnswers';
 
 // Redirect component for legacy blog routes
 const BlogRedirect = () => {
@@ -79,8 +81,10 @@ function App() {
         <Route path="/lawyer-dashboard/chatapp" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} />
         <Route path="/lawyer-dashboard/subscription" element={<ProtectedRoute><SubscriptionManagement /></ProtectedRoute>} />
         <Route path="/lawyer-dashboard/subscription/success" element={<ProtectedRoute><PaymentSuccess /></ProtectedRoute>} />
+        <Route path="/lawyer/qa-answers" element={<ProtectedRoute><QAAnswers /></ProtectedRoute>} />
         <Route path="/user-dashboard" element={<ProtectedRoute><UserDashboard /></ProtectedRoute>} />
         <Route path="/admin-dashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+        <Route path="/admin/platform-reviews" element={<ProtectedRoute><AdminPlatformReviews /></ProtectedRoute>} />
         
         {/* SEO-Friendly User Dashboard Routes */}
         <Route element={<ProtectedRoute><SharedLayout /></ProtectedRoute>}>

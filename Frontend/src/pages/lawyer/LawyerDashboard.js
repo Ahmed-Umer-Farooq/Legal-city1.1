@@ -877,71 +877,10 @@ export default function LawyerDashboard() {
         {/* Quick Actions & Calendar Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
           {/* Quick Actions */}
-          <div className="lg:col-span-2 bg-white rounded-2xl border border-[#F8F9FA] shadow-md p-7">
-            <div className="mb-6">
-              <h3 className="text-[#181A2A] text-lg font-semibold mb-1">Quick Actions</h3>
-              <p className="text-[#737791] text-sm">Frequently used actions</p>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
-              <button onClick={() => setShowClientModal(true)} className="flex flex-col items-center gap-2 p-3 bg-[#F8F9FA] hover:bg-[#E5E7EB] rounded-lg transition-all min-h-[80px] cursor-pointer">
-                <Users className="w-5 h-5 text-[#6B7280]" />
-                <span className="text-xs font-medium text-center leading-tight text-[#374151]">New Client</span>
-              </button>
-              <button onClick={() => setShowContactModal(true)} className="flex flex-col items-center gap-2 p-3 bg-[#F8F9FA] hover:bg-[#E5E7EB] rounded-lg transition-all min-h-[80px] cursor-pointer">
-                <UserCheck className="w-5 h-5 text-[#6B7280]" />
-                <span className="text-xs font-medium text-center leading-tight text-[#374151]">New Contact</span>
-              </button>
-              <button onClick={() => setShowCaseModal(true)} className="flex flex-col items-center gap-2 p-3 bg-[#F8F9FA] hover:bg-[#E5E7EB] rounded-lg transition-all min-h-[80px] cursor-pointer">
-                <FileText className="w-5 h-5 text-[#6B7280]" />
-                <span className="text-xs font-medium text-center leading-tight text-[#374151]">New Matter</span>
-              </button>
-              <button onClick={() => setShowEventModal(true)} className="flex flex-col items-center gap-2 p-3 bg-[#F8F9FA] hover:bg-[#E5E7EB] rounded-lg transition-all min-h-[80px] cursor-pointer">
-                <Calendar className="w-5 h-5 text-[#6B7280]" />
-                <span className="text-xs font-medium text-center leading-tight text-[#374151]">New Event</span>
-              </button>
-              <button onClick={() => setShowTaskModal(true)} className="flex flex-col items-center gap-2 p-3 bg-[#F8F9FA] hover:bg-[#E5E7EB] rounded-lg transition-all min-h-[80px] cursor-pointer">
-                <CheckSquare className="w-5 h-5 text-[#6B7280]" />
-                <span className="text-xs font-medium text-center leading-tight text-[#374151]">New Task</span>
-              </button>
-              <button onClick={() => setShowNoteModal(true)} className="flex flex-col items-center gap-2 p-3 bg-[#F8F9FA] hover:bg-[#E5E7EB] rounded-lg transition-all min-h-[80px] cursor-pointer">
-                <File className="w-5 h-5 text-[#6B7280]" />
-                <span className="text-xs font-medium text-center leading-tight text-[#374151]">New Note</span>
-              </button>
-              <button onClick={() => setShowCallModal(true)} className="flex flex-col items-center gap-2 p-3 bg-[#F8F9FA] hover:bg-[#E5E7EB] rounded-lg transition-all min-h-[80px] cursor-pointer">
-                <Phone className="w-5 h-5 text-[#6B7280]" />
-                <span className="text-xs font-medium text-center leading-tight text-[#374151]">Log Call</span>
-              </button>
-              <button onClick={() => setShowMessageModal(true)} className="flex flex-col items-center gap-2 p-3 bg-[#F8F9FA] hover:bg-[#E5E7EB] rounded-lg transition-all min-h-[80px] cursor-pointer">
-                <MessageCircle className="w-5 h-5 text-[#6B7280]" />
-                <span className="text-xs font-medium text-center leading-tight text-[#374151]">Send Message</span>
-              </button>
-              <button onClick={() => setShowTimeModal(true)} className="flex flex-col items-center gap-2 p-3 bg-[#F8F9FA] hover:bg-[#E5E7EB] rounded-lg transition-all min-h-[80px] cursor-pointer">
-                <Clock className="w-5 h-5 text-[#6B7280]" />
-                <span className="text-xs font-medium text-center leading-tight text-[#374151]">Track Time</span>
-              </button>
-              <button onClick={() => setShowExpenseModal(true)} className="flex flex-col items-center gap-2 p-3 bg-[#F8F9FA] hover:bg-[#E5E7EB] rounded-lg transition-all min-h-[80px] cursor-pointer">
-                <DollarSign className="w-5 h-5 text-[#6B7280]" />
-                <span className="text-xs font-medium text-center leading-tight text-[#374151]">Add Expense</span>
-              </button>
-              <button onClick={() => setShowInvoiceModal(true)} className="flex flex-col items-center gap-2 p-3 bg-[#F8F9FA] hover:bg-[#E5E7EB] rounded-lg transition-all min-h-[80px] cursor-pointer">
-                <File className="w-5 h-5 text-[#6B7280]" />
-                <span className="text-xs font-medium text-center leading-tight text-[#374151]">New Invoice</span>
-              </button>
-              <button onClick={() => setShowPaymentModal(true)} className="flex flex-col items-center gap-2 p-3 bg-[#F8F9FA] hover:bg-[#E5E7EB] rounded-lg transition-all min-h-[80px] cursor-pointer">
-                <CreditCard className="w-5 h-5 text-[#6B7280]" />
-                <span className="text-xs font-medium text-center leading-tight text-[#374151]">Record Payment</span>
-              </button>
-              <button onClick={() => setActiveNavItem('qa')} className="flex flex-col items-center gap-2 p-3 bg-[#F8F9FA] hover:bg-[#E5E7EB] rounded-lg transition-all min-h-[80px] cursor-pointer">
-                <MessageCircle className="w-5 h-5 text-[#6B7280]" />
-                <span className="text-xs font-medium text-center leading-tight text-[#374151]">Answer Q&A</span>
-              </button>
-              <button onClick={() => window.location.href = '/lawyer-dashboard/subscription'} className="flex flex-col items-center gap-2 p-3 bg-gradient-to-br from-[#1e3a8a] to-[#1e40af] hover:from-[#1e40af] hover:to-[#1d4ed8] rounded-lg transition-all min-h-[80px] cursor-pointer">
-                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-                </svg>
-                <span className="text-xs font-medium text-center leading-tight text-white">Subscription</span>
-              </button>
-            </div>
+          <div className="lg:col-span-2">
+            <React.Suspense fallback={<div className="bg-white rounded-2xl border border-[#F8F9FA] shadow-md p-6"><div className="animate-pulse h-32 bg-gray-200 rounded"></div></div>}>
+              <QuickActions onSuccess={fetchDashboardData} />
+            </React.Suspense>
           </div>
 
           {/* Professional Calendar */}
