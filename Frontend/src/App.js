@@ -5,6 +5,7 @@ import { Toaster } from 'sonner';
 import LegalCityAuth from './LegalCityAuth';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminProfile from './pages/admin/AdminProfile';
 import GoogleUserSetup from './pages/auth/GoogleUserSetup';
 import GoogleLawyerSetup from './pages/auth/GoogleLawyerSetup';
 import LawyerDirectory from './pages/public/LawyerDirectory';
@@ -41,7 +42,7 @@ import QAPage from './pages/public/QAPage';
 import ContactUs from './pages/ContactUs';
 import PaymentSuccess from './pages/PaymentSuccess';
 import SubscriptionManagement from './pages/lawyer/SubscriptionManagement';
-import AdminPlatformReviews from './pages/AdminPlatformReviews';
+
 import QAAnswers from './pages/lawyer/QAAnswers';
 
 // Redirect component for legacy blog routes
@@ -84,7 +85,8 @@ function App() {
         <Route path="/lawyer/qa-answers" element={<ProtectedRoute><QAAnswers /></ProtectedRoute>} />
         <Route path="/user-dashboard" element={<ProtectedRoute><UserDashboard /></ProtectedRoute>} />
         <Route path="/admin-dashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
-        <Route path="/admin/platform-reviews" element={<ProtectedRoute><AdminPlatformReviews /></ProtectedRoute>} />
+        <Route path="/admin/profile" element={<ProtectedRoute><AdminProfile /></ProtectedRoute>} />
+
         
         {/* SEO-Friendly User Dashboard Routes */}
         <Route element={<ProtectedRoute><SharedLayout /></ProtectedRoute>}>

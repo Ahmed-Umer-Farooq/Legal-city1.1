@@ -6,7 +6,7 @@ import {
   Users, UserCheck, UserX, Briefcase, CheckCircle, 
   XCircle, Trash2, Shield, ShieldOff, RefreshCw,
   TrendingUp, Activity, Clock, Search, ChevronLeft, ChevronRight,
-  FileText, Eye, Edit, MessageCircle, Flag, AlertTriangle, Phone
+  FileText, Eye, Edit, MessageCircle, Flag, AlertTriangle, Phone, Mail, Star
 } from 'lucide-react';
 
 // Lazy load components
@@ -71,6 +71,8 @@ const AdminDashboard = () => {
   const [selectedBlogForComments, setSelectedBlogForComments] = useState(null);
   const [blogComments, setBlogComments] = useState([]);
   const [loadingComments, setLoadingComments] = useState(false);
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
+  const [dropdownTimeout, setDropdownTimeout] = useState(null);
 
   // Prevent browser back button
   useEffect(() => {
@@ -530,139 +532,195 @@ const AdminDashboard = () => {
   const renderDashboard = () => (
     <div className="space-y-6">
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white border border-gray-200 rounded-lg p-5 hover:shadow-md transition-shadow">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div onClick={() => setActiveTab('users')} className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer">
           <div className="flex items-center justify-between">
             <div className="flex-1">
-              <div className="flex items-center gap-2 mb-1">
-                <Users className="w-4 h-4 text-gray-500" />
-                <span className="text-sm font-medium text-gray-600">Total Users</span>
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow-md">
+                  <Users className="w-5 h-5 text-white" />
+                </div>
+                <span className="text-sm font-semibold text-gray-600">Total Users</span>
               </div>
-              <div className="text-2xl font-semibold text-gray-900">{stats.totalUsers.toLocaleString()}</div>
-              <div className="text-xs text-green-600 mt-1">↗ +12% from last month</div>
+              <div className="text-3xl font-bold text-gray-900 mb-1">{stats.totalUsers.toLocaleString()}</div>
+              <div className="flex items-center text-xs text-green-600 font-medium">
+                <TrendingUp className="w-3 h-3 mr-1" />
+                +12% from last month
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="bg-white border border-gray-200 rounded-lg p-5 hover:shadow-md transition-shadow">
+        <div onClick={() => setActiveTab('lawyers')} className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer">
           <div className="flex items-center justify-between">
             <div className="flex-1">
-              <div className="flex items-center gap-2 mb-1">
-                <Briefcase className="w-4 h-4 text-gray-500" />
-                <span className="text-sm font-medium text-gray-600">Total Lawyers</span>
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center shadow-md">
+                  <Briefcase className="w-5 h-5 text-white" />
+                </div>
+                <span className="text-sm font-semibold text-gray-600">Total Lawyers</span>
               </div>
-              <div className="text-2xl font-semibold text-gray-900">{stats.totalLawyers.toLocaleString()}</div>
-              <div className="text-xs text-green-600 mt-1">↗ +8% from last month</div>
+              <div className="text-3xl font-bold text-gray-900 mb-1">{stats.totalLawyers.toLocaleString()}</div>
+              <div className="flex items-center text-xs text-green-600 font-medium">
+                <TrendingUp className="w-3 h-3 mr-1" />
+                +8% from last month
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="bg-white border border-gray-200 rounded-lg p-5 hover:shadow-md transition-shadow">
+        <div onClick={() => setActiveTab('lawyers')} className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer">
           <div className="flex items-center justify-between">
             <div className="flex-1">
-              <div className="flex items-center gap-2 mb-1">
-                <CheckCircle className="w-4 h-4 text-gray-500" />
-                <span className="text-sm font-medium text-gray-600">Verified Lawyers</span>
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center shadow-md">
+                  <CheckCircle className="w-5 h-5 text-white" />
+                </div>
+                <span className="text-sm font-semibold text-gray-600">Verified Lawyers</span>
               </div>
-              <div className="text-2xl font-semibold text-gray-900">{stats.verifiedLawyers.toLocaleString()}</div>
-              <div className="text-xs text-gray-500 mt-1">{Math.round((stats.verifiedLawyers/stats.totalLawyers)*100)}% of total</div>
+              <div className="text-3xl font-bold text-gray-900 mb-1">{stats.verifiedLawyers.toLocaleString()}</div>
+              <div className="text-xs text-gray-500 font-medium">{Math.round((stats.verifiedLawyers/stats.totalLawyers)*100)}% of total</div>
             </div>
           </div>
         </div>
 
-        <div className="bg-white border border-gray-200 rounded-lg p-5 hover:shadow-md transition-shadow">
+        <div onClick={() => setActiveTab('lawyers')} className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer">
           <div className="flex items-center justify-between">
             <div className="flex-1">
-              <div className="flex items-center gap-2 mb-1">
-                <Clock className="w-4 h-4 text-gray-500" />
-                <span className="text-sm font-medium text-gray-600">Pending Review</span>
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-amber-600 rounded-lg flex items-center justify-center shadow-md">
+                  <Clock className="w-5 h-5 text-white" />
+                </div>
+                <span className="text-sm font-semibold text-gray-600">Pending Review</span>
               </div>
-              <div className="text-2xl font-semibold text-gray-900">{stats.unverifiedLawyers.toLocaleString()}</div>
-              <div className="text-xs text-amber-600 mt-1">Requires attention</div>
+              <div className="text-3xl font-bold text-gray-900 mb-1">{stats.unverifiedLawyers.toLocaleString()}</div>
+              <div className="text-xs text-amber-600 font-medium">Requires attention</div>
             </div>
           </div>
         </div>
       </div>
       
       {/* Message Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <div className="bg-white border border-gray-200 rounded-lg p-5 hover:shadow-md transition-shadow">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+        <div onClick={() => setActiveTab('messages')} className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer">
           <div className="flex items-center justify-between">
             <div className="flex-1">
-              <div className="flex items-center gap-2 mb-1">
-                <MessageCircle className="w-4 h-4 text-gray-500" />
-                <span className="text-sm font-medium text-gray-600">Total Messages</span>
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-10 h-10 bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-lg flex items-center justify-center shadow-md">
+                  <MessageCircle className="w-5 h-5 text-white" />
+                </div>
+                <span className="text-sm font-semibold text-gray-600">Total Messages</span>
               </div>
-              <div className="text-2xl font-semibold text-gray-900">{allMessages.length.toLocaleString()}</div>
-              <div className="text-xs text-gray-500 mt-1">Platform communication</div>
+              <div className="text-3xl font-bold text-gray-900 mb-1">{allMessages.length.toLocaleString()}</div>
+              <div className="text-xs text-gray-500 font-medium">Platform communication</div>
             </div>
           </div>
         </div>
         
-        <div className="bg-white border border-gray-200 rounded-lg p-5 hover:shadow-md transition-shadow">
+        <div onClick={() => setActiveTab('messages')} className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer">
           <div className="flex items-center justify-between">
             <div className="flex-1">
-              <div className="flex items-center gap-2 mb-1">
-                <Users className="w-4 h-4 text-gray-500" />
-                <span className="text-sm font-medium text-gray-600">Active Conversations</span>
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-teal-600 rounded-lg flex items-center justify-center shadow-md">
+                  <Users className="w-5 h-5 text-white" />
+                </div>
+                <span className="text-sm font-semibold text-gray-600">Active Conversations</span>
               </div>
-              <div className="text-2xl font-semibold text-gray-900">{Math.ceil(allMessages.length / 3)}</div>
-              <div className="text-xs text-green-600 mt-1">User-Lawyer chats</div>
+              <div className="text-3xl font-bold text-gray-900 mb-1">{Math.ceil(allMessages.length / 3)}</div>
+              <div className="text-xs text-green-600 font-medium">User-Lawyer chats</div>
+            </div>
+          </div>
+        </div>
+        
+        <div onClick={() => setActiveTab('calls')} className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer">
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-md">
+                  <Phone className="w-5 h-5 text-white" />
+                </div>
+                <span className="text-sm font-semibold text-gray-600">Voice Calls</span>
+              </div>
+              <div className="text-3xl font-bold text-gray-900 mb-1">0</div>
+              <div className="text-xs text-gray-500 font-medium">Total call sessions</div>
+            </div>
+          </div>
+        </div>
+        
+        <div onClick={() => setActiveTab('activity')} className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer">
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg flex items-center justify-center shadow-md">
+                  <Activity className="w-5 h-5 text-white" />
+                </div>
+                <span className="text-sm font-semibold text-gray-600">Activity Logs</span>
+              </div>
+              <div className="text-3xl font-bold text-gray-900 mb-1">{activityLogs.length}</div>
+              <div className="text-xs text-gray-500 font-medium">Recent activities</div>
             </div>
           </div>
         </div>
       </div>
       
       {/* Content Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white border border-gray-200 rounded-lg p-5 hover:shadow-md transition-shadow">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div onClick={() => setActiveTab('blogs')} className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer">
           <div className="flex items-center justify-between">
             <div className="flex-1">
-              <div className="flex items-center gap-2 mb-1">
-                <FileText className="w-4 h-4 text-gray-500" />
-                <span className="text-sm font-medium text-gray-600">Total Articles</span>
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-10 h-10 bg-gradient-to-br from-pink-500 to-pink-600 rounded-lg flex items-center justify-center shadow-md">
+                  <FileText className="w-5 h-5 text-white" />
+                </div>
+                <span className="text-sm font-semibold text-gray-600">Total Articles</span>
               </div>
-              <div className="text-2xl font-semibold text-gray-900">{stats.totalBlogs.toLocaleString()}</div>
-              <div className="text-xs text-gray-500 mt-1">Content library</div>
+              <div className="text-3xl font-bold text-gray-900 mb-1">{stats.totalBlogs.toLocaleString()}</div>
+              <div className="text-xs text-gray-500 font-medium">Click to manage →</div>
             </div>
           </div>
         </div>
         
-        <div className="bg-white border border-gray-200 rounded-lg p-5 hover:shadow-md transition-shadow">
+        <div onClick={() => setActiveTab('blogs')} className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer">
           <div className="flex items-center justify-between">
             <div className="flex-1">
-              <div className="flex items-center gap-2 mb-1">
-                <CheckCircle className="w-4 h-4 text-gray-500" />
-                <span className="text-sm font-medium text-gray-600">Published</span>
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg flex items-center justify-center shadow-md">
+                  <CheckCircle className="w-5 h-5 text-white" />
+                </div>
+                <span className="text-sm font-semibold text-gray-600">Published</span>
               </div>
-              <div className="text-2xl font-semibold text-gray-900">{stats.publishedBlogs.toLocaleString()}</div>
-              <div className="text-xs text-green-600 mt-1">Live content</div>
+              <div className="text-3xl font-bold text-gray-900 mb-1">{stats.publishedBlogs.toLocaleString()}</div>
+              <div className="text-xs text-green-600 font-medium">Live content</div>
             </div>
           </div>
         </div>
         
-        <div className="bg-white border border-gray-200 rounded-lg p-5 hover:shadow-md transition-shadow">
+        <div onClick={() => setActiveTab('reports')} className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer">
           <div className="flex items-center justify-between">
             <div className="flex-1">
-              <div className="flex items-center gap-2 mb-1">
-                <Edit className="w-4 h-4 text-gray-500" />
-                <span className="text-sm font-medium text-gray-600">Drafts</span>
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-red-600 rounded-lg flex items-center justify-center shadow-md">
+                  <Flag className="w-5 h-5 text-white" />
+                </div>
+                <span className="text-sm font-semibold text-gray-600">Pending Reports</span>
               </div>
-              <div className="text-2xl font-semibold text-gray-900">{stats.draftBlogs.toLocaleString()}</div>
-              <div className="text-xs text-amber-600 mt-1">In progress</div>
+              <div className="text-3xl font-bold text-gray-900 mb-1">{pendingReportsCount.toLocaleString()}</div>
+              <div className="text-xs text-red-600 font-medium">Needs review →</div>
             </div>
           </div>
         </div>
         
-        <div className="bg-white border border-gray-200 rounded-lg p-5 hover:shadow-md transition-shadow">
+        <div onClick={() => setActiveTab('blogs')} className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer">
           <div className="flex items-center justify-between">
             <div className="flex-1">
-              <div className="flex items-center gap-2 mb-1">
-                <MessageCircle className="w-4 h-4 text-gray-500" />
-                <span className="text-sm font-medium text-gray-600">Comments</span>
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-10 h-10 bg-gradient-to-br from-rose-500 to-rose-600 rounded-lg flex items-center justify-center shadow-md">
+                  <MessageCircle className="w-5 h-5 text-white" />
+                </div>
+                <span className="text-sm font-semibold text-gray-600">Comments</span>
               </div>
-              <div className="text-2xl font-semibold text-gray-900">{stats.totalComments.toLocaleString()}</div>
-              <div className="text-xs text-gray-500 mt-1">User engagement</div>
+              <div className="text-3xl font-bold text-gray-900 mb-1">{stats.totalComments.toLocaleString()}</div>
+              <div className="text-xs text-gray-500 font-medium">User engagement</div>
             </div>
           </div>
         </div>
@@ -671,10 +729,12 @@ const AdminDashboard = () => {
       {/* Recent Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Recent Users */}
-        <div className="bg-white border border-gray-200 rounded-lg">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h3 className="text-base font-semibold text-gray-900 flex items-center">
-              <Users className="w-4 h-4 mr-2 text-gray-500" />
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="px-6 py-4 bg-gradient-to-r from-blue-50 to-blue-100 border-b border-blue-200">
+            <h3 className="text-base font-bold text-gray-900 flex items-center">
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center mr-2 shadow-sm">
+                <Users className="w-4 h-4 text-white" />
+              </div>
               Recent Users
             </h3>
           </div>
@@ -700,10 +760,12 @@ const AdminDashboard = () => {
         </div>
 
         {/* Verified Users */}
-        <div className="bg-white border border-gray-200 rounded-lg">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h3 className="text-base font-semibold text-gray-900 flex items-center">
-              <CheckCircle className="w-4 h-4 mr-2 text-gray-500" />
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="px-6 py-4 bg-gradient-to-r from-green-50 to-green-100 border-b border-green-200">
+            <h3 className="text-base font-bold text-gray-900 flex items-center">
+              <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center mr-2 shadow-sm">
+                <CheckCircle className="w-4 h-4 text-white" />
+              </div>
               Verified Users
             </h3>
           </div>
@@ -729,10 +791,12 @@ const AdminDashboard = () => {
         </div>
 
         {/* Recent Lawyers */}
-        <div className="bg-white border border-gray-200 rounded-lg">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h3 className="text-base font-semibold text-gray-900 flex items-center">
-              <Briefcase className="w-4 h-4 mr-2 text-gray-500" />
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="px-6 py-4 bg-gradient-to-r from-purple-50 to-purple-100 border-b border-purple-200">
+            <h3 className="text-base font-bold text-gray-900 flex items-center">
+              <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center mr-2 shadow-sm">
+                <Briefcase className="w-4 h-4 text-white" />
+              </div>
               Recent Lawyers
             </h3>
           </div>
@@ -766,10 +830,15 @@ const AdminDashboard = () => {
 
   // Users Management View
   const renderUsers = () => (
-    <div className="bg-white rounded-lg shadow">
-      <div className="px-6 py-4 border-b border-gray-200">
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100">
+      <div className="px-6 py-5 bg-gradient-to-r from-blue-50 to-blue-100 border-b border-blue-200">
         <div className="flex items-center justify-between flex-wrap gap-4">
-          <h3 className="text-lg font-semibold text-gray-900">User Management</h3>
+          <h3 className="text-xl font-bold text-gray-900 flex items-center">
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center mr-3 shadow-md">
+              <Users className="w-5 h-5 text-white" />
+            </div>
+            User Management
+          </h3>
           <div className="flex items-center space-x-4">
             <select
               value={usersFilter}
@@ -798,8 +867,9 @@ const AdminDashboard = () => {
             </div>
             <button
               onClick={fetchUsers}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all shadow-sm font-medium flex items-center gap-2"
             >
+              <RefreshCw className="w-4 h-4" />
               Refresh
             </button>
           </div>
@@ -931,10 +1001,15 @@ const AdminDashboard = () => {
 
   // Lawyers Management View
   const renderLawyers = () => (
-    <div className="bg-white rounded-lg shadow">
-      <div className="px-6 py-4 border-b border-gray-200">
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100">
+      <div className="px-6 py-5 bg-gradient-to-r from-purple-50 to-purple-100 border-b border-purple-200">
         <div className="flex items-center justify-between flex-wrap gap-4">
-          <h3 className="text-lg font-semibold text-gray-900">Lawyer Management</h3>
+          <h3 className="text-xl font-bold text-gray-900 flex items-center">
+            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center mr-3 shadow-md">
+              <Briefcase className="w-5 h-5 text-white" />
+            </div>
+            Lawyer Management
+          </h3>
           <div className="flex items-center space-x-4">
             <select
               value={lawyersFilter}
@@ -963,8 +1038,9 @@ const AdminDashboard = () => {
             </div>
             <button
               onClick={fetchLawyers}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              className="px-5 py-2.5 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all shadow-sm font-medium flex items-center gap-2"
             >
+              <RefreshCw className="w-4 h-4" />
               Refresh
             </button>
           </div>
@@ -973,7 +1049,7 @@ const AdminDashboard = () => {
       
       <div className="overflow-x-auto">
         <table className="w-full">
-          <thead className="bg-gray-50 border-b border-gray-200">
+          <thead className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
@@ -1082,10 +1158,15 @@ const AdminDashboard = () => {
 
   // Blog Management View
   const renderBlogs = () => (
-    <div className="bg-white rounded-lg shadow">
-      <div className="px-6 py-4 border-b border-gray-200">
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100">
+      <div className="px-6 py-5 bg-gradient-to-r from-green-50 to-green-100 border-b border-green-200">
         <div className="flex items-center justify-between flex-wrap gap-4">
-          <h3 className="text-lg font-semibold text-gray-900">Blog Management</h3>
+          <h3 className="text-xl font-bold text-gray-900 flex items-center">
+            <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center mr-3 shadow-md">
+              <FileText className="w-5 h-5 text-white" />
+            </div>
+            Blog Management
+          </h3>
           <div className="flex items-center space-x-4">
             <select
               value={blogsFilter}
@@ -1114,8 +1195,9 @@ const AdminDashboard = () => {
             </div>
             <button
               onClick={fetchBlogs}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              className="px-5 py-2.5 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 transition-all shadow-sm font-medium flex items-center gap-2"
             >
+              <RefreshCw className="w-4 h-4" />
               Refresh
             </button>
           </div>
@@ -1124,7 +1206,7 @@ const AdminDashboard = () => {
       
       <div className="overflow-x-auto">
         <table className="w-full">
-          <thead className="bg-gray-50 border-b border-gray-200">
+          <thead className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Title</th>
@@ -1227,6 +1309,10 @@ const AdminDashboard = () => {
     recentCalls: []
   });
   const [socket, setSocket] = useState(null);
+  
+  // Reviews state
+  const [reviews, setReviews] = useState([]);
+  const [loadingReviews, setLoadingReviews] = useState(false);
 
   const fetchAllMessages = async () => {
     setLoadingMessages(true);
@@ -1248,8 +1334,58 @@ const AdminDashboard = () => {
       fetchAllMessages();
     } else if (activeTab === 'calls') {
       initializeCallTracking();
+    } else if (activeTab === 'reviews') {
+      fetchReviews();
     }
   }, [activeTab]);
+  
+  const fetchReviews = async () => {
+    setLoadingReviews(true);
+    try {
+      const response = await api.get('/platform-reviews');
+      const reviewsData = Array.isArray(response.data) ? response.data : (Array.isArray(response.data?.reviews) ? response.data.reviews : []);
+      setReviews(reviewsData);
+    } catch (error) {
+      console.error('Error fetching reviews:', error);
+      setReviews([]);
+    }
+    setLoadingReviews(false);
+  };
+  
+  const handleDeleteReview = async (reviewId) => {
+    if (!window.confirm('Are you sure you want to delete this review?')) return;
+    try {
+      await api.delete(`/platform-reviews/${reviewId}`);
+      alert('Review deleted successfully');
+      fetchReviews();
+    } catch (error) {
+      alert('Failed to delete review');
+    }
+  };
+  
+  const handleToggleApprove = async (reviewId, isApproved, isFeatured) => {
+    try {
+      await api.put(`/admin/platform-reviews/${reviewId}/status`, {
+        is_approved: !isApproved,
+        is_featured: isFeatured
+      });
+      fetchReviews();
+    } catch (error) {
+      alert('Failed to update approval status');
+    }
+  };
+  
+  const handleToggleFeature = async (reviewId, isApproved, isFeatured) => {
+    try {
+      await api.put(`/admin/platform-reviews/${reviewId}/status`, {
+        is_approved: isApproved,
+        is_featured: !isFeatured
+      });
+      fetchReviews();
+    } catch (error) {
+      alert('Failed to update featured status');
+    }
+  };
   
   const initializeCallTracking = () => {
     // Connect to socket for real-time call updates
@@ -1334,13 +1470,16 @@ const AdminDashboard = () => {
     return (
       <div className="space-y-6">
         {/* Header with Search and Filters */}
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-              <MessageCircle className="w-5 h-5 mr-2 text-gray-500" />
+            <h3 className="text-xl font-bold text-gray-900 flex items-center">
+              <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-lg flex items-center justify-center mr-3 shadow-md">
+                <MessageCircle className="w-5 h-5 text-white" />
+              </div>
               Platform Messages ({filteredMessages.length})
             </h3>
-            <button onClick={fetchAllMessages} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+            <button onClick={fetchAllMessages} className="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white rounded-lg hover:from-indigo-700 hover:to-indigo-800 transition-all shadow-sm font-medium flex items-center gap-2">
+              <RefreshCw className="w-4 h-4" />
               Refresh
             </button>
           </div>
@@ -1376,7 +1515,7 @@ const AdminDashboard = () => {
         </div>
 
         {/* Messages List */}
-        <div className="bg-white border border-gray-200 rounded-lg">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100">
           {loadingMessages ? (
             <div className="p-8 text-center text-gray-500">
               Loading messages...
@@ -1466,16 +1605,18 @@ const AdminDashboard = () => {
     });
 
     return (
-      <div className="bg-white border border-gray-200 rounded-lg">
-        <div className="px-6 py-4 border-b border-gray-200">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100">
+        <div className="px-6 py-5 bg-gradient-to-r from-orange-50 to-orange-100 border-b border-orange-200">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-base font-semibold text-gray-900 flex items-center">
-              <Activity className="w-4 h-4 mr-2 text-gray-500" />
+            <h3 className="text-xl font-bold text-gray-900 flex items-center">
+              <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg flex items-center justify-center mr-3 shadow-md">
+                <Activity className="w-5 h-5 text-white" />
+              </div>
               Activity Logs ({filteredLogs.length})
             </h3>
             <button
               onClick={fetchActivityLogs}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-1"
+              className="px-5 py-2.5 bg-gradient-to-r from-orange-600 to-orange-700 text-white rounded-lg hover:from-orange-700 hover:to-orange-800 transition-all shadow-sm font-medium flex items-center gap-2"
             >
               <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
               Refresh
@@ -1712,213 +1853,251 @@ const AdminDashboard = () => {
 
   return (
     <Suspense fallback={<LoadingSpinner />}>
-      <div className="min-h-screen bg-gray-100">
-        {/* Header */}
-        <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
-              <button
-                onClick={refreshData}
-                disabled={refreshing}
-                className="p-2 text-gray-600 hover:text-gray-900 disabled:opacity-50"
-                title="Refresh Data"
-              >
-                <RefreshCw className={`w-5 h-5 ${refreshing ? 'animate-spin' : ''}`} />
-              </button>
-            </div>
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={() => navigate('/')}
-                className="text-gray-600 hover:text-gray-900 text-sm"
-              >
-                Home
-              </button>
-              <span className="text-sm text-gray-600">Welcome, {user?.name || 'Admin'}</span>
-              <button
-                onClick={handleLogout}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-              >
-                Logout
-              </button>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex">
+        {/* Sidebar */}
+        <aside className="w-64 bg-white shadow-lg fixed h-full overflow-y-auto">
+          {/* Logo/Header */}
+          <div className="p-6 border-b border-gray-200">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center shadow-md">
+                <Shield className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-lg font-bold text-gray-900">Admin Panel</h1>
+                <p className="text-xs text-gray-500">Legal City</p>
+              </div>
             </div>
           </div>
-        </div>
-      </header>
 
-      {/* Navigation Tabs */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <nav className="flex space-x-8">
+          {/* Navigation */}
+          <nav className="p-4 space-y-1">
             <button
               onClick={() => setActiveTab('dashboard')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all ${
                 activeTab === 'dashboard'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  ? 'bg-blue-50 text-blue-700 font-medium'
+                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
               }`}
             >
-              <div className="flex items-center space-x-2">
-                <TrendingUp className="w-4 h-4" />
-                <span>Dashboard</span>
-              </div>
+              <TrendingUp className="w-5 h-5" />
+              <span className="text-sm">Dashboard</span>
             </button>
             <button
               onClick={() => setActiveTab('users')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all ${
                 activeTab === 'users'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  ? 'bg-blue-50 text-blue-700 font-medium'
+                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
               }`}
             >
-              <div className="flex items-center space-x-2">
-                <Users className="w-4 h-4" />
-                <span>Users</span>
-              </div>
+              <Users className="w-5 h-5" />
+              <span className="text-sm">Users</span>
             </button>
             <button
               onClick={() => setActiveTab('lawyers')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all ${
                 activeTab === 'lawyers'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  ? 'bg-blue-50 text-blue-700 font-medium'
+                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
               }`}
             >
-              <div className="flex items-center space-x-2">
-                <Briefcase className="w-4 h-4" />
-                <span>Lawyers</span>
-              </div>
+              <Briefcase className="w-5 h-5" />
+              <span className="text-sm">Lawyers</span>
             </button>
-
             <button
               onClick={() => setActiveTab('blogs')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all ${
                 activeTab === 'blogs'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  ? 'bg-blue-50 text-blue-700 font-medium'
+                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
               }`}
             >
-              <div className="flex items-center space-x-2">
-                <FileText className="w-4 h-4" />
-                <span>Blogs</span>
-              </div>
+              <FileText className="w-5 h-5" />
+              <span className="text-sm">Blogs</span>
             </button>
             <button
               onClick={() => setActiveTab('messages')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all ${
                 activeTab === 'messages'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  ? 'bg-blue-50 text-blue-700 font-medium'
+                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
               }`}
             >
-              <div className="flex items-center space-x-2">
-                <MessageCircle className="w-4 h-4" />
-                <span>Messages</span>
-              </div>
+              <MessageCircle className="w-5 h-5" />
+              <span className="text-sm">Messages</span>
             </button>
             <button
               onClick={() => setActiveTab('activity')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all ${
                 activeTab === 'activity'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  ? 'bg-blue-50 text-blue-700 font-medium'
+                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
               }`}
             >
-              <div className="flex items-center space-x-2">
-                <Activity className="w-4 h-4" />
-                <span>Activity Logs</span>
-              </div>
+              <Activity className="w-5 h-5" />
+              <span className="text-sm">Activity Logs</span>
             </button>
             <button
               onClick={() => setActiveTab('calls')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all ${
                 activeTab === 'calls'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  ? 'bg-blue-50 text-blue-700 font-medium'
+                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
               }`}
             >
-              <div className="flex items-center space-x-2">
-                <Phone className="w-4 h-4" />
-                <span>Voice Calls</span>
-              </div>
+              <Phone className="w-5 h-5" />
+              <span className="text-sm">Voice Calls</span>
             </button>
             <button
               onClick={() => setActiveTab('qa')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all ${
                 activeTab === 'qa'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  ? 'bg-blue-50 text-blue-700 font-medium'
+                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
               }`}
             >
-              <div className="flex items-center space-x-2">
-                <AlertTriangle className="w-4 h-4" />
-                <span>Q&A</span>
-              </div>
+              <AlertTriangle className="w-5 h-5" />
+              <span className="text-sm">Q&A</span>
             </button>
             <button
               onClick={() => setActiveTab('forms')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all ${
                 activeTab === 'forms'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  ? 'bg-blue-50 text-blue-700 font-medium'
+                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
               }`}
             >
-              <div className="flex items-center space-x-2">
-                <FileText className="w-4 h-4" />
-                <span>Forms</span>
-              </div>
+              <FileText className="w-5 h-5" />
+              <span className="text-sm">Forms</span>
             </button>
             <button
               onClick={() => {
                 setActiveTab('reports');
-                // Refresh count when clicking reports tab
                 setTimeout(fetchPendingReportsCount, 1000);
               }}
-              className={`py-4 px-1 border-b-2 font-medium text-sm relative ${
+              className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-all ${
                 activeTab === 'reports'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  ? 'bg-blue-50 text-blue-700 font-medium'
+                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
               }`}
             >
-              <div className="flex items-center space-x-2">
-                <Flag className="w-4 h-4" />
-                <span>Reports</span>
-                {pendingReportsCount > 0 && (
-                  <span className="bg-red-500 text-white text-xs rounded-full px-2 py-1 min-w-[20px] h-5 flex items-center justify-center">
-                    {pendingReportsCount}
-                  </span>
-                )}
+              <div className="flex items-center space-x-3">
+                <Flag className="w-5 h-5" />
+                <span className="text-sm">Reports</span>
               </div>
+              {pendingReportsCount > 0 && (
+                <span className="bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  {pendingReportsCount}
+                </span>
+              )}
             </button>
             <button
               onClick={() => setActiveTab('contact')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all ${
                 activeTab === 'contact'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  ? 'bg-blue-50 text-blue-700 font-medium'
+                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
               }`}
             >
-              <div className="flex items-center space-x-2">
-                <Phone className="w-4 h-4" />
-                <span>Contact Us</span>
-              </div>
+              <Mail className="w-5 h-5" />
+              <span className="text-sm">Contact</span>
             </button>
             <button
-              onClick={() => navigate('/admin/platform-reviews')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300`}
+              onClick={() => setActiveTab('reviews')}
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all ${
+                activeTab === 'reviews'
+                  ? 'bg-blue-50 text-blue-700 font-medium'
+                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+              }`}
             >
-              <div className="flex items-center space-x-2">
-                <MessageCircle className="w-4 h-4" />
-                <span>Platform Reviews</span>
-              </div>
+              <Star className="w-5 h-5" />
+              <span className="text-sm">Reviews</span>
             </button>
           </nav>
-        </div>
-      </div>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        </aside>
+
+        {/* Main Content */}
+        <main className="flex-1 ml-64 overflow-x-hidden">
+          {/* Header */}
+          <header className="bg-white shadow-sm border-b border-gray-200 px-8 py-4 sticky top-0 z-10">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <button
+                  onClick={refreshData}
+                  disabled={refreshing}
+                  className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all disabled:opacity-50"
+                  title="Refresh Data"
+                >
+                  <RefreshCw className={`w-5 h-5 ${refreshing ? 'animate-spin' : ''}`} />
+                </button>
+                <button
+                  onClick={() => navigate('/')}
+                  className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-all text-sm font-medium"
+                >
+                  Home
+                </button>
+              </div>
+              <div className="relative" 
+                onMouseEnter={() => {
+                  if (dropdownTimeout) clearTimeout(dropdownTimeout);
+                  setShowProfileDropdown(true);
+                }} 
+                onMouseLeave={() => {
+                  const timeout = setTimeout(() => setShowProfileDropdown(false), 200);
+                  setDropdownTimeout(timeout);
+                }}>
+                <button
+                  className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold shadow-md hover:shadow-lg transition-all"
+                >
+                  {user?.name?.charAt(0) || 'A'}
+                </button>
+                {showProfileDropdown && (
+                  <div className="absolute right-0 mt-2 w-72 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50">
+                    <div className="px-4 py-3 border-b border-gray-100">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                          {user?.name?.charAt(0) || 'A'}
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-semibold text-gray-900">{user?.name || 'Admin'}</p>
+                          <span className="inline-block px-2 py-0.5 text-xs font-medium bg-purple-100 text-purple-800 rounded-full mt-1">
+                            {user?.role === 'admin' || user?.is_admin ? 'Administrator' : 'User'}
+                          </span>
+                        </div>
+                      </div>
+                      <p className="text-xs text-gray-500 truncate">{user?.email}</p>
+                      {user?.mobile_number && (
+                        <p className="text-xs text-gray-500 mt-1">{user?.mobile_number}</p>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => {
+                        setShowProfileDropdown(false);
+                        navigate('/admin/profile');
+                      }}
+                      className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center space-x-2"
+                    >
+                      <Users className="w-4 h-4" />
+                      <span>Profile</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowProfileDropdown(false);
+                        handleLogout();
+                      }}
+                      className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center space-x-2"
+                    >
+                      <XCircle className="w-4 h-4" />
+                      <span>Logout</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </header>
+          <div className="p-8 max-w-[calc(100vw-16rem)] overflow-x-auto">
         {activeTab === 'dashboard' && renderDashboard()}
         {activeTab === 'users' && renderUsers()}
         {activeTab === 'lawyers' && renderLawyers()}
@@ -1946,6 +2125,98 @@ const AdminDashboard = () => {
             <ContactSubmissions />
           </Suspense>
         )}
+        {activeTab === 'reviews' && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100">
+            <div className="px-6 py-5 bg-gradient-to-r from-yellow-50 to-yellow-100 border-b border-yellow-200">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xl font-bold text-gray-900 flex items-center">
+                  <div className="w-10 h-10 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-lg flex items-center justify-center mr-3 shadow-md">
+                    <Star className="w-5 h-5 text-white" />
+                  </div>
+                  Platform Reviews ({reviews.length})
+                </h3>
+                <button onClick={fetchReviews} className="px-5 py-2.5 bg-gradient-to-r from-yellow-600 to-yellow-700 text-white rounded-lg hover:from-yellow-700 hover:to-yellow-800 transition-all shadow-sm font-medium flex items-center gap-2">
+                  <RefreshCw className="w-4 h-4" />
+                  Refresh
+                </button>
+              </div>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50 border-b border-gray-200">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Rating</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Review</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Approved</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Featured</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {loadingReviews ? (
+                    <tr>
+                      <td colSpan="8" className="px-6 py-8 text-center text-gray-500">
+                        Loading reviews...
+                      </td>
+                    </tr>
+                  ) : reviews.length === 0 ? (
+                    <tr>
+                      <td colSpan="8" className="px-6 py-8 text-center text-gray-500">
+                        No reviews found
+                      </td>
+                    </tr>
+                  ) : (
+                    reviews.map(review => (
+                      <tr key={review.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 text-sm text-gray-900">{review.id}</td>
+                        <td className="px-6 py-4 text-sm text-gray-900">{review.client_name || review.name || 'Anonymous'}</td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center">
+                            {[...Array(5)].map((_, i) => (
+                              <Star key={i} className={`w-4 h-4 ${i < review.rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`} />
+                            ))}
+                            <span className="ml-2 text-sm text-gray-600">({review.rating})</span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-500 max-w-md truncate">{review.review_text}</td>
+                        <td className="px-6 py-4 text-sm text-gray-500">{new Date(review.created_at).toLocaleDateString()}</td>
+                        <td className="px-6 py-4">
+                          <button
+                            onClick={() => handleToggleApprove(review.id, review.is_approved, review.is_featured)}
+                            className={`px-3 py-1 text-xs rounded-full font-medium ${review.is_approved ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}
+                          >
+                            {review.is_approved ? 'Approved' : 'Pending'}
+                          </button>
+                        </td>
+                        <td className="px-6 py-4">
+                          <button
+                            onClick={() => handleToggleFeature(review.id, review.is_approved, review.is_featured)}
+                            className={`px-3 py-1 text-xs rounded-full font-medium ${review.is_featured ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800'}`}
+                          >
+                            {review.is_featured ? 'Featured' : 'Normal'}
+                          </button>
+                        </td>
+                        <td className="px-6 py-4 text-sm">
+                          <button
+                            onClick={() => handleDeleteReview(review.id)}
+                            className="p-1 text-red-600 hover:text-red-800"
+                            title="Delete Review"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+          </div>
         </main>
       </div>
       
