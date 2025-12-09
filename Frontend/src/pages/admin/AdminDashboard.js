@@ -13,6 +13,7 @@ import {
 const BlogReports = React.lazy(() => import('./BlogReports'));
 const QAManagement = React.lazy(() => import('./QAManagement'));
 const FormsManagement = React.lazy(() => import('./FormsManagement'));
+const ContactSubmissions = React.lazy(() => import('./ContactSubmissions'));
 
 // Loading component
 const LoadingSpinner = () => (
@@ -1890,6 +1891,19 @@ const AdminDashboard = () => {
                 )}
               </div>
             </button>
+            <button
+              onClick={() => setActiveTab('contact')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'contact'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <div className="flex items-center space-x-2">
+                <Phone className="w-4 h-4" />
+                <span>Contact Us</span>
+              </div>
+            </button>
           </nav>
         </div>
       </div>
@@ -1916,6 +1930,11 @@ const AdminDashboard = () => {
         {activeTab === 'reports' && (
           <Suspense fallback={<LoadingSpinner />}>
             <BlogReports />
+          </Suspense>
+        )}
+        {activeTab === 'contact' && (
+          <Suspense fallback={<LoadingSpinner />}>
+            <ContactSubmissions />
           </Suspense>
         )}
         </main>

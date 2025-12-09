@@ -1,101 +1,61 @@
 import { Star, MapPin } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from '../context/AuthContext';
+import api from '../utils/api';
 
 export default function LawyersCarousel() {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [lawyers, setLawyers] = useState([]);
+  const [loading, setLoading] = useState(true);
   const { user } = useAuth();
   const location = useLocation();
   
   const fromDashboard = user && location.pathname === '/dashboard/find-lawyer';
 
-  const lawyers = [
-    {
-      id: "5ffe4a13e0e06fa22e6415467340d577",
-      name: "Nedime Acikli",
-      specialty: "Corporate Law",
-      rating: 4.9,
-      reviews: 127,
-      location: "London, UK",
-      practiceAreas: ["Corporate Law", "Business Litigation", "Contract Law"],
-      successTitle: "Recent Success",
-      successAuthor: "Client Review",
-      successDate: "Oct 2024",
-      successDescription: "Exceptional legal expertise in corporate matters. Nedime provided strategic guidance that saved our company significant costs and resolved complex contract disputes efficiently.",
-      image: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face"
-    },
-    {
-      id: "5f0852c78a0b2934a62701e85369b528",
-      name: "Melek Arican",
-      specialty: "Family Law",
-      rating: 4.8,
-      reviews: 89,
-      location: "Birmingham, UK",
-      practiceAreas: ["Family Law", "Divorce", "Child Custody"],
-      successTitle: "Client Testimonial",
-      successAuthor: "Verified Client",
-      successDate: "Sep 2024",
-      successDescription: "Compassionate and professional approach to family law matters. Melek guided us through a difficult divorce process with empathy and achieved the best possible outcome for our children.",
-      image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face"
-    },
-    {
-      id: "aa9bd209b2e44b7d2fd4a168ba440ff8",
-      name: "Nika Monhart",
-      specialty: "Criminal Defense",
-      rating: 4.9,
-      reviews: 156,
-      location: "Manchester, UK",
-      practiceAreas: ["Criminal Defense", "White Collar Crime", "Appeals"],
-      successTitle: "Case Victory",
-      successAuthor: "Court Record",
-      successDate: "Nov 2024",
-      successDescription: "Outstanding criminal defense representation. Nika's thorough preparation and courtroom expertise resulted in a complete dismissal of charges in a complex white-collar case.",
-      image: "https://images.unsplash.com/photo-1489424731084-a5d8b219a5bb?w=150&h=150&fit=crop&crop=face"
-    },
-    {
-      id: "b8c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7",
-      name: "James Wilson",
-      specialty: "Personal Injury",
-      rating: 4.7,
-      reviews: 203,
-      location: "Liverpool, UK",
-      practiceAreas: ["Personal Injury", "Medical Malpractice", "Workers Compensation"],
-      successTitle: "Major Settlement",
-      successAuthor: "Client Testimonial",
-      successDate: "Dec 2024",
-      successDescription: "James secured a substantial settlement for my injury case. His dedication and expertise made all the difference in achieving a favorable outcome.",
-      image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face"
-    },
-    {
-      id: "c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4",
-      name: "Sarah Thompson",
-      specialty: "Immigration Law",
-      rating: 4.8,
-      reviews: 142,
-      location: "Edinburgh, UK",
-      practiceAreas: ["Immigration Law", "Visa Applications", "Citizenship"],
-      successTitle: "Successful Case",
-      successAuthor: "Happy Client",
-      successDate: "Nov 2024",
-      successDescription: "Sarah helped me navigate the complex immigration process with professionalism and care. Her expertise was invaluable in securing my visa.",
-      image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&h=150&fit=crop&crop=face"
-    },
-    {
-      id: "d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5",
-      name: "David Chen",
-      specialty: "Real Estate Law",
-      rating: 4.6,
-      reviews: 98,
-      location: "Cardiff, UK",
-      practiceAreas: ["Real Estate Law", "Property Disputes", "Commercial Leasing"],
-      successTitle: "Property Victory",
-      successAuthor: "Satisfied Client",
-      successDate: "Oct 2024",
-      successDescription: "David's expertise in real estate law helped resolve our property dispute efficiently. His attention to detail was exceptional.",
-      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"
+  useEffect(() => {
+    fetchFeaturedLawyers();
+  }, []);
+
+  const fetchFeaturedLawyers = async () => {
+    try {
+      const response = await api.get('/lawyers');
+      console.log('Fetched lawyers for carousel:', response.data);
+      
+      // Get all lawyers, prioritize those with secure_id
+      const allLawyers = response.data || [];
+      const lawyersWithProfiles = allLawyers.filter(lawyer => lawyer.secure_id);
+      
+      console.log('Lawyers with profiles:', lawyersWithProfiles.length);
+      
+      // If we have lawyers with profiles, use them; otherwise use first 6 lawyers
+      const selectedLawyers = lawyersWithProfiles.length > 0 
+        ? lawyersWithProfiles.slice(0, 6)
+        : allLawyers.slice(0, 6);
+      
+      const lawyersData = selectedLawyers.map(lawyer => ({
+        id: lawyer.secure_id || lawyer.id,
+        name: lawyer.name,
+        specialty: lawyer.speciality || 'General Practice',
+        rating: parseFloat(lawyer.rating) || 4.5,
+        reviews: lawyer.reviews || Math.floor(Math.random() * 100) + 20,
+        location: `${lawyer.city || 'Unknown'}, ${lawyer.state || 'Unknown'}`,
+        practiceAreas: lawyer.speciality ? [lawyer.speciality] : ['General Practice'],
+        successTitle: "Client Testimonial",
+        successAuthor: "Verified Client",
+        successDate: "Recent",
+        successDescription: `Experienced ${lawyer.speciality || 'legal'} attorney providing professional legal services with proven track record.`,
+        image: `https://ui-avatars.com/api/?name=${encodeURIComponent(lawyer.name)}&background=0284c7&color=fff&size=200`
+      }));
+      
+      console.log('Featured lawyers to display:', lawyersData.length);
+      setLawyers(lawyersData);
+    } catch (error) {
+      console.error('Error fetching lawyers:', error);
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
   const maxSlides = Math.max(0, lawyers.length - 3);
 
@@ -114,6 +74,31 @@ export default function LawyersCarousel() {
   const truncateText = (text, maxLength) => {
     return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
   };
+
+  if (loading) {
+    return (
+      <div className="w-full bg-white py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <p className="text-gray-600">Loading featured lawyers...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (lawyers.length === 0) {
+    return (
+      <div className="w-full bg-white py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Featured Lawyers</h2>
+            <p className="text-gray-600">No featured lawyers available at the moment.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full bg-white py-16">

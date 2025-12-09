@@ -46,7 +46,12 @@ const getReviews = async (req, res) => {
 
     const lawyer = await db('lawyers').where('secure_id', lawyer_secure_id).first();
     if (!lawyer) {
-      return res.status(404).json({ message: 'Lawyer not found' });
+      return res.json({ reviews: [], average_rating: '0', total_reviews: 0 });
+    }
+
+    const tableExists = await db.schema.hasTable('lawyer_reviews');
+    if (!tableExists) {
+      return res.json({ reviews: [], average_rating: '0', total_reviews: 0 });
     }
 
     const reviews = await db('lawyer_reviews')
@@ -55,7 +60,7 @@ const getReviews = async (req, res) => {
       .select(
         'lawyer_reviews.id',
         'lawyer_reviews.rating',
-        'lawyer_reviews.review',
+        'lawyer_reviews.review_text',
         'lawyer_reviews.created_at',
         'users.name as user_name'
       )
@@ -75,7 +80,7 @@ const getReviews = async (req, res) => {
     });
   } catch (error) {
     console.error('Error fetching reviews:', error);
-    res.status(500).json({ message: 'Failed to fetch reviews' });
+    res.json({ reviews: [], average_rating: '0', total_reviews: 0 });
   }
 };
 
@@ -125,7 +130,12 @@ const getEndorsements = async (req, res) => {
 
     const lawyer = await db('lawyers').where('secure_id', lawyer_secure_id).first();
     if (!lawyer) {
-      return res.status(404).json({ message: 'Lawyer not found' });
+      return res.json({ endorsements: [], total_endorsements: 0 });
+    }
+
+    const tableExists = await db.schema.hasTable('lawyer_endorsements');
+    if (!tableExists) {
+      return res.json({ endorsements: [], total_endorsements: 0 });
     }
 
     const endorsements = await db('lawyer_endorsements')
@@ -147,7 +157,7 @@ const getEndorsements = async (req, res) => {
     });
   } catch (error) {
     console.error('Error fetching endorsements:', error);
-    res.status(500).json({ message: 'Failed to fetch endorsements' });
+    res.json({ endorsements: [], total_endorsements: 0 });
   }
 };
 

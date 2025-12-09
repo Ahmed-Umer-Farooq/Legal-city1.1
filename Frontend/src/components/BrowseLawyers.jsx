@@ -220,15 +220,18 @@ export default function BrowseLawyers() {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-x-4 md:gap-x-[27px] gap-y-5">
               {practiceAreas.map((column, columnIndex) => (
                 <div key={columnIndex} className="flex flex-col gap-[19px]">
-                  {column.map((item, itemIndex) => (
-                    <Link
-                      key={itemIndex}
-                      to="#"
-                      className="text-lawyer-cyan font-inter text-sm font-normal leading-[15.66px] hover:underline"
-                    >
-                      {item}
-                    </Link>
-                  ))}
+                  {column.map((item, itemIndex) => {
+                    const practiceArea = item.replace(' Lawyers', '').replace(' Attorneys', '');
+                    return (
+                      <Link
+                        key={itemIndex}
+                        to={`/lawyers?practiceArea=${encodeURIComponent(practiceArea)}`}
+                        className="text-lawyer-cyan font-inter text-sm font-normal leading-[15.66px] hover:underline"
+                      >
+                        {item}
+                      </Link>
+                    );
+                  })}
                 </div>
               ))}
             </div>

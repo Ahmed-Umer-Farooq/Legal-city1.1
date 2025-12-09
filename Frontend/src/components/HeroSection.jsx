@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { Search, MapPin } from "lucide-react";
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 export default function HeroSection() {
+  const navigate = useNavigate();
   const [practiceArea, setPracticeArea] = useState('');
   const [location, setLocation] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
 
   const mockLawyers = [
     { id: 1, name: 'John Smith', practice: 'Personal Injury', location: 'New York, NY', rating: 4.8, experience: '15 years' },
@@ -22,28 +23,11 @@ export default function HeroSection() {
       return;
     }
 
-    let filtered = mockLawyers;
-
-    if (practiceArea.trim()) {
-      filtered = filtered.filter(lawyer => 
-        lawyer.practice.toLowerCase().includes(practiceArea.toLowerCase()) ||
-        lawyer.name.toLowerCase().includes(practiceArea.toLowerCase())
-      );
-    }
-
-    if (location.trim()) {
-      filtered = filtered.filter(lawyer => 
-        lawyer.location.toLowerCase().includes(location.toLowerCase())
-      );
-    }
-
-    setSearchResults(filtered);
+    const params = new URLSearchParams();
+    if (practiceArea.trim()) params.append('search', practiceArea);
+    if (location.trim()) params.append('location', location);
     
-    if (filtered.length > 0) {
-      toast.success(`Found ${filtered.length} lawyer(s) matching your search`);
-    } else {
-      toast.error('No lawyers found matching your criteria');
-    }
+    navigate(`/lawyers?${params.toString()}`);
   };
 
   const handleKeyPress = (e) => {
@@ -127,38 +111,7 @@ export default function HeroSection() {
           </button>
         </div>
 
-        {/* Search Results */}
-        {searchResults.length > 0 && (
-          <div className="mt-6 bg-white rounded-lg shadow-md p-4">
-            <h3 className="text-lg font-bold text-gray-900 mb-4">Found {searchResults.length} lawyer(s)</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-              {searchResults.map((lawyer) => (
-                <div 
-                  key={lawyer.id} 
-                  onClick={() => window.open(`/lawyer/${lawyer.id}`, '_blank')}
-                  className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md hover:border-blue-300 transition-all cursor-pointer p-3"
-                >
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
-                      <span className="text-white font-bold text-sm">{lawyer.name.charAt(0)}</span>
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="font-bold text-gray-900 text-sm">{lawyer.name}</h4>
-                      <p className="text-blue-600 text-xs">{lawyer.practice}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-gray-600">{lawyer.location}</span>
-                    <div className="flex items-center">
-                      <span className="text-yellow-500">★</span>
-                      <span className="text-gray-700 ml-1">{lawyer.rating}</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+
       </div>
       </div>
     </div>

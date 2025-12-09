@@ -229,12 +229,22 @@ function ChevronDown({ className }) {
 function LawyerDirectory() {
   const { user } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const [lawyers, setLawyers] = useState([]);
   const [filteredLawyers, setFilteredLawyers] = useState([]);
   const [loading, setLoading] = useState(false);
+  
+  // Get URL params
+  const searchParams = new URLSearchParams(location.search);
+  const urlSearch = searchParams.get('search') || '';
+  const urlLocation = searchParams.get('location') || '';
+  const urlPracticeArea = searchParams.get('practiceArea') || '';
+  
   const [filters, setFilters] = useState({
     yearsLicensed: '',
-    practiceArea: '',
+    practiceArea: urlPracticeArea,
+    search: urlSearch,
+    location: urlLocation,
     showAllFilters: false
   });
 
@@ -300,6 +310,20 @@ function LawyerDirectory() {
   const applyFilters = () => {
     let filtered = [...lawyers];
 
+    if (filters.search) {
+      filtered = filtered.filter(lawyer => 
+        lawyer.name.toLowerCase().includes(filters.search.toLowerCase()) ||
+        lawyer.speciality?.toLowerCase().includes(filters.search.toLowerCase()) ||
+        lawyer.practiceAreas.some(area => area.toLowerCase().includes(filters.search.toLowerCase()))
+      );
+    }
+
+    if (filters.location) {
+      filtered = filtered.filter(lawyer => 
+        lawyer.location.toLowerCase().includes(filters.location.toLowerCase())
+      );
+    }
+
     if (filters.practiceArea) {
       filtered = filtered.filter(lawyer => 
         lawyer.practiceAreas.some(area => 
@@ -333,10 +357,12 @@ function LawyerDirectory() {
     const newFilters = {
       yearsLicensed: '',
       practiceArea: '',
+      search: '',
+      location: '',
       showAllFilters: false
     };
     setFilters(newFilters);
-    setFilteredLawyers(lawyers);
+    navigate('/lawyers');
   };
 
   const fetchLawyers = async () => {
@@ -411,6 +437,30 @@ function LawyerDirectory() {
 
       {/* Main Content */}
       <div className="max-w-screen-xl mx-auto px-4 lg:px-36 py-6">
+        {/* Search Bar */}
+        <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-6">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="relative flex-1">
+              <input
+                type="text"
+                placeholder="Search by name or practice area"
+                value={filters.search}
+                onChange={(e) => setFilters({...filters, search: e.target.value})}
+                className="w-full h-12 px-4 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+              />
+            </div>
+            <div className="relative flex-1">
+              <input
+                type="text"
+                placeholder="Location (city, state)"
+                value={filters.location}
+                onChange={(e) => setFilters({...filters, location: e.target.value})}
+                className="w-full h-12 px-4 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+              />
+            </div>
+          </div>
+        </div>
+
         {/* Professional Filter Section */}
         <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-8">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Filter Attorneys</h2>
@@ -466,8 +516,24 @@ function LawyerDirectory() {
         </div>
 
         {/* Active Filters Display */}
-        {(filters.yearsLicensed || filters.practiceArea) && (
+        {(filters.search || filters.location || filters.yearsLicensed || filters.practiceArea) && (
           <div className="flex flex-wrap gap-2 mb-4">
+            {filters.search && (
+              <span className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm flex items-center gap-2">
+                Search: {filters.search}
+                <button onClick={() => setFilters({...filters, search: ''})} className="hover:text-purple-900">
+                  ×
+                </button>
+              </span>
+            )}
+            {filters.location && (
+              <span className="px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-sm flex items-center gap-2">
+                Location: {filters.location}
+                <button onClick={() => setFilters({...filters, location: ''})} className="hover:text-orange-900">
+                  ×
+                </button>
+              </span>
+            )}
             {filters.yearsLicensed && (
               <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm flex items-center gap-2">
                 Years: {filters.yearsLicensed}

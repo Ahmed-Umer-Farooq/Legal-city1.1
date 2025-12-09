@@ -66,11 +66,26 @@ const ContactUs = () => {
     }
 
     setIsSubmitting(true);
-    setTimeout(() => {
-      alert('Thank you for contacting Legal City. Your message has been received and our team will respond within 24 hours.');
-      setFormData({ name: '', email: '', phone: '', subject: '', message: '', legalArea: '' });
-      setIsSubmitting(false);
-    }, 1500);
+    try {
+      const response = await fetch('http://localhost:5001/api/contact-submissions/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        alert('Thank you for contacting Legal City. Your message has been received and our team will respond within 24 hours.');
+        setFormData({ name: '', email: '', phone: '', subject: '', message: '', legalArea: '' });
+      } else {
+        alert('Failed to submit your message. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      alert('Failed to submit your message. Please try again.');
+    }
+    setIsSubmitting(false);
   };
 
   return (
@@ -93,7 +108,7 @@ const ContactUs = () => {
             alt="Professional legal consultation - Contact Legal City"
             className="absolute inset-0 w-full h-full object-cover opacity-60"
             loading="eager"
-            fetchpriority="high"
+            fetchPriority="high"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-white/80 via-blue-50/60 to-white/80" />
 
