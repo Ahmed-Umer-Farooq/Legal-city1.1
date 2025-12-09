@@ -163,7 +163,7 @@ export default function LawyerDashboard() {
 
   const fetchUserProfile = async () => {
     try {
-      const response = await api.get('/lawyer-dashboard/profile');
+      const response = await api.get('/lawyer/profile');
       setCurrentUser(response.data);
       setProfileData({
         name: response.data.name || '',
