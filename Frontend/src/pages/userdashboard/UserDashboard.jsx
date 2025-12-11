@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Menu, Search, Grid3x3, Calendar, Folder, CheckSquare, FileText, MessageCircle, HelpCircle, Edit3, Users, UserPlus, DollarSign, Share2, User, Settings, LogOut, BarChart3 } from 'lucide-react';
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import MessageNotification from '../../components/MessageNotification';
+import EnterpriseUpgradeNotification from '../../components/EnterpriseUpgradeNotification';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../utils/api';
 
@@ -910,6 +911,7 @@ const UserDashboard = () => {
 
   return (
     <Layout>
+      <EnterpriseUpgradeNotification />
       <DashboardContent />
     </Layout>
   );

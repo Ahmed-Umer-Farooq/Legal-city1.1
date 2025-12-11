@@ -329,6 +329,19 @@ app.use('/api/upload', uploadRoutes);
 const chatRoutes = require('./routes/chatRoutes');
 app.use('/api/chat', chatRoutes);
 
+// Enhanced enterprise routes
+const enhancedCasesRoutes = require('./routes/enhancedCases');
+app.use('/api/enhanced-cases', enhancedCasesRoutes);
+
+const enhancedChatRoutes = require('./routes/enhancedChat');
+app.use('/api/enhanced-chat', enhancedChatRoutes);
+
+const adminReportsRoutes = require('./routes/adminReports');
+app.use('/api/admin/reports', adminReportsRoutes);
+
+const phaseMonitoringRoutes = require('./routes/phaseMonitoring');
+app.use('/api/phase', phaseMonitoringRoutes);
+
 // Q&A routes
 const qaRoutes = require('./routes/qa');
 app.use('/api/qa', qaRoutes);

@@ -14,6 +14,7 @@ const BlogReports = React.lazy(() => import('./BlogReports'));
 const QAManagement = React.lazy(() => import('./QAManagement'));
 const FormsManagement = React.lazy(() => import('./FormsManagement'));
 const ContactSubmissions = React.lazy(() => import('./ContactSubmissions'));
+const PhaseMonitoring = React.lazy(() => import('./PhaseMonitoring'));
 
 // Loading component
 const LoadingSpinner = () => (
@@ -2013,6 +2014,17 @@ const AdminDashboard = () => {
               <Star className="w-5 h-5" />
               <span className="text-sm">Reviews</span>
             </button>
+            <button
+              onClick={() => setActiveTab('enterprise')}
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all ${
+                activeTab === 'enterprise'
+                  ? 'bg-blue-50 text-blue-700 font-medium'
+                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+              }`}
+            >
+              <Shield className="w-5 h-5" />
+              <span className="text-sm">Enterprise</span>
+            </button>
           </nav>
 
 
@@ -2215,6 +2227,11 @@ const AdminDashboard = () => {
               </table>
             </div>
           </div>
+        )}
+        {activeTab === 'enterprise' && (
+          <Suspense fallback={<LoadingSpinner />}>
+            <PhaseMonitoring />
+          </Suspense>
         )}
           </div>
         </main>

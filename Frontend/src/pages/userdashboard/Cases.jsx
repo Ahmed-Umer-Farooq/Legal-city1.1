@@ -22,7 +22,8 @@ const Cases = () => {
     title: '',
     lawyer_name: '',
     priority: 'medium',
-    description: ''
+    description: '',
+    type: 'other'
   });
 
   useEffect(() => {
@@ -98,12 +99,37 @@ const Cases = () => {
     
     try {
       setLoading(true);
+      
+      // Try enhanced case creation first
+      try {
+        const response = await api.post('/enhanced-cases', {
+          title: newCase.title,
+          type: newCase.type || 'other',
+          description: newCase.description,
+          lawyer_name: newCase.lawyer_name,
+          priority: newCase.priority,
+          filing_date: new Date().toISOString().split('T')[0]
+        });
+        
+        if (response.data.success) {
+          toast.success(`Case created successfully!\nSecure Case ID: ${response.data.case.case_id}`);
+          fetchCases();
+          fetchStats();
+          setNewCase({ title: '', lawyer_name: '', priority: 'medium', description: '', type: 'other' });
+          setShowModal(false);
+          return;
+        }
+      } catch (enhancedError) {
+        console.log('Enhanced endpoint not available, using legacy');
+      }
+      
+      // Fallback to legacy endpoint
       const response = await api.post('/user/cases', newCase);
       if (response.data.success) {
         toast.success('Case created successfully');
         fetchCases();
         fetchStats();
-        setNewCase({ title: '', lawyer_name: '', priority: 'medium', description: '' });
+        setNewCase({ title: '', lawyer_name: '', priority: 'medium', description: '', type: 'other' });
         setShowModal(false);
       }
     } catch (error) {
@@ -658,6 +684,27 @@ const Cases = () => {
               </div>
               
               <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Practice Area</label>
+                <select
+                  value={newCase.type}
+                  onChange={(e) => setNewCase({...newCase, type: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="civil">Civil Law</option>
+                  <option value="criminal">Criminal Law</option>
+                  <option value="family">Family Law</option>
+                  <option value="corporate">Corporate Law</option>
+                  <option value="immigration">Immigration Law</option>
+                  <option value="personal_injury">Personal Injury</option>
+                  <option value="real_estate">Real Estate Law</option>
+                  <option value="intellectual_property">Intellectual Property</option>
+                  <option value="employment">Employment Law</option>
+                  <option value="tax">Tax Law</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
                 <select
                   value={newCase.priority}
@@ -691,9 +738,11 @@ const Cases = () => {
               </button>
               <button
                 onClick={handleAddCase}
-                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                disabled={loading}
+                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
               >
-                Create Case
+                {loading && <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>}
+                {loading ? 'Creating...' : 'Create Case'}
               </button>
             </div>
           </div>
