@@ -30,7 +30,7 @@ const createReview = async (req, res) => {
       lawyer_id: lawyer.id,
       user_id,
       rating,
-      review: review || null
+      review_text: review || null
     });
 
     res.status(201).json({ message: 'Review submitted successfully' });

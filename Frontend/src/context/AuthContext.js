@@ -16,6 +16,33 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Check for token in URL first
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlToken = urlParams.get('token');
+    
+    if (urlToken) {
+      // Decode JWT to get user data
+      try {
+        const payload = JSON.parse(atob(urlToken.split('.')[1]));
+        const userData = {
+          id: payload.id,
+          email: payload.email,
+          role: payload.role
+        };
+        
+        setToken(urlToken);
+        setUser(userData);
+        localStorage.setItem('token', urlToken);
+        localStorage.setItem('user', JSON.stringify(userData));
+        
+        // Clean URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+        return;
+      } catch (error) {
+        console.error('Error parsing URL token:', error);
+      }
+    }
+    
     const storedUser = localStorage.getItem('user');
     const storedToken = localStorage.getItem('token');
     

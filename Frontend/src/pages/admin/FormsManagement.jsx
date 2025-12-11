@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { FileText, CheckCircle, XCircle, Clock, Eye, Trash2, RefreshCw } from 'lucide-react';
 import api from '../../utils/api';
 
+const API_BASE_URL = 'http://localhost:5001/api';
+
 export default function AdminFormsManagement() {
   const [forms, setForms] = useState([]);
   const [stats, setStats] = useState({ totalForms: 0, approvedForms: 0, pendingForms: 0, totalDownloads: 0 });
@@ -211,7 +213,7 @@ export default function AdminFormsManagement() {
               {selectedForm.file_url && (
                 <div className="mt-4">
                   <button
-                    onClick={() => window.open(`http://localhost:5001${selectedForm.file_url}`, '_blank')}
+                    onClick={() => window.open(`${API_BASE_URL}/forms/download/${selectedForm.id}`, '_blank')}
                     className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-2"
                   >
                     <Eye className="w-4 h-4" />

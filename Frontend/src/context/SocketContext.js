@@ -19,7 +19,7 @@ export const SocketProvider = ({ children }) => {
   const { user } = useAuth();
 
   useEffect(() => {
-    if (!user) return;
+    if (!user?.id) return;
 
     // Connect to socket server
     const newSocket = io(process.env.REACT_APP_BACKEND_URL || 'http://localhost:5001', {
@@ -33,8 +33,11 @@ export const SocketProvider = ({ children }) => {
       console.log('Socket connected:', newSocket.id);
       setIsConnected(true);
       // Notify server of user connection
-      if (user && user.id) {
-        newSocket.emit('user_connected', user.id);
+      if (user?.id) {
+        newSocket.emit('user_connected', {
+          userId: user.id,
+          userType: user.role || 'user'
+        });
       }
     });
 

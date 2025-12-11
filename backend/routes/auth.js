@@ -130,37 +130,78 @@ router.get('/google/callback', async (req, res) => {
       return res.redirect(`${process.env.FRONTEND_URL}/login?error=no_email`);
     }
     
-    // Check if user exists
-    let user = await db('users').where({ email }).first();
+    // Get intended role from session
+    const intendedRole = req.session.oauthRole || 'user';
+    console.log('🎯 Intended role from session:', intendedRole);
     
-    if (user) {
-      // User exists - check if it's a password account
+    let user;
+    let userRole = 'user';
+    
+    // Check both tables for existing user
+    let existingUser = await db('users').where({ email }).first();
+    let existingLawyer = await db('lawyers').where({ email }).first();
+    
+    // If user exists and intended role matches their table, use existing account
+    if (existingUser && intendedRole === 'user') {
+      user = existingUser;
+      userRole = 'user';
       if (user.password && !user.google_id) {
         return res.redirect(`${process.env.FRONTEND_URL}/login?error=${encodeURIComponent('Account already exists. Please login with password.')}`);
       }
-      // Update google_id if missing
       if (!user.google_id) {
         await db('users').where({ id: user.id }).update({ google_id: profile.id, email_verified: 1 });
         user = await db('users').where({ id: user.id }).first();
       }
+    } else if (existingLawyer && intendedRole === 'lawyer') {
+      user = existingLawyer;
+      userRole = 'lawyer';
+      if (user.password && !user.google_id) {
+        return res.redirect(`${process.env.FRONTEND_URL}/login?error=${encodeURIComponent('Account already exists. Please login with password.')}`);
+      }
+      if (!user.google_id) {
+        await db('lawyers').where({ id: user.id }).update({ google_id: profile.id, email_verified: 1 });
+        user = await db('lawyers').where({ id: user.id }).first();
+      }
+    } else if (existingUser || existingLawyer) {
+      // User exists but in wrong table for intended role
+      return res.redirect(`${process.env.FRONTEND_URL}/login?error=${encodeURIComponent('Account exists with different role. Please login normally.')}`);
     } else {
-      // Create new Google user
-      const [id] = await db('users').insert({
-        name: profile.name,
-        email,
-        google_id: profile.id,
-        email_verified: 1,
-        is_verified: 1,
-        password: '',
-        role: 'user',
-        profile_completed: 0,
-        secure_id: require('crypto').randomBytes(16).toString('hex'),
-        avatar: profile.picture
-      });
-      user = await db('users').where({ id }).first();
+      // Create new user based on intended role
+      if (intendedRole === 'lawyer') {
+        const [id] = await db('lawyers').insert({
+          name: profile.name,
+          email,
+          google_id: profile.id,
+          email_verified: 1,
+          is_verified: 1,
+          password: '',
+          profile_completed: 0,
+          secure_id: require('crypto').randomBytes(16).toString('hex'),
+          avatar: profile.picture
+        });
+        user = await db('lawyers').where({ id }).first();
+        userRole = 'lawyer';
+      } else {
+        const [id] = await db('users').insert({
+          name: profile.name,
+          email,
+          google_id: profile.id,
+          email_verified: 1,
+          is_verified: 1,
+          password: '',
+          role: 'user',
+          profile_completed: 0,
+          secure_id: require('crypto').randomBytes(16).toString('hex'),
+          avatar: profile.picture
+        });
+        user = await db('users').where({ id }).first();
+        userRole = 'user';
+      }
     }
     
-    const token = require('../utils/token').generateToken(user);
+    // Generate token with correct role
+    const tokenUser = { ...user, role: userRole };
+    const token = require('../utils/token').generateToken(tokenUser);
     
     console.log('🔍 User profile status:', {
       id: user.id,
@@ -168,22 +209,23 @@ router.get('/google/callback', async (req, res) => {
       has_basic_info: !!(user.name && user.email)
     });
     
-    // If user already has profile completed OR has basic info, go to dashboard
-    if (user.profile_completed || (user.name && user.email && user.mobile_number)) {
-      const dashboardUrl = `${process.env.FRONTEND_URL}/user-dashboard?token=${token}`;
+    // If user already has profile completed, go to appropriate dashboard
+    if (user.profile_completed) {
+      const dashboardUrl = userRole === 'lawyer' 
+        ? `${process.env.FRONTEND_URL}/lawyer-dashboard?token=${token}`
+        : `${process.env.FRONTEND_URL}/user-dashboard?token=${token}`;
       console.log('✅ Redirecting existing user to dashboard');
       console.log('🌐 Dashboard URL:', dashboardUrl);
-      console.log('🔑 Token length:', token.length);
-      console.log('🔑 Token starts with:', token.substring(0, 20));
       
-      // Set headers to ensure proper redirect
       res.setHeader('Location', dashboardUrl);
       res.status(302);
       return res.end();
     }
     
     // New user needs profile setup
-    const setupUrl = `${process.env.FRONTEND_URL}/google-user-setup?token=${token}`;
+    const setupUrl = userRole === 'lawyer'
+      ? `${process.env.FRONTEND_URL}/google-lawyer-setup?token=${token}`
+      : `${process.env.FRONTEND_URL}/google-user-setup?token=${token}`;
     console.log('🆕 Redirecting new user to profile setup:', setupUrl);
     res.redirect(setupUrl);
     

@@ -689,12 +689,32 @@ const verifyOtp = async (req, res) => {
 // Mark account as verified upon "Submit Later" action
 const submitLater = async (req, res) => {
   try {
-    // Determine user table
-    let user = await db('users').where({ id: req.user.id }).first();
+    // Check lawyers table first
+    let user = await db('lawyers').where({ id: req.user.id }).first();
+    if (user) {
+      await db('lawyers').where({ id: req.user.id }).update({ 
+        is_verified: 1,
+        profile_completed: 1
+      });
+      const updated = await db('lawyers').where({ id: req.user.id }).first();
+      return res.json({ 
+        message: 'Status updated to Verified', 
+        user: { 
+          ...updated, 
+          role: 'lawyer',
+          is_admin: false,
+          registration_id: updated.registration_id
+        },
+        redirect: '/lawyer-dashboard'
+      });
+    }
+    
+    // Check users table
+    user = await db('users').where({ id: req.user.id }).first();
     if (user) {
       await db('users').where({ id: req.user.id }).update({ 
         is_verified: 1,
-        role: 'user' // Set role to 'user' for Submit Later
+        profile_completed: 1
       });
       const updated = await db('users').where({ id: req.user.id }).first();
       return res.json({ 
@@ -705,25 +725,7 @@ const submitLater = async (req, res) => {
           is_admin: updated.is_admin || false,
           registration_id: updated.registration_id || null
         },
-        redirect: '/user-dashboard' // Always redirect to /user-dashboard
-      });
-    }
-    user = await db('lawyers').where({ id: req.user.id }).first();
-    if (user) {
-      await db('lawyers').where({ id: req.user.id }).update({ 
-        is_verified: 1,
-        role: 'user' // Set role to 'user' for Submit Later
-      });
-      const updated = await db('lawyers').where({ id: req.user.id }).first();
-      return res.json({ 
-        message: 'Status updated to Verified', 
-        user: { 
-          ...updated, 
-          role: 'user', // Always set to 'user' for Submit Later
-          is_admin: false,
-          registration_id: null // Force null to prevent lawyer redirect
-        },
-        redirect: '/user-dashboard' // Always redirect to /user-dashboard
+        redirect: '/user-dashboard'
       });
     }
     return res.status(404).json({ message: 'User not found' });

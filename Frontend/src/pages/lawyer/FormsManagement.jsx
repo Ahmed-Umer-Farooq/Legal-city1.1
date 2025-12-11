@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { FileText, Plus, Edit, Trash2, Eye, Upload, X, CheckCircle, XCircle, Clock } from 'lucide-react';
 import api from '../../utils/api';
 
+const API_BASE_URL = 'http://localhost:5001/api';
+
 export default function FormsManagement() {
   const [forms, setForms] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -159,10 +161,20 @@ export default function FormsManagement() {
                 </div>
               )}
               <div className="flex gap-2">
-                <button className="flex-1 flex items-center justify-center gap-2 bg-gray-100 text-gray-700 px-3 py-2 rounded hover:bg-gray-200 transition text-sm">
-                  <Eye className="w-4 h-4" />
-                  View
-                </button>
+                {form.file_url ? (
+                  <button 
+                    onClick={() => window.open(`${API_BASE_URL}/forms/download/${form.id}`, '_blank')}
+                    className="flex-1 flex items-center justify-center gap-2 bg-blue-100 text-blue-700 px-3 py-2 rounded hover:bg-blue-200 transition text-sm"
+                  >
+                    <Eye className="w-4 h-4" />
+                    Download
+                  </button>
+                ) : (
+                  <button className="flex-1 flex items-center justify-center gap-2 bg-gray-100 text-gray-500 px-3 py-2 rounded cursor-not-allowed text-sm">
+                    <Eye className="w-4 h-4" />
+                    No File
+                  </button>
+                )}
                 <button
                   onClick={() => handleDelete(form.id)}
                   className="flex items-center justify-center gap-2 bg-red-100 text-red-700 px-3 py-2 rounded hover:bg-red-200 transition text-sm"

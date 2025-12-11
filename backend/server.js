@@ -133,8 +133,37 @@ app.get('/api/admin/stats', async (req, res) => {
 
 app.get('/api/admin/users', async (req, res) => {
   try {
-    const users = await db('users').select('*').limit(10);
-    res.json({ users, pagination: { page: 1, limit: 10, total: users.length, totalPages: 1 } });
+    const { page = 1, limit = 10, search, role } = req.query;
+    const offset = (page - 1) * limit;
+    
+    let query = db('users');
+    
+    if (search) {
+      query = query.where(function() {
+        this.where('name', 'like', `%${search}%`)
+            .orWhere('email', 'like', `%${search}%`)
+            .orWhere('mobile_number', 'like', `%${search}%`);
+      });
+    }
+    
+    if (role === 'admin') {
+      query = query.where('is_admin', 1);
+    } else if (role === 'user') {
+      query = query.where('is_admin', 0);
+    }
+    
+    const total = await query.clone().count('id as count').first();
+    const users = await query.select('*').limit(limit).offset(offset).orderBy('created_at', 'desc');
+    
+    res.json({ 
+      users, 
+      pagination: { 
+        page: parseInt(page), 
+        limit: parseInt(limit), 
+        total: total.count, 
+        totalPages: Math.ceil(total.count / limit) 
+      } 
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -142,8 +171,38 @@ app.get('/api/admin/users', async (req, res) => {
 
 app.get('/api/admin/lawyers', async (req, res) => {
   try {
-    const lawyers = await db('lawyers').select('*').limit(10);
-    res.json({ lawyers, pagination: { page: 1, limit: 10, total: lawyers.length, totalPages: 1 } });
+    const { page = 1, limit = 10, search, verified } = req.query;
+    const offset = (page - 1) * limit;
+    
+    let query = db('lawyers');
+    
+    if (search) {
+      query = query.where(function() {
+        this.where('name', 'like', `%${search}%`)
+            .orWhere('email', 'like', `%${search}%`)
+            .orWhere('registration_id', 'like', `%${search}%`)
+            .orWhere('speciality', 'like', `%${search}%`);
+      });
+    }
+    
+    if (verified === 'true') {
+      query = query.where('is_verified', 1);
+    } else if (verified === 'false') {
+      query = query.where('is_verified', 0);
+    }
+    
+    const total = await query.clone().count('id as count').first();
+    const lawyers = await query.select('*').limit(limit).offset(offset).orderBy('created_at', 'desc');
+    
+    res.json({ 
+      lawyers, 
+      pagination: { 
+        page: parseInt(page), 
+        limit: parseInt(limit), 
+        total: total.count, 
+        totalPages: Math.ceil(total.count / limit) 
+      } 
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -269,6 +328,25 @@ app.get('/api/admin/call-history', async (req, res) => {
   } catch (error) {
     console.error('Error fetching admin call history:', error);
     res.status(500).json({ error: 'Failed to fetch call history' });
+  }
+});
+
+app.get('/api/admin/lawyer-reviews', async (req, res) => {
+  try {
+    const reviews = await db('lawyer_reviews')
+      .leftJoin('users', 'lawyer_reviews.user_id', 'users.id')
+      .leftJoin('lawyers', 'lawyer_reviews.lawyer_id', 'lawyers.id')
+      .select(
+        'lawyer_reviews.*',
+        'users.name as user_name',
+        'lawyers.name as lawyer_name'
+      )
+      .orderBy('lawyer_reviews.created_at', 'desc');
+    
+    res.json(reviews);
+  } catch (error) {
+    console.error('Error fetching lawyer reviews:', error);
+    res.status(500).json({ error: 'Failed to fetch lawyer reviews' });
   }
 });
 

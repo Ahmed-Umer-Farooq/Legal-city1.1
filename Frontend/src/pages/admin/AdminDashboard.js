@@ -238,7 +238,6 @@ const AdminDashboard = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      console.log('Fetching users with filter:', usersFilter, 'search:', usersSearch);
       
       const response = await api.get('/admin/users', {
         params: {
@@ -249,19 +248,15 @@ const AdminDashboard = () => {
         }
       });
       
-      console.log('Users API response:', response.data);
-      
-      let users = response.data?.users || [];
-      
-      // Client-side filtering as backup (remove when backend is fixed)
-      if (usersFilter === 'admin') {
-        users = users.filter(user => user.is_admin === 1 || user.role === 'admin');
-      } else if (usersFilter === 'user') {
-        users = users.filter(user => user.is_admin !== 1 && user.role !== 'admin');
-      }
+      const users = response.data?.users || [];
+      const pagination = response.data?.pagination || {};
       
       setUsers(users);
-      setUsersPagination(prev => ({ ...prev, total: users.length, totalPages: Math.ceil(users.length / prev.limit) }));
+      setUsersPagination(prev => ({ 
+        ...prev, 
+        total: pagination.total || users.length,
+        totalPages: pagination.totalPages || Math.ceil((pagination.total || users.length) / prev.limit)
+      }));
     } catch (error) {
       console.error('Error fetching users:', error);
       setUsers([]);
@@ -280,8 +275,6 @@ const AdminDashboard = () => {
         verifiedParam = 'false';
       }
       
-      console.log('Fetching lawyers with filter:', lawyersFilter, 'verified param:', verifiedParam, 'search:', lawyersSearch);
-      
       const response = await api.get('/admin/lawyers', {
         params: {
           page: lawyersPagination.page,
@@ -291,19 +284,15 @@ const AdminDashboard = () => {
         }
       });
       
-      console.log('Lawyers API response:', response.data);
-      
-      let lawyers = response.data?.lawyers || [];
-      
-      // Client-side filtering as backup (remove when backend is fixed)
-      if (lawyersFilter === 'verified') {
-        lawyers = lawyers.filter(lawyer => lawyer.is_verified === 1 || lawyer.lawyer_verified === 1);
-      } else if (lawyersFilter === 'unverified') {
-        lawyers = lawyers.filter(lawyer => lawyer.is_verified === 0 && lawyer.lawyer_verified === 0);
-      }
+      const lawyers = response.data?.lawyers || [];
+      const pagination = response.data?.pagination || {};
       
       setLawyers(lawyers);
-      setLawyersPagination(prev => ({ ...prev, total: lawyers.length, totalPages: Math.ceil(lawyers.length / prev.limit) }));
+      setLawyersPagination(prev => ({ 
+        ...prev, 
+        total: pagination.total || lawyers.length,
+        totalPages: pagination.totalPages || Math.ceil((pagination.total || lawyers.length) / prev.limit)
+      }));
     } catch (error) {
       console.error('Error fetching lawyers:', error);
       setLawyers([]);
@@ -1310,9 +1299,9 @@ const AdminDashboard = () => {
   });
   const [socket, setSocket] = useState(null);
   
-  // Reviews state
-  const [reviews, setReviews] = useState([]);
-  const [loadingReviews, setLoadingReviews] = useState(false);
+  // Lawyer Reviews state
+  const [lawyerReviews, setLawyerReviews] = useState([]);
+  const [loadingLawyerReviews, setLoadingLawyerReviews] = useState(false);
 
   const fetchAllMessages = async () => {
     setLoadingMessages(true);
@@ -1335,57 +1324,23 @@ const AdminDashboard = () => {
     } else if (activeTab === 'calls') {
       initializeCallTracking();
     } else if (activeTab === 'reviews') {
-      fetchReviews();
+      fetchLawyerReviews();
     }
   }, [activeTab]);
   
-  const fetchReviews = async () => {
-    setLoadingReviews(true);
+  const fetchLawyerReviews = async () => {
+    setLoadingLawyerReviews(true);
     try {
-      const response = await api.get('/platform-reviews');
-      const reviewsData = Array.isArray(response.data) ? response.data : (Array.isArray(response.data?.reviews) ? response.data.reviews : []);
-      setReviews(reviewsData);
+      const response = await api.get('/admin/lawyer-reviews');
+      setLawyerReviews(response.data || []);
     } catch (error) {
-      console.error('Error fetching reviews:', error);
-      setReviews([]);
+      console.error('Error fetching lawyer reviews:', error);
+      setLawyerReviews([]);
     }
-    setLoadingReviews(false);
+    setLoadingLawyerReviews(false);
   };
   
-  const handleDeleteReview = async (reviewId) => {
-    if (!window.confirm('Are you sure you want to delete this review?')) return;
-    try {
-      await api.delete(`/platform-reviews/${reviewId}`);
-      alert('Review deleted successfully');
-      fetchReviews();
-    } catch (error) {
-      alert('Failed to delete review');
-    }
-  };
-  
-  const handleToggleApprove = async (reviewId, isApproved, isFeatured) => {
-    try {
-      await api.put(`/admin/platform-reviews/${reviewId}/status`, {
-        is_approved: !isApproved,
-        is_featured: isFeatured
-      });
-      fetchReviews();
-    } catch (error) {
-      alert('Failed to update approval status');
-    }
-  };
-  
-  const handleToggleFeature = async (reviewId, isApproved, isFeatured) => {
-    try {
-      await api.put(`/admin/platform-reviews/${reviewId}/status`, {
-        is_approved: isApproved,
-        is_featured: !isFeatured
-      });
-      fetchReviews();
-    } catch (error) {
-      alert('Failed to update featured status');
-    }
-  };
+
   
   const initializeCallTracking = () => {
     // Connect to socket for real-time call updates
@@ -2127,15 +2082,15 @@ const AdminDashboard = () => {
         )}
         {activeTab === 'reviews' && (
           <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-            <div className="px-6 py-5 bg-gradient-to-r from-yellow-50 to-yellow-100 border-b border-yellow-200">
+            <div className="px-6 py-5 bg-gradient-to-r from-blue-50 to-blue-100 border-b border-blue-200">
               <div className="flex items-center justify-between">
                 <h3 className="text-xl font-bold text-gray-900 flex items-center">
-                  <div className="w-10 h-10 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-lg flex items-center justify-center mr-3 shadow-md">
+                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center mr-3 shadow-md">
                     <Star className="w-5 h-5 text-white" />
                   </div>
-                  Platform Reviews ({reviews.length})
+                  Reviews ({lawyerReviews.length})
                 </h3>
-                <button onClick={fetchReviews} className="px-5 py-2.5 bg-gradient-to-r from-yellow-600 to-yellow-700 text-white rounded-lg hover:from-yellow-700 hover:to-yellow-800 transition-all shadow-sm font-medium flex items-center gap-2">
+                <button onClick={fetchLawyerReviews} className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all shadow-sm font-medium flex items-center gap-2">
                   <RefreshCw className="w-4 h-4" />
                   Refresh
                 </button>
@@ -2146,33 +2101,33 @@ const AdminDashboard = () => {
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">User</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Lawyer</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Rating</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Review</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Approved</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Featured</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {loadingReviews ? (
+                  {loadingLawyerReviews ? (
                     <tr>
-                      <td colSpan="8" className="px-6 py-8 text-center text-gray-500">
-                        Loading reviews...
+                      <td colSpan="7" className="px-6 py-8 text-center text-gray-500">
+                        Loading lawyer reviews...
                       </td>
                     </tr>
-                  ) : reviews.length === 0 ? (
+                  ) : lawyerReviews.length === 0 ? (
                     <tr>
-                      <td colSpan="8" className="px-6 py-8 text-center text-gray-500">
-                        No reviews found
+                      <td colSpan="7" className="px-6 py-8 text-center text-gray-500">
+                        No lawyer reviews found
                       </td>
                     </tr>
                   ) : (
-                    reviews.map(review => (
+                    lawyerReviews.map(review => (
                       <tr key={review.id} className="hover:bg-gray-50">
                         <td className="px-6 py-4 text-sm text-gray-900">{review.id}</td>
-                        <td className="px-6 py-4 text-sm text-gray-900">{review.client_name || review.name || 'Anonymous'}</td>
+                        <td className="px-6 py-4 text-sm text-gray-900">{review.user_name || 'Anonymous'}</td>
+                        <td className="px-6 py-4 text-sm text-gray-900">{review.lawyer_name || 'Unknown'}</td>
                         <td className="px-6 py-4">
                           <div className="flex items-center">
                             {[...Array(5)].map((_, i) => (
@@ -2181,27 +2136,16 @@ const AdminDashboard = () => {
                             <span className="ml-2 text-sm text-gray-600">({review.rating})</span>
                           </div>
                         </td>
-                        <td className="px-6 py-4 text-sm text-gray-500 max-w-md truncate">{review.review_text}</td>
+                        <td className="px-6 py-4 text-sm text-gray-500 max-w-md truncate">{review.review_text || 'No review text'}</td>
                         <td className="px-6 py-4 text-sm text-gray-500">{new Date(review.created_at).toLocaleDateString()}</td>
-                        <td className="px-6 py-4">
-                          <button
-                            onClick={() => handleToggleApprove(review.id, review.is_approved, review.is_featured)}
-                            className={`px-3 py-1 text-xs rounded-full font-medium ${review.is_approved ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}
-                          >
-                            {review.is_approved ? 'Approved' : 'Pending'}
-                          </button>
-                        </td>
-                        <td className="px-6 py-4">
-                          <button
-                            onClick={() => handleToggleFeature(review.id, review.is_approved, review.is_featured)}
-                            className={`px-3 py-1 text-xs rounded-full font-medium ${review.is_featured ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800'}`}
-                          >
-                            {review.is_featured ? 'Featured' : 'Normal'}
-                          </button>
-                        </td>
                         <td className="px-6 py-4 text-sm">
                           <button
-                            onClick={() => handleDeleteReview(review.id)}
+                            onClick={() => {
+                              if (window.confirm('Are you sure you want to delete this review?')) {
+                                // Add delete functionality here
+                                console.log('Delete review', review.id);
+                              }
+                            }}
                             className="p-1 text-red-600 hover:text-red-800"
                             title="Delete Review"
                           >

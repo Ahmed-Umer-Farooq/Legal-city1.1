@@ -14,7 +14,7 @@ const authenticateToken = async (req, res, next) => {
     return res.status(403).json({ message: 'Invalid or expired token' });
   }
 
-  // Check if user exists in users or lawyers table
+  // Always check users table first to preserve admin status
   let user = await db('users').where({ id: decoded.id }).first();
   if (!user) {
     user = await db('lawyers').where({ id: decoded.id }).first();
@@ -164,40 +164,21 @@ const requireAuth = async (req, res, next) => {
     return res.status(401).json({ message: 'Invalid token' });
   }
 
-  // Check if this is a lawyer-specific route
-  const isLawyerRoute = req.path.includes('/lawyer') || req.path.includes('/analytics') || 
-                       req.method === 'POST' && req.path === '/' || // blog creation
-                       req.method === 'PUT' || req.method === 'DELETE'; // blog modification
-
-  let user;
+  // Always check users table first to preserve admin status
+  let user = await db('users').where('id', decoded.id).first();
   
-  if (isLawyerRoute) {
-    // For lawyer routes, check lawyers table first
+  if (user) {
+    // User found in users table - preserve their role and admin status
+    user.role = user.role || 'user';
+    user.isAdmin = user.is_admin || user.role === 'admin' || false;
+  } else {
+    // Check lawyers table if not found in users
     user = await db('lawyers').where('id', decoded.id).first();
     if (user) {
       user.role = 'lawyer';
       user.is_verified = user.is_verified || 0;
       user.lawyer_verified = user.lawyer_verified || 0;
-    } else {
-      // Fallback to users table for users with lawyer role
-      user = await db('users').where('id', decoded.id).first();
-      if (user) {
-        user.role = user.role || 'user';
-      }
-    }
-  } else {
-    // For general routes, check users table first
-    user = await db('users').where('id', decoded.id).first();
-    if (user) {
-      user.role = user.role || 'user';
-    } else {
-      // Then check lawyers table
-      user = await db('lawyers').where('id', decoded.id).first();
-      if (user) {
-        user.role = 'lawyer';
-        user.is_verified = user.is_verified || 0;
-        user.lawyer_verified = user.lawyer_verified || 0;
-      }
+      user.isAdmin = false; // Lawyers are not admins by default
     }
   }
 
@@ -251,10 +232,12 @@ const requireAdmin = (req, res, next) => {
   console.log('🔍 RequireAdmin Debug:', {
     user_id: req.user.id,
     role: req.user.role,
-    is_admin: req.user.is_admin
+    is_admin: req.user.is_admin,
+    isAdmin: req.user.isAdmin
   });
 
-  if (req.user.role !== 'admin' && !req.user.is_admin) {
+  // Check both is_admin field and isAdmin property
+  if (req.user.role !== 'admin' && !req.user.is_admin && !req.user.isAdmin) {
     return res.status(403).json({ message: 'Admin access required' });
   }
 

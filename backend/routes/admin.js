@@ -14,14 +14,15 @@ const {
   getAllChatMessages,
   getActivityLogs
 } = require('../controllers/adminController');
+const { requireAdmin } = require('../utils/middleware');
 
-// All routes require admin authentication - DISABLED FOR DEVELOPMENT
-// router.use(authenticateToken);
-// router.use(authenticateAdmin);
+// All routes require admin authentication
+router.use(authenticateToken);
+// Note: Individual routes will use requireAdmin middleware
 
 // Dashboard statistics
 console.log('🔍 Registering /stats route');
-router.get('/stats', (req, res) => {
+router.get('/stats', requireAdmin, (req, res) => {
   console.log('📊 Admin stats endpoint hit');
   getStats(req, res);
 });

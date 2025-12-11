@@ -1,4 +1,6 @@
 const db = require('../db');
+const path = require('path');
+const fs = require('fs');
 
 // Get all categories
 const getCategories = async (req, res) => {
@@ -268,6 +270,51 @@ const rejectForm = async (req, res) => {
   }
 };
 
+// Download form
+const downloadForm = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Get form details
+    const form = await db('legal_forms')
+      .where('id', id)
+      .where('status', 'approved')
+      .first();
+
+    if (!form) {
+      return res.status(404).json({ error: 'Form not found' });
+    }
+
+    if (!form.file_url) {
+      return res.status(404).json({ error: 'No file available for this form' });
+    }
+
+    // Construct file path
+    const filePath = path.join(__dirname, '..', form.file_url);
+    
+    // Check if file exists
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ error: 'File not found on server' });
+    }
+
+    // Set headers for download
+    const fileName = form.title.replace(/[^a-zA-Z0-9]/g, '_') + path.extname(filePath);
+    res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+    res.setHeader('Content-Type', 'application/octet-stream');
+
+    // Stream the file
+    const fileStream = fs.createReadStream(filePath);
+    fileStream.pipe(res);
+
+    // Track download (optional - you can add user tracking here)
+    console.log(`Form downloaded: ${form.title} (ID: ${id})`);
+
+  } catch (error) {
+    console.error('Error downloading form:', error);
+    res.status(500).json({ error: 'Failed to download form' });
+  }
+};
+
 // Admin: Get stats
 const getFormStats = async (req, res) => {
   try {
@@ -296,6 +343,7 @@ module.exports = {
   getMyForms,
   updateForm,
   deleteForm,
+  downloadForm,
   getAllForms,
   approveForm,
   rejectForm,

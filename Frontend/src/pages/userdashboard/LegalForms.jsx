@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../utils/api';
 
+const API_BASE_URL = 'http://localhost:5001/api';
+
 export default function LegalForms() {
   const navigate = useNavigate();
   const [approvedForms, setApprovedForms] = useState([]);
@@ -170,7 +172,8 @@ export default function LegalForms() {
                     <button 
                       onClick={() => {
                         if (form.file_url) {
-                          window.open(`http://localhost:5001${form.file_url}`, '_blank');
+                          // Use the download route
+                          window.open(`${API_BASE_URL}/forms/download/${form.id}`, '_blank');
                         } else {
                           alert('Form file not available');
                         }
